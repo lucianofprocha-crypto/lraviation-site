@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LR Aviation — Flight support &amp; dispatch</title>
+<meta name="description" content="LR Aviation Ltda — flight planning, dispatch and operational support for business aviation operators flying in Brazil and Europe. São José dos Campos, SP.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#14283F; --ink:#1B2430; --muted:#5B6B7C; --line:#D9DEE4;
+    --amber:#E5A427; --paper:#FFFFFF; --tint:#F2F5F8;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;font-family:"IBM Plex Sans",system-ui,sans-serif;color:var(--ink);background:var(--paper);line-height:1.55;font-size:17px}
+  a{color:var(--navy)}
+  a:focus-visible,button:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
+  .wrap{max-width:960px;margin:0 auto;padding:0 24px}
+
+  header{display:flex;justify-content:space-between;align-items:center;padding:22px 0}
+  .brand{font-weight:600;letter-spacing:.02em;text-decoration:none;color:var(--ink)}
+  .brand small{display:block;font-weight:400;color:var(--muted);font-size:.85rem}
+  .lang{display:flex;gap:4px;border:1px solid var(--line);border-radius:999px;padding:3px}
+  .lang button{border:0;background:transparent;font:inherit;font-size:.9rem;padding:5px 12px;border-radius:999px;cursor:pointer;color:var(--muted)}
+  .lang button[aria-pressed="true"]{background:var(--navy);color:#fff}
+
+  /* Hero: the company as a flight-plan strip */
+  .strip{background:var(--navy);color:#fff;border-radius:6px;padding:28px 28px 22px;margin-top:8px}
+  .strip h1{margin:0 0 18px;font-size:clamp(1.6rem,3.5vw,2.3rem);font-weight:500;line-height:1.2;max-width:22ch}
+  .fpl{font-family:"IBM Plex Mono",monospace;font-size:.95rem;display:grid;grid-template-columns:max-content 1fr;gap:6px 22px;margin:0;padding:18px 0 0;border-top:1px solid rgba(255,255,255,.25)}
+  .fpl dt{color:rgba(255,255,255,.65)}
+  .fpl dd{margin:0;color:#fff}
+  .fpl dd.hl{color:var(--amber)}
+  @media (max-width:560px){.fpl{grid-template-columns:1fr;gap:2px}.fpl dt{margin-top:10px}}
+
+  section{padding:56px 0 8px}
+  h2{font-size:1.35rem;font-weight:600;margin:0 0 20px}
+  p{max-width:64ch;margin:0 0 16px}
+  .lead{font-size:1.15rem;max-width:58ch}
+
+  .services{list-style:none;padding:0;margin:0;border-top:1px solid var(--line)}
+  .services li{display:grid;grid-template-columns:220px 1fr;gap:20px;padding:20px 0;border-bottom:1px solid var(--line)}
+  .services li b{font-weight:600}
+  .services li p{margin:0;color:var(--muted)}
+  @media (max-width:640px){.services li{grid-template-columns:1fr;gap:6px}}
+
+  .facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px 32px;background:var(--tint);padding:24px;border-radius:6px}
+  .facts div b{display:block;font-weight:600;font-size:.9rem;color:var(--muted)}
+
+  .contact a{font-weight:500}
+  .contact ul{list-style:none;padding:0;margin:0;display:grid;gap:8px}
+
+  footer{margin-top:56px;padding:24px 0 40px;border-top:1px solid var(--line);color:var(--muted);font-size:.9rem}
+
+  [lang-block]{display:none}
+  html[data-lang="en"] [lang-block="en"],html[data-lang="pt"] [lang-block="pt"]{display:revert}
+  html[data-lang="en"] li[lang-block="en"],html[data-lang="pt"] li[lang-block="pt"]{display:grid}
+  @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <a class="brand" href="#">LR Aviation<small>Flight support &amp; dispatch</small></a>
+  <div class="lang" role="group" aria-label="Language">
+    <button type="button" data-set="en" aria-pressed="true">EN</button>
+    <button type="button" data-set="pt" aria-pressed="false">PT</button>
+  </div>
+</header>
+
+<div class="strip">
+  <h1 lang-block="en">Flight planning and dispatch for business aviation, Brazil and Europe.</h1>
+  <h1 lang-block="pt">Planejamento de voo e despacho operacional para aviação executiva, Brasil e Europa.</h1>
+  <dl class="fpl">
+    <dt>OPR/</dt><dd>LR AVIATION LTDA</dd>
+    <dt>BASE/</dt><dd>SBSJ SAO JOSE DOS CAMPOS SP BR</dd>
+    <dt>AREA/</dt><dd class="hl">SB SA EU</dd>
+    <dt>SVC/</dt><dd lang-block="en">FLIGHT PLANNING DISPATCH ATFM SLOT COORDINATION HANDLING PERMITS</dd>
+    <dd lang-block="pt">PLANEJAMENTO DESPACHO COORDENACAO ATFM SLOT HANDLING PERMISSOES</dd>
+    <dt>RMK/</dt><dd>OPS AT LRAVIATION DOT COM DOT BR</dd>
+  </dl>
+</div>
+
+<section id="about">
+  <p class="lead" lang-block="en">LR Aviation supports owners and operators of business jets from the planning table to the departure clearance: routes, flight plans, slots, permits, handling and the coordination that keeps a flight on time when the airspace is not.</p>
+  <p class="lead" lang-block="pt">A LR Aviation apoia proprietários e operadores de jatos executivos da mesa de planejamento à autorização de decolagem: rotas, planos de voo, slots, permissões, handling e a coordenação que mantém o voo no horário quando o espaço aéreo não colabora.</p>
+  <p lang-block="en">Based in São José dos Campos, working in the time zones of the flights we support. Our current operation is concentrated on transatlantic and intra-European business jet flights, with day-to-day experience of EUROCONTROL ATFM regulations, A-CDM airports and slot-coordinated aerodromes.</p>
+  <p lang-block="pt">Sediada em São José dos Campos, trabalhando no fuso dos voos que apoiamos. A operação atual concentra-se em voos transatlânticos e intraeuropeus de jatos executivos, com experiência diária em regulações ATFM do EUROCONTROL, aeroportos A-CDM e aeródromos coordenados.</p>
+</section>
+
+<section id="services">
+  <h2 lang-block="en">What we do</h2>
+  <h2 lang-block="pt">O que fazemos</h2>
+  <ul class="services">
+    <li lang-block="en"><b>Flight planning and filing</b><p>Route and level selection, fuel and alternates, ICAO flight plan preparation and filing through the operator's flight-planning provider, with validation against RAD and airspace restrictions.</p></li>
+    <li lang-block="pt"><b>Planejamento e apresentação do plano</b><p>Escolha de rota e nível, combustível e alternados, preparação e apresentação do plano de voo ICAO pelo provedor do operador, com validação contra o RAD e restrições de espaço aéreo.</p></li>
+    <li lang-block="en"><b>ATFM slot coordination</b><p>Monitoring of CTOT and regulations affecting the flight, assessment of alternative levels, routes and departure times, coordination with handlers and towers, and requests to the Network Manager on the operator's behalf.</p></li>
+    <li lang-block="pt"><b>Coordenação de slot ATFM</b><p>Acompanhamento de CTOT e das regulações que afetam o voo, avaliação de níveis, rotas e horários alternativos, coordenação com handlers e torres, e pedidos ao Network Manager em nome do operador.</p></li>
+    <li lang-block="en"><b>Permits, handling and airport slots</b><p>Overflight and landing permits, PPR, airport slot requests, handler selection and briefing, customs and immigration coordination.</p></li>
+    <li lang-block="pt"><b>Permissões, handling e slots aeroportuários</b><p>Permissões de sobrevoo e pouso, PPR, slots aeroportuários, seleção e briefing de handlers, coordenação de alfândega e imigração.</p></li>
+    <li lang-block="en"><b>Crew briefing and trip file</b><p>A single briefing per flight: weather, NOTAM, airport particulars, ATFM outlook and the decisions already taken, kept as a record for the operator and the owner.</p></li>
+    <li lang-block="pt"><b>Briefing de tripulação e dossiê do voo</b><p>Um briefing único por voo: meteorologia, NOTAM, particularidades do aeroporto, previsão ATFM e as decisões já tomadas, mantido como registro para o operador e o proprietário.</p></li>
+  </ul>
+</section>
+
+<section id="company">
+  <h2 lang-block="en">Company</h2>
+  <h2 lang-block="pt">Empresa</h2>
+  <div class="facts">
+    <div><b lang-block="en">Legal name</b><b lang-block="pt">Razão social</b>LR AVIATION LTDA</div>
+    <div><b>CNPJ</b>54.037.757/0001-89</div>
+    <div><b lang-block="en">Registered activity</b><b lang-block="pt">Atividade registrada</b><span lang-block="en">Auxiliary activities for air transport (CNAE 52.40-1-99)</span><span lang-block="pt">Atividades auxiliares dos transportes aéreos (CNAE 52.40-1-99)</span></div>
+    <div><b lang-block="en">Established</b><b lang-block="pt">Fundação</b><span lang-block="en">February 2024, São José dos Campos, SP, Brazil</span><span lang-block="pt">Fevereiro de 2024, São José dos Campos, SP</span></div>
+    <div><b lang-block="en">Address</b><b lang-block="pt">Endereço</b>Rua José Alves dos Santos, 391 — Floradas de São José<br>São José dos Campos, SP, 12230-081</div>
+    <div><b lang-block="en">Reference airport</b><b lang-block="pt">Aeroporto de referência</b>SBSJ / SJK</div>
+  </div>
+</section>
+
+<section id="contact" class="contact">
+  <h2 lang-block="en">Contact</h2>
+  <h2 lang-block="pt">Contato</h2>
+  <ul>
+    <li lang-block="en">Operations: <a href="mailto:ops@lraviation.com.br">ops@lraviation.com.br</a></li>
+    <li lang-block="pt">Operações: <a href="mailto:ops@lraviation.com.br">ops@lraviation.com.br</a></li>
+    <li>Luciano Rocha: <a href="mailto:luciano@lraviation.com.br">luciano@lraviation.com.br</a></li>
+    <li lang-block="en">Phone / WhatsApp: <a href="tel:+5511984453130">+55 11 98445-3130</a></li>
+    <li lang-block="pt">Telefone / WhatsApp: <a href="tel:+5511984453130">+55 11 98445-3130</a></li>
+  </ul>
+  <p lang-block="en" style="margin-top:20px;color:var(--muted)">Operations mailbox monitored during supported flights, including outside Brazilian business hours.</p>
+  <p lang-block="pt" style="margin-top:20px;color:var(--muted)">Caixa de operações monitorada durante os voos apoiados, inclusive fora do horário comercial brasileiro.</p>
+</section>
+
+<footer>
+  <span lang-block="en">© 2026 LR Aviation Ltda · São José dos Campos, SP, Brazil</span>
+  <span lang-block="pt">© 2026 LR Aviation Ltda · São José dos Campos, SP</span>
+</footer>
+</div>
+
+<script>
+  var root=document.documentElement;
+  function setLang(l){root.setAttribute('data-lang',l);root.lang=(l==='pt'?'pt-BR':'en');
+    document.querySelectorAll('.lang button').forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.set===l))});
+    try{localStorage.setItem('lang',l)}catch(e){}}
+  document.querySelectorAll('.lang button').forEach(function(b){b.addEventListener('click',function(){setLang(b.dataset.set)})});
+  var saved=null;try{saved=localStorage.getItem('lang')}catch(e){}
+  setLang(saved||((navigator.language||'').toLowerCase().startsWith('pt')?'pt':'en'));
+</script>
+</body>
+</html>
