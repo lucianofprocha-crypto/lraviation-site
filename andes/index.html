@@ -63,6 +63,7 @@ button {
 #verdict.go { background: var(--green); color: #fff; }
 #verdict.nogo { background: var(--red); color: #fff; }
 #verdict.warn { background: var(--orange); color: #fff; }
+#verdict.light { background: var(--yellow); color: #1a2230; }
 ul { margin: 6px 0 12px; padding-left: 20px; }
 li { margin-bottom: 5px; font-size: .9rem; }
 .section-title { font-weight: 700; font-size: .85rem; margin-top: 8px; }
@@ -118,7 +119,7 @@ td.nogo { color: var(--red); font-weight: 700; }
   para o cruzamento da Cordilheira dos Andes na rota Brasil–Santiago (SCEL). A partir da diferença de QNH
   entre Santiago (SCEL) e Mendoza (SAME) e do vento a 500&nbsp;mb em Juan Fernández, o app aplica o Ábaco
   de Harrison para indicar a probabilidade de turbulência orográfica — sem turbulência, leve ou
-  moderada/forte — e emitir uma recomendação GO/NO-GO, com sugestão de rota (entrada preferencial via
+  moderada/forte — com sugestão de rota (entrada preferencial via
   UMKAL ou alternativa ao sul via ICO/EROLO). Funciona offline após o primeiro acesso e mantém o
   histórico de avaliações no dispositivo. Não substitui o briefing meteorológico oficial nem o
   julgamento do comandante.</p>
@@ -126,7 +127,7 @@ td.nogo { color: var(--red); font-weight: 700; }
     <div class="card" style="margin-top:14px">
       <h2>Histórico</h2>
       <table id="hist"><thead><tr>
-        <th>UTC</th><th>ΔP</th><th>Vento</th><th>Perp</th><th>Decisão</th>
+        <th>UTC</th><th>ΔP</th><th>Vento</th><th>Perp</th><th>Turbulência</th>
       </tr></thead><tbody></tbody></table>
     </div>
   </div>
@@ -156,33 +157,27 @@ function assess(qs, qm, dir, spd) {
   else { cat = 'light'; label = 'TURBULÊNCIA LEVE';
     reasons.push('Abaixo da curva do ábaco → faixa amarela'); }
 
-  let go = true;
-  if (dp > DP_NOGO) { go = false;
+  let critical = false;
+  if (dp > DP_NOGO) { critical = true;
+    label = `RISCO DE TURBULÊNCIA OROGRÁFICA SEVERA (ΔP ${dp.toFixed(1)} hPa > ${DP_NOGO})`;
     reasons.push(`ΔP > ${DP_NOGO} hPa: turbulência orográfica pode causar danos severos à aeronave`); }
   else if (dp > DP_CAUTION) {
     reasons.push(`ΔP > ${DP_CAUTION} hPa: condição desfavorável`);
-    if (cat === 'severe') go = false;
   }
-  if (cat === 'severe' && dp > DP_CAUTION) go = false;
-
-  if (!go) label = dp > DP_NOGO && cat !== 'severe'
-    ? `NÃO CRUZAR — ΔP CRÍTICO (${dp.toFixed(1)} hPa > ${DP_NOGO})`
-    : 'NÃO CRUZAR — ' + label;
 
   const recs = [];
-  if (!go) {
-    recs.push('Evitar o cruzamento: ΔP e/ou ábaco em condição crítica.');
-    recs.push('Opções: retornar/alternar Mendoza (SAME) ou Córdoba (SACO), ou contornar ao sul da cordilheira (via ICO/EROLO — ARR EROL4F).');
+  if (critical || cat === 'severe') {
+    recs.push('Condição desfavorável: o manual indica retorno/alternado Mendoza (SAME) ou Córdoba (SACO), ou contorno ao sul da cordilheira (via ICO/EROLO — ARR EROL4F).');
+  } else if (cat === 'caution') {
+    recs.push('Condição marginal: considerar rota alternativa ao sul (via ICO/EROLO) ou aguardar melhora.');
   } else {
-    recs.push(cat === 'severe' || cat === 'caution'
-      ? 'Condição marginal: considerar rota alternativa ao sul (via ICO/EROLO) ou aguardar melhora.'
-      : 'Cruzamento viável. Rota preferencial: entrada via UMKAL (ARR UMKA4C); ASIMO conforme fluxo.');
-    recs.push('Voar 5.000–8.000 ft acima do ponto mais elevado da cordilheira.');
+    recs.push('Rota preferencial: entrada via UMKAL (ARR UMKA4C); ASIMO conforme fluxo.');
   }
+  recs.push('Voar 5.000–8.000 ft acima do ponto mais elevado da cordilheira.');
   recs.push('Confirmar turbulência com MERINO em HF 10635 antes do cruzamento.');
   recs.push('Pontos de decisão driftdown/despressurização: ASIMO, UMKAL e VOR MLG — antes deles, retornar SAME; depois, prosseguir SCEL.');
   recs.push('Atenção a nuvens lenticulares reportadas (indício de onda de montanha).');
-  return { dp, perp, cat, go, label, reasons, recs };
+  return { dp, perp, cat, critical, label, reasons, recs };
 }
 
 // ===== ábaco em SVG =====
@@ -227,18 +222,18 @@ function drawAbaco(point) {
 // ===== histórico (localStorage, tolerante a falha) =====
 function loadHist() {
   let h = [];
-  try { h = JSON.parse(localStorage.getItem('andes_hist') || '[]'); } catch (e) { h = []; }
+  try { h = JSON.parse(localStorage.getItem('andes_hist2') || '[]'); } catch (e) { h = []; }
   const tb = document.querySelector('#hist tbody');
   tb.innerHTML = h.slice(0, 25).map(r =>
     `<tr><td>${r.ts}</td><td>${r.dp} hPa</td><td>${r.w}</td><td>${r.perp} kt</td>` +
-    `<td class="${r.go ? 'go' : 'nogo'}">${r.go ? 'GO' : 'NO-GO'}</td></tr>`).join('') ||
+    `<td class="${r.cls || ''}">${r.lvl || ''}</td></tr>`).join('') ||
     '<tr><td colspan="5" style="color:var(--muted)">Nenhuma avaliação ainda</td></tr>';
 }
 function saveHist(entry) {
   try {
-    const h = JSON.parse(localStorage.getItem('andes_hist') || '[]');
+    const h = JSON.parse(localStorage.getItem('andes_hist2') || '[]');
     h.unshift(entry);
-    localStorage.setItem('andes_hist', JSON.stringify(h.slice(0, 50)));
+    localStorage.setItem('andes_hist2', JSON.stringify(h.slice(0, 50)));
   } catch (e) { /* armazenamento indisponível — segue sem histórico */ }
 }
 
@@ -251,8 +246,9 @@ function evaluateCrossing() {
   if (!qs || !qm || isNaN(d) || isNaN(v)) return;
   const a = assess(qs, qm, d, v);
   const el = document.getElementById('verdict');
-  el.textContent = (a.go ? '✔ GO — ' : '✖ NO-GO — ') + a.label;
-  el.className = a.go ? (a.cat === 'caution' || a.cat === 'severe' ? 'warn' : 'go') : 'nogo';
+  el.textContent = a.label;
+  el.className = a.critical || a.cat === 'severe' ? 'nogo'
+    : a.cat === 'caution' ? 'warn' : a.cat === 'light' ? 'light' : 'go';
   document.getElementById('analysis').innerHTML =
     '<div class="section-title">Análise</div><ul>' +
     a.reasons.map(r => `<li>${r}</li>`).join('') +
@@ -263,14 +259,16 @@ function evaluateCrossing() {
     ts: new Date().toISOString().slice(0, 16).replace('T', ' '),
     dp: a.dp.toFixed(1),
     w: `${String(Math.round(d)).padStart(3,'0')}/${Math.round(v)}kt`,
-    perp: Math.round(a.perp), go: a.go
+    perp: Math.round(a.perp),
+    lvl: a.critical ? 'Severa (ΔP)' : ({none:'Nenhuma', light:'Leve', caution:'Limite', severe:'Mod/Forte'})[a.cat],
+    cls: a.critical || a.cat === 'severe' ? 'nogo' : a.cat === 'none' ? 'go' : ''
   });
   loadHist();
 }
 drawAbaco(null);
 loadHist();
 if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("sw.js").catch(() => {/* segue online-only */});
+  navigator.serviceWorker.register("sw.js").catch(() => {});
 }
 </script>
 </body>

@@ -1,14 +1,9 @@
 {
   "name": "Andes Crossing Advisor",
   "short_name": "Andes Advisor",
-  "description": "Validação do cruzamento dos Andes SCEL/SAME — ΔQNH + Ábaco de Harrison",
-  "start_url": ".",
-  "scope": ".",
-  "display": "standalone",
-  "orientation": "any",
-  "background_color": "#10141b",
-  "theme_color": "#10141b",
-  "lang": "pt-BR",
+  "description": "Avaliação de turbulência no cruzamento dos Andes (SCEL/SAME) — ΔQNH + Ábaco de Harrison",
+  "start_url": ".", "scope": ".", "display": "standalone", "orientation": "any",
+  "background_color": "#10141b", "theme_color": "#10141b", "lang": "pt-BR",
   "icons": [
     { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
     { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }

@@ -1,29 +1,18 @@
 # Andes Crossing Advisor — PWA
 
-App web instalável (funciona offline) para validação do cruzamento dos Andes
-SCEL/SAME: ΔQNH + Ábaco de Harrison, conforme "Operação sobre os Andes REV1".
+Avaliação de turbulência no cruzamento dos Andes (SCEL/SAME): ΔQNH + Ábaco de
+Harrison, conforme o manual "Operação sobre os Andes". Informa a classificação
+de turbulência (nenhuma / leve / limite / moderada-forte / risco severo por ΔP)
+com as recomendações do manual — a decisão é do comandante.
 
-## Publicar no GitHub Pages
-
-Opção A — dentro do site da LR Aviation (mais rápido):
-1. No repositório do site (o que publica lraviation.com.br), crie a pasta `andes/`
-   e copie pra dentro dela TODO o conteúdo deste zip
-   (`index.html`, `manifest.webmanifest`, `sw.js`, `icons/`).
-2. Commit + push. Em ~1 min o app estará em `https://lraviation.com.br/andes/`.
-
-Opção B — repositório próprio:
-1. Crie um repositório novo (ex.: `andes-advisor`) e envie estes arquivos na raiz.
-2. Settings → Pages → Deploy from branch → `main` / root.
-3. URL: `https://SEUUSUARIO.github.io/andes-advisor/`.
-
-> O service worker exige HTTPS — GitHub Pages já entrega isso.
+## Publicar / atualizar no GitHub Pages
+Substitua o conteúdo da pasta `andes/` do repositório do site pelos arquivos
+deste zip (Add file → Upload files, arrastando por cima). URL: lraviation.com.br/andes/
 
 ## Instalar no iPad
-1. Abra a URL no Safari.
-2. Compartilhar → **Adicionar à Tela de Início** → Adicionar.
-3. O ícone abre em tela cheia e, depois do primeiro acesso, **funciona sem internet**
-   (os links de METAR/Windy continuam precisando de rede).
+Safari → abrir a URL → Compartilhar → Adicionar à Tela de Início.
+Funciona offline após o primeiro acesso.
 
-## Atualizações
-Ao alterar o `index.html`, mude a versão em `sw.js` (`andes-advisor-v1` → `v2`)
-para os iPads baixarem a nova versão no próximo acesso.
+## Atualizações futuras
+Ao alterar o index.html, mude a versão no sw.js (v4 → v5) para os dispositivos
+baixarem a nova versão.
