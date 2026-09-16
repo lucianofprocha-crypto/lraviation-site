@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>G550 - Calculadora ACN/PCN</title>
+<style>
+  :root{
+    --navy:#1B2A4A; --accent:#0B5A8A; --gray:#5b5f66; --line:#e2e5ea;
+    --bg:#f5f7fa; --card:#ffffff;
+    --green:#1b7a3d; --green-bg:#e7f5ec; --green-line:#bfe3cc;
+    --red:#b71c1c; --red-bg:#fdeceb; --red-line:#f3c3c1;
+    --amber:#a15c00; --amber-bg:#fdf1e0; --amber-line:#f2d4a3;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    background:var(--bg); color:#1c1f24; padding:28px 16px 60px;
+  }
+  .wrap{max-width:760px; margin:0 auto;}
+  .header{text-align:center; margin-bottom:20px;}
+  .header h1{font-size:22px; margin:0 0 4px; color:var(--navy); font-weight:700;}
+  .header p{font-size:13px; color:var(--gray); margin:0;}
+  .card{
+    background:var(--card); border:1px solid var(--line); border-radius:12px;
+    padding:20px 22px; margin-bottom:18px;
+  }
+  .card h2{
+    font-size:14px; text-transform:uppercase; letter-spacing:.04em;
+    color:var(--accent); margin:0 0 14px; font-weight:700;
+  }
+  .row{display:flex; gap:14px; flex-wrap:wrap; margin-bottom:14px;}
+  .field{flex:1 1 200px; min-width:150px;}
+  .field label{
+    display:block; font-size:12.5px; color:var(--gray); margin-bottom:5px; font-weight:600;
+  }
+  select, input[type=number]{
+    width:100%; padding:9px 10px; font-size:14.5px; border:1px solid var(--line);
+    border-radius:8px; background:#fff; color:#1c1f24;
+  }
+  select:focus, input:focus{outline:none; border-color:var(--accent);}
+  .unit-toggle{display:flex; border:1px solid var(--line); border-radius:8px; overflow:hidden;}
+  .unit-toggle button{
+    flex:1; padding:9px 6px; border:none; background:#fff; font-size:13px; cursor:pointer;
+    color:var(--gray); font-weight:600;
+  }
+  .unit-toggle button.active{background:var(--accent); color:#fff;}
+  .result-banner{
+    border-radius:10px; padding:16px 18px; margin-bottom:14px; display:flex;
+    align-items:center; gap:14px; border:1px solid;
+  }
+  .result-banner.go{background:var(--green-bg); border-color:var(--green-line);}
+  .result-banner.go-restricted{background:var(--amber-bg); border-color:var(--amber-line);}
+  .result-banner.nogo{background:var(--red-bg); border-color:var(--red-line);}
+  .badge{
+    font-size:13px; font-weight:700; padding:6px 14px; border-radius:20px; color:#fff;
+    white-space:nowrap;
+  }
+  .go .badge{background:var(--green);}
+  .go-restricted .badge{background:var(--amber);}
+  .nogo .badge{background:var(--red);}
+  .result-text{font-size:13.5px; line-height:1.5;}
+  .go .result-text{color:var(--green);}
+  .go-restricted .result-text{color:var(--amber);}
+  .nogo .result-text{color:var(--red);}
+  .stat-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(140px,1fr)); gap:10px;}
+  .stat{background:#f7f9fb; border-radius:8px; padding:10px 12px;}
+  .stat .label{font-size:11.5px; color:var(--gray); margin-bottom:3px;}
+  .stat .value{font-size:17px; font-weight:700; color:var(--navy);}
+  .note{font-size:12px; color:var(--gray); line-height:1.5; margin-top:10px;}
+  .note.warn{color:var(--amber);}
+  .footer{text-align:center; font-size:11.5px; color:var(--gray); margin-top:24px; line-height:1.6;}
+  .legend{font-size:12px; color:var(--gray); margin-top:6px;}
+</style>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0B5A8A">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ACN-PCN">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+</head>
+<body>
+<div class="wrap">
+
+  <div class="header">
+    <h1>Calculadora ACN / PCN - G550</h1>
+    <p>Aircraft Classification Number vs. Pavement Classification Number</p>
+  </div>
+
+  <div class="card">
+    <h2>Dados da pista (PCN)</h2>
+    <div class="row">
+      <div class="field">
+        <label for="pavement">Tipo de pavimento</label>
+        <select id="pavement">
+          <option value="flexible">Flexível (F)</option>
+          <option value="rigid">Rígido (R)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="subgrade">Categoria de subleito</label>
+        <select id="subgrade">
+          <option value="A">A - Alta (CBR 15 / k 150)</option>
+          <option value="B">B - Média (CBR 10 / k 80)</option>
+          <option value="C" selected>C - Baixa (CBR 6 / k 40)</option>
+          <option value="D">D - Ultra baixa (CBR 3 / k 20)</option>
+        </select>
+      </div>
+    </div>
+    <div class="row">
+      <div class="field">
+        <label for="pcn">PCN (número reportado)</label>
+        <input type="number" id="pcn" value="24" step="0.1">
+      </div>
+      <div class="field">
+        <label for="pcode">Restrição de pressão do PCN</label>
+        <select id="pcode">
+          <option value="9999">W - Ilimitada</option>
+          <option value="254">X - Alta (254 psi)</option>
+          <option value="181" selected>Y - Média (181 psi)</option>
+          <option value="73">Z - Baixa (73 psi)</option>
+        </select>
+      </div>
+    </div>
+    <div class="legend">Formato Jeppesen: PCN / F ou R / A-D / W-Z / T ou U. Ex.: 24/F/C/Y/T.</div>
+  </div>
+
+  <div class="card">
+    <h2>Dados da aeronave</h2>
+    <div class="row">
+      <div class="field">
+        <label for="pressmode">Regime de pressão dos pneus</label>
+        <select id="pressmode">
+          <option value="fixed">Fixa - 198 PSI</option>
+          <option value="varied">Variável com o peso</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="weight">Peso bruto atual</label>
+        <div style="display:flex; gap:8px;">
+          <input type="number" id="weight" value="75000" step="100" style="flex:1;">
+          <div class="unit-toggle" style="width:110px;">
+            <button id="unit-lb" class="active">lb</button>
+            <button id="unit-kg">kg</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="banner" class="result-banner go">
+    <span class="badge" id="badge-text">GO</span>
+    <span class="result-text" id="result-text"></span>
+  </div>
+
+  <div class="card">
+    <h2>Detalhe do cálculo</h2>
+    <div class="stat-grid">
+      <div class="stat"><div class="label">ACN atual (interpolado)</div><div class="value" id="acn-atual">-</div></div>
+      <div class="stat"><div class="label">PCN informado</div><div class="value" id="pcn-out">-</div></div>
+      <div class="stat"><div class="label">ACN mínimo na tabela</div><div class="value" id="acn-min">-</div></div>
+      <div class="stat"><div class="label">ACN máximo na tabela</div><div class="value" id="acn-max">-</div></div>
+      <div class="stat"><div class="label">Peso mínimo da tabela</div><div class="value" id="w-min">-</div></div>
+      <div class="stat"><div class="label">Peso máximo da tabela</div><div class="value" id="w-max">-</div></div>
+    </div>
+    <div class="note" id="interp-note"></div>
+    <div class="note warn" id="pressure-note"></div>
+  </div>
+
+  <div class="footer">
+    Dados extraídos do G550 Performance Handbook, Rev. 43 (2023-01-27), seção 03-01-50 (ACN/PCN Charts).<br>
+    Ferramenta de apoio ao estudo pessoal - sempre confirme com o Performance Handbook antes de operar em pista restrita.
+  </div>
+
+</div>
+
+<script>
+var WEIGHTS_LB = [50000,55000,60000,65000,70000,75000,80000,85000,90000,90900];
+
+var TABLES = {
+  flexible: {
+    fixed: {
+      D:[15.24,16.95,18.66,20.37,22.09,23.80,25.51,27.22,28.93,29.24],
+      C:[13.76,15.50,17.24,18.98,20.73,22.48,24.23,25.99,27.74,28.05],
+      B:[12.34,13.91,15.54,17.25,18.98,20.77,22.57,24.39,26.21,26.54],
+      A:[11.67,13.11,14.60,16.08,17.61,19.25,20.79,22.50,24.26,24.57]
+    },
+    varied: {
+      D:[14.99,16.72,18.46,20.20,21.95,23.69,25.43,27.19,28.93,29.24],
+      C:[13.29,15.11,16.89,18.68,20.49,22.28,24.12,25.92,27.73,28.06],
+      B:[11.53,13.37,15.20,17.04,18.87,20.71,22.55,24.38,26.22,26.55],
+      A:[10.29,12.04,13.78,15.53,17.27,19.02,20.76,22.51,24.26,24.57]
+    }
+  },
+  rigid: {
+    fixed: {
+      D:[16.70,18.60,20.60,22.60,24.60,26.60,28.70,30.80,32.90,33.30],
+      C:[16.30,18.20,20.10,22.10,24.10,26.20,28.20,30.30,32.40,32.80],
+      B:[15.80,17.70,19.60,21.60,23.60,25.60,27.70,29.80,31.90,32.30],
+      A:[15.40,17.20,19.10,21.00,23.00,25.00,27.10,29.20,31.30,31.70]
+    },
+    varied: {
+      D:[15.40,17.50,19.50,21.70,23.80,26.00,28.30,30.60,32.90,33.30],
+      C:[14.90,16.90,19.00,21.10,23.30,25.50,27.80,30.10,32.40,32.80],
+      B:[14.20,16.30,18.30,20.50,22.70,24.90,27.20,29.50,31.90,32.30],
+      A:[13.50,15.50,17.60,19.80,21.90,24.20,26.50,28.80,31.20,31.70]
+    }
+  }
+};
+
+var KG_PER_LB = 0.45359237;
+var currentUnit = 'lb';
+
+function interpolate(weightLb, series){
+  var w = WEIGHTS_LB;
+  if (weightLb <= w[0]){
+    var slope0 = (series[1]-series[0])/(w[1]-w[0]);
+    return {value: series[0] + slope0*(weightLb-w[0]), extrapolated: weightLb < w[0]};
+  }
+  if (weightLb >= w[w.length-1]){
+    var n = w.length;
+    var slopeN = (series[n-1]-series[n-2])/(w[n-1]-w[n-2]);
+    return {value: series[n-1] + slopeN*(weightLb-w[n-1]), extrapolated: weightLb > w[w.length-1]};
+  }
+  for (var i=0;i<w.length-1;i++){
+    if (weightLb >= w[i] && weightLb <= w[i+1]){
+      var frac = (weightLb - w[i]) / (w[i+1]-w[i]);
+      var val = series[i] + frac*(series[i+1]-series[i]);
+      return {value: val, extrapolated:false, lo:w[i], hi:w[i+1]};
+    }
+  }
+}
+
+function fmt(n, d){
+  d = d===undefined?2:d;
+  return Number(n).toLocaleString('pt-BR', {minimumFractionDigits:d, maximumFractionDigits:d});
+}
+
+function recompute(){
+  var pavement = document.getElementById('pavement').value;
+  var subgrade = document.getElementById('subgrade').value;
+  var pressmode = document.getElementById('pressmode').value;
+  var pcn = parseFloat(document.getElementById('pcn').value) || 0;
+  var pcode = parseFloat(document.getElementById('pcode').value);
+  var weightInput = parseFloat(document.getElementById('weight').value) || 0;
+  var weightLb = currentUnit === 'lb' ? weightInput : weightInput / KG_PER_LB;
+
+  var series = TABLES[pavement][pressmode][subgrade];
+  var result = interpolate(weightLb, series);
+  var acn = result.value;
+
+  document.getElementById('acn-atual').textContent = fmt(acn);
+  document.getElementById('pcn-out').textContent = fmt(pcn,1);
+  document.getElementById('acn-min').textContent = fmt(series[0]);
+  document.getElementById('acn-max').textContent = fmt(series[series.length-1]);
+  document.getElementById('w-min').textContent = fmt(WEIGHTS_LB[0],0) + ' lb';
+  document.getElementById('w-max').textContent = fmt(WEIGHTS_LB[WEIGHTS_LB.length-1],0) + ' lb';
+
+  var interpNote = '';
+  if (result.lo !== undefined){
+    interpNote = 'Interpolado linearmente entre ' + fmt(result.lo,0) + ' lb e ' + fmt(result.hi,0) + ' lb da tabela do Performance Handbook.';
+  } else if (result.extrapolated){
+    interpNote = 'Peso fora da faixa da tabela (' + fmt(WEIGHTS_LB[0],0) + ' a ' + fmt(WEIGHTS_LB[WEIGHTS_LB.length-1],0) + ' lb) - valor extrapolado, confirmar no Performance Handbook.';
+  }
+  document.getElementById('interp-note').textContent = interpNote;
+
+  var acnOk = acn <= pcn;
+  var pressureRestricted = false;
+  var pressureNote = '';
+  if (pressmode === 'fixed'){
+    if (pcode < 198){
+      pressureRestricted = true;
+      pressureNote = 'Pressão máxima do PCN (' + fmt(pcode,0) + ' psi) é menor que a pressão do pneu do G550 nesta condição (198 psi) - restrição de pressão se aplica mesmo com ACN dentro do limite.';
+    }
+  } else {
+    pressureNote = 'Modo "pressão variável com o peso": o ACN já considera pressão de pneu reduzida para pesos menores. A verificação automática de restrição de pressão (código do PCN) só é feita no modo "pressão fixa - 198 psi".';
+  }
+  document.getElementById('pressure-note').textContent = pressureNote;
+
+  var banner = document.getElementById('banner');
+  var badge = document.getElementById('badge-text');
+  var text = document.getElementById('result-text');
+
+  if (!acnOk){
+    banner.className = 'result-banner nogo';
+    badge.textContent = 'NO-GO';
+    text.textContent = 'ACN (' + fmt(acn) + ') é maior que o PCN (' + fmt(pcn,1) + '). Pista não adequada para esse peso sem avaliação técnica adicional.';
+  } else if (pressureRestricted){
+    banner.className = 'result-banner go-restricted';
+    badge.textContent = 'GO COM RESTRIÇÃO';
+    text.textContent = 'ACN (' + fmt(acn) + ') está dentro do PCN (' + fmt(pcn,1) + '), mas a pressão dos pneus excede o limite reportado pelo PCN.';
+  } else {
+    banner.className = 'result-banner go';
+    badge.textContent = 'GO';
+    text.textContent = 'ACN (' + fmt(acn) + ') está dentro do PCN (' + fmt(pcn,1) + '). Pista adequada, sem restrição de pressão.';
+  }
+}
+
+document.getElementById('unit-lb').addEventListener('click', function(){
+  if (currentUnit === 'kg'){
+    var kgVal = parseFloat(document.getElementById('weight').value)||0;
+    document.getElementById('weight').value = Math.round(kgVal / KG_PER_LB);
+  }
+  currentUnit = 'lb';
+  document.getElementById('unit-lb').classList.add('active');
+  document.getElementById('unit-kg').classList.remove('active');
+  recompute();
+});
+document.getElementById('unit-kg').addEventListener('click', function(){
+  if (currentUnit === 'lb'){
+    var lbVal = parseFloat(document.getElementById('weight').value)||0;
+    document.getElementById('weight').value = Math.round(lbVal * KG_PER_LB);
+  }
+  currentUnit = 'kg';
+  document.getElementById('unit-kg').classList.add('active');
+  document.getElementById('unit-lb').classList.remove('active');
+  recompute();
+});
+
+['pavement','subgrade','pressmode','pcn','pcode','weight'].forEach(function(id){
+  document.getElementById(id).addEventListener('input', recompute);
+  document.getElementById(id).addEventListener('change', recompute);
+});
+
+recompute();
+</script>
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function(){
+    navigator.serviceWorker.register('sw.js');
+  });
+}
+</script>
+</body>
+</html>
