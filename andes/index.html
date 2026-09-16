@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Andes Advisor">
+<meta name="theme-color" content="#10141b">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<title>Andes Crossing Advisor — PS-SRN</title>
+<style>
+:root {
+  --bg: #f2f4f8; --panel: #ffffff; --panel2: #e9edf3; --border: #d4dae3;
+  --text: #1a2230; --muted: #5a6678; --accent: #2b6cb0;
+  --green: #2f9e63; --yellow: #b89b12; --orange: #d97a1f; --red: #d64545;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #10141b; --panel: #181d26; --panel2: #1f2632; --border: #2a3342;
+    --text: #d7dde6; --muted: #8b97a8; --accent: #4a90d9;
+    --green: #3fae72; --yellow: #cbb62a; --orange: #e08a2e; --red: #e05555;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #10141b; --panel: #181d26; --panel2: #1f2632; --border: #2a3342;
+  --text: #d7dde6; --muted: #8b97a8; --accent: #4a90d9;
+  --green: #3fae72; --yellow: #cbb62a; --orange: #e08a2e; --red: #e05555;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--text);
+  font: 15px/1.5 -apple-system, "SF Pro Text", Segoe UI, Roboto, sans-serif;
+  padding: 14px; padding-bottom: 40px;
+}
+h1 { font-size: 1.15rem; margin: 4px 0 2px; }
+.sub { color: var(--muted); font-size: .8rem; margin-bottom: 14px; }
+.grid { display: grid; grid-template-columns: 1fr; gap: 14px; max-width: 1080px; margin: 0 auto; }
+@media (min-width: 860px) { .grid { grid-template-columns: 380px 1fr; } }
+.card {
+  background: var(--panel); border: 1px solid var(--border);
+  border-radius: 12px; padding: 14px;
+}
+.card h2 { font-size: .8rem; text-transform: uppercase; letter-spacing: .06em;
+  color: var(--muted); margin: 0 0 10px; }
+.row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+label { display: block; font-size: .75rem; color: var(--muted); margin-bottom: 3px; }
+input {
+  width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border);
+  background: var(--panel2); color: var(--text); font-size: 1.05rem; font-variant-numeric: tabular-nums;
+}
+button {
+  width: 100%; padding: 12px; border: none; border-radius: 8px; margin-top: 4px;
+  background: var(--accent); color: #fff; font-size: 1rem; font-weight: 700; cursor: pointer;
+}
+.links { font-size: .78rem; color: var(--muted); margin-top: 10px; }
+.links a { color: var(--accent); }
+#verdict {
+  border-radius: 10px; padding: 14px; font-weight: 800; font-size: 1.05rem;
+  color: #fff; background: var(--panel2); color: var(--muted); margin-bottom: 12px;
+}
+#verdict.go { background: var(--green); color: #fff; }
+#verdict.nogo { background: var(--red); color: #fff; }
+#verdict.warn { background: var(--orange); color: #fff; }
+ul { margin: 6px 0 12px; padding-left: 20px; }
+li { margin-bottom: 5px; font-size: .9rem; }
+.section-title { font-weight: 700; font-size: .85rem; margin-top: 8px; }
+.abaco-wrap { overflow-x: auto; }
+svg { display: block; margin: 0 auto; max-width: 100%; }
+table { width: 100%; border-collapse: collapse; font-size: .8rem; }
+th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--border);
+  font-variant-numeric: tabular-nums; }
+th { color: var(--muted); font-weight: 600; }
+td.go { color: var(--green); font-weight: 700; }
+td.nogo { color: var(--red); font-weight: 700; }
+.disclaimer { color: var(--muted); font-size: .72rem; margin-top: 14px; max-width: 1080px;
+  margin-left: auto; margin-right: auto; }
+</style>
+</head>
+<body>
+<div class="grid">
+  <div>
+    <h1>Andes Crossing Advisor</h1>
+    <div class="sub">SBGR/SBFI ↔ SCEL · ΔQNH + Ábaco de Harrison · Operação sobre os Andes REV1</div>
+
+    <div class="card">
+      <h2>Dados de entrada</h2>
+      <div class="row">
+        <div><label>QNH SCEL (hPa)</label><input id="qscel" type="number" inputmode="decimal" value="1015"></div>
+        <div><label>QNH SAME (hPa)</label><input id="qsame" type="number" inputmode="decimal" value="1013"></div>
+      </div>
+      <div class="row">
+        <div><label>Vento 500 mb — direção (°)</label><input id="wdir" type="number" inputmode="numeric" value="270"></div>
+        <div><label>Vento 500 mb — vel. (kt)</label><input id="wspd" type="number" inputmode="numeric" value="30"></div>
+      </div>
+      <button onclick="evaluateCrossing()">Avaliar cruzamento</button>
+      <div class="links">
+        Consulta rápida: <a href="https://aviationweather.gov/data/metar/?ids=SCEL,SAME" target="_blank" rel="noopener">METAR SCEL/SAME</a> ·
+        <a href="https://www.windy.com/-33.640/-78.830?500h,-33.640,-78.830,7" target="_blank" rel="noopener">Vento 500 hPa Juan Fernández (Windy)</a>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:14px">
+      <div id="verdict">Preencha os dados e toque em Avaliar</div>
+      <div id="analysis"></div>
+    </div>
+  </div>
+
+  <div>
+    <div class="card abaco-wrap">
+      <h2>Ábaco de Harrison</h2>
+      <svg id="abaco" viewBox="0 0 460 420" xmlns="http://www.w3.org/2000/svg"></svg>
+    </div>
+    <div class="card" style="margin-top:14px">
+      <h2>Histórico</h2>
+      <table id="hist"><thead><tr>
+        <th>UTC</th><th>ΔP</th><th>Vento</th><th>Perp</th><th>Decisão</th>
+      </tr></thead><tbody></tbody></table>
+    </div>
+  </div>
+</div>
+<div class="disclaimer">Ferramenta de apoio à decisão baseada no manual "Operação sobre os Andes REV1".
+Não substitui briefing meteorológico oficial (SIGMET/SIGWX), a consulta a MERINO (HF 10635) nem o julgamento do comandante.</div>
+
+<script>
+// ===== lógica (idêntica ao módulo Python) =====
+const CURVE_A = 408, CURVE_B = 8.4, NO_TURB = 20, DP_CAUTION = 7, DP_NOGO = 8;
+const bound = dp => dp <= 0.5 ? 999 : CURVE_A / dp + CURVE_B;
+const perpComp = (dir, spd) => Math.abs(spd * Math.sin(dir * Math.PI / 180));
+
+function assess(qs, qm, dir, spd) {
+  const dp = Math.abs(qs - qm), perp = perpComp(dir, spd), b = bound(dp);
+  const reasons = [
+    `ΔQNH SCEL−SAME = ${dp.toFixed(1)} hPa`,
+    `Vento 500 mb: ${String(Math.round(dir)).padStart(3,'0')}°/${Math.round(spd)} kt — componente perpendicular ≈ ${Math.round(perp)} kt`
+  ];
+  let cat, label;
+  if (perp < NO_TURB) { cat = 'none'; label = 'SEM TURBULÊNCIA PREVISTA';
+    reasons.push(`Componente perpendicular < ${NO_TURB} kt → faixa verde do ábaco`); }
+  else if (perp >= b) { cat = 'severe'; label = 'TURBULÊNCIA MODERADA/FORTE';
+    reasons.push(`Acima da curva do ábaco (limite ≈ ${Math.round(b)} kt para ΔP ${dp.toFixed(1)} hPa)`); }
+  else if (perp >= b * 0.9) { cat = 'caution'; label = 'LIMITE — TENDÊNCIA A MODERADA';
+    reasons.push('Dentro da banda de transição do ábaco (≤10% da curva)'); }
+  else { cat = 'light'; label = 'TURBULÊNCIA LEVE';
+    reasons.push('Abaixo da curva do ábaco → faixa amarela'); }
+
+  let go = true;
+  if (dp > DP_NOGO) { go = false;
+    reasons.push(`ΔP > ${DP_NOGO} hPa: turbulência orográfica pode causar danos severos à aeronave`); }
+  else if (dp > DP_CAUTION) {
+    reasons.push(`ΔP > ${DP_CAUTION} hPa: condição desfavorável`);
+    if (cat === 'severe') go = false;
+  }
+  if (cat === 'severe' && dp > DP_CAUTION) go = false;
+
+  if (!go) label = dp > DP_NOGO && cat !== 'severe'
+    ? `NÃO CRUZAR — ΔP CRÍTICO (${dp.toFixed(1)} hPa > ${DP_NOGO})`
+    : 'NÃO CRUZAR — ' + label;
+
+  const recs = [];
+  if (!go) {
+    recs.push('Evitar o cruzamento: ΔP e/ou ábaco em condição crítica.');
+    recs.push('Opções: retornar/alternar Mendoza (SAME) ou Córdoba (SACO), ou contornar ao sul da cordilheira (via ICO/EROLO — ARR EROL4F).');
+  } else {
+    recs.push(cat === 'severe' || cat === 'caution'
+      ? 'Condição marginal: considerar rota alternativa ao sul (via ICO/EROLO) ou aguardar melhora.'
+      : 'Cruzamento viável. Rota preferencial: entrada via UMKAL (ARR UMKA4C); ASIMO conforme fluxo.');
+    recs.push('Voar 5.000–8.000 ft acima do ponto mais elevado da cordilheira.');
+  }
+  recs.push('Confirmar turbulência com MERINO em HF 10635 antes do cruzamento.');
+  recs.push('Pontos de decisão driftdown/despressurização: ASIMO, UMKAL e VOR MLG — antes deles, retornar SAME; depois, prosseguir SCEL.');
+  recs.push('Atenção a nuvens lenticulares reportadas (indício de onda de montanha).');
+  return { dp, perp, cat, go, label, reasons, recs };
+}
+
+// ===== ábaco em SVG =====
+const M = { l: 48, r: 14, t: 16, b: 52 }, W = 460, H = 420;
+const pw = W - M.l - M.r, ph = H - M.t - M.b;
+const X = dp => M.l + Math.min(dp, 30) / 30 * pw;
+const Y = v  => M.t + ph - Math.min(v, 90) / 90 * ph;
+
+function drawAbaco(point) {
+  const s = [];
+  s.push(`<rect x="${M.l}" y="${M.t}" width="${pw}" height="${ph}" fill="#f2e34c"/>`);
+  let red = '', pinkTop = '', pinkBot = '';
+  for (let i = 0; i <= 120; i++) {
+    const dp = 0.6 + (30 - 0.6) * i / 120;
+    red     += `${X(dp)},${Y(Math.min(bound(dp), 90))} `;
+    pinkTop += `${X(dp)},${Y(Math.min(bound(dp), 90))} `;
+  }
+  for (let i = 120; i >= 0; i--) {
+    const dp = 0.6 + (30 - 0.6) * i / 120;
+    pinkBot += `${X(dp)},${Y(Math.min(bound(dp) * 0.9, 90))} `;
+  }
+  s.push(`<polygon points="${red}${X(30)},${Y(90)} ${X(0.6)},${Y(90)}" fill="#e04a4a"/>`);
+  s.push(`<polygon points="${pinkTop}${pinkBot}" fill="#ef8f8f"/>`);
+  s.push(`<rect x="${M.l}" y="${Y(NO_TURB)}" width="${pw}" height="${M.t + ph - Y(NO_TURB)}" fill="#4fc26f"/>`);
+  s.push(`<rect x="${M.l}" y="${M.t}" width="${pw}" height="${ph}" fill="none" stroke="var(--text)" stroke-width="2"/>`);
+  for (let dp = 0; dp <= 30; dp += 5)
+    s.push(`<text x="${X(dp)}" y="${M.t + ph + 18}" font-size="11" fill="var(--muted)" text-anchor="middle">${dp}</text>`);
+  for (let v = 0; v <= 90; v += 10)
+    s.push(`<text x="${M.l - 8}" y="${Y(v) + 4}" font-size="11" fill="var(--muted)" text-anchor="end">${v}</text>`);
+  s.push(`<text x="${M.l + pw / 2}" y="${H - 14}" font-size="12" fill="var(--muted)" text-anchor="middle">ΔP SCEL − SAME (hPa)</text>`);
+  s.push(`<text x="14" y="${M.t + ph / 2}" font-size="12" fill="var(--muted)" text-anchor="middle" transform="rotate(-90 14 ${M.t + ph / 2})">Vento perpendicular 500 mb (kt)</text>`);
+  s.push(`<text x="${X(17)}" y="${Y(76)}" font-size="12" font-weight="700" fill="#101418">Moderada/Forte</text>`);
+  s.push(`<text x="${X(1.2)}" y="${Y(30)}" font-size="12" font-weight="700" fill="#101418">Leve</text>`);
+  s.push(`<text x="${X(10)}" y="${Y(8)}" font-size="12" font-weight="700" fill="#101418">Sem turbulência</text>`);
+  if (point) {
+    s.push(`<circle cx="${X(point.dp)}" cy="${Y(point.perp)}" r="8" fill="#fff" stroke="#101418" stroke-width="2"/>`);
+    s.push(`<circle cx="${X(point.dp)}" cy="${Y(point.perp)}" r="4" fill="#1c64d1"/>`);
+  }
+  document.getElementById('abaco').innerHTML = s.join('');
+}
+
+// ===== histórico (localStorage, tolerante a falha) =====
+function loadHist() {
+  let h = [];
+  try { h = JSON.parse(localStorage.getItem('andes_hist') || '[]'); } catch (e) { h = []; }
+  const tb = document.querySelector('#hist tbody');
+  tb.innerHTML = h.slice(0, 25).map(r =>
+    `<tr><td>${r.ts}</td><td>${r.dp} hPa</td><td>${r.w}</td><td>${r.perp} kt</td>` +
+    `<td class="${r.go ? 'go' : 'nogo'}">${r.go ? 'GO' : 'NO-GO'}</td></tr>`).join('') ||
+    '<tr><td colspan="5" style="color:var(--muted)">Nenhuma avaliação ainda</td></tr>';
+}
+function saveHist(entry) {
+  try {
+    const h = JSON.parse(localStorage.getItem('andes_hist') || '[]');
+    h.unshift(entry);
+    localStorage.setItem('andes_hist', JSON.stringify(h.slice(0, 50)));
+  } catch (e) { /* armazenamento indisponível — segue sem histórico */ }
+}
+
+// ===== avaliação =====
+function evaluateCrossing() {
+  const qs = +document.getElementById('qscel').value,
+        qm = +document.getElementById('qsame').value,
+        d  = +document.getElementById('wdir').value,
+        v  = +document.getElementById('wspd').value;
+  if (!qs || !qm || isNaN(d) || isNaN(v)) return;
+  const a = assess(qs, qm, d, v);
+  const el = document.getElementById('verdict');
+  el.textContent = (a.go ? '✔ GO — ' : '✖ NO-GO — ') + a.label;
+  el.className = a.go ? (a.cat === 'caution' || a.cat === 'severe' ? 'warn' : 'go') : 'nogo';
+  document.getElementById('analysis').innerHTML =
+    '<div class="section-title">Análise</div><ul>' +
+    a.reasons.map(r => `<li>${r}</li>`).join('') +
+    '</ul><div class="section-title">Recomendações</div><ul>' +
+    a.recs.map(r => `<li>${r}</li>`).join('') + '</ul>';
+  drawAbaco(a);
+  saveHist({
+    ts: new Date().toISOString().slice(0, 16).replace('T', ' '),
+    dp: a.dp.toFixed(1),
+    w: `${String(Math.round(d)).padStart(3,'0')}/${Math.round(v)}kt`,
+    perp: Math.round(a.perp), go: a.go
+  });
+  loadHist();
+}
+drawAbaco(null);
+loadHist();
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("sw.js").catch(() => {/* segue online-only */});
+}
+</script>
+</body>
+</html>
