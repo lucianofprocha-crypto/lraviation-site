@@ -1,151 +1,318 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>LR Aviation — Flight support &amp; dispatch</title>
-<meta name="description" content="LR Aviation Ltda — flight planning, dispatch and operational support for business aviation operators flying in Brazil and Europe. São José dos Campos, SP.">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LR Aviation — Flight Support & Ferramentas de Bordo</title>
+<meta name="description" content="LR Aviation: apoio de solo e despacho para aviação executiva de longo alcance, e uma suíte de calculadoras de bordo instaláveis no iPad.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..900&display=swap">
 <style>
-  :root{
-    --navy:#14283F; --ink:#1B2430; --muted:#5B6B7C; --line:#D9DEE4;
-    --amber:#E5A427; --paper:#FFFFFF; --tint:#F2F5F8;
-  }
-  *{box-sizing:border-box}
-  html{scroll-behavior:smooth}
-  body{margin:0;font-family:"IBM Plex Sans",system-ui,sans-serif;color:var(--ink);background:var(--paper);line-height:1.55;font-size:17px}
-  a{color:var(--navy)}
-  a:focus-visible,button:focus-visible{outline:3px solid var(--amber);outline-offset:2px}
-  .wrap{max-width:960px;margin:0 auto;padding:0 24px}
+:root{
+  --ink:#0E1526; --chart:#16203A; --panel:#1B2745; --paper:#F4F6FB;
+  --amber:#E8A33D; --blue:#6FB3E0; --text:#E8ECF5; --dim:#96A2BC;
+  --hair:rgba(150,170,210,.16);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0; background:var(--ink); color:var(--text);
+  font-family:"Archivo",-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;
+  font-variation-settings:"wdth" 100; line-height:1.6;
+  background-image:
+    linear-gradient(var(--hair) 1px, transparent 1px),
+    linear-gradient(90deg, var(--hair) 1px, transparent 1px);
+  background-size:96px 96px;
+}
+.wrap{max-width:1020px; margin:0 auto; padding:0 22px}
+a{color:var(--blue)}
 
-  header{display:flex;justify-content:space-between;align-items:center;padding:22px 0}
-  .brand{font-weight:600;letter-spacing:.02em;text-decoration:none;color:var(--ink)}
-  .brand small{display:block;font-weight:400;color:var(--muted);font-size:.85rem}
-  .lang{display:flex;gap:4px;border:1px solid var(--line);border-radius:999px;padding:3px}
-  .lang button{border:0;background:transparent;font:inherit;font-size:.9rem;padding:5px 12px;border-radius:999px;cursor:pointer;color:var(--muted)}
-  .lang button[aria-pressed="true"]{background:var(--navy);color:#fff}
+/* ------- topo ------- */
+header{display:flex; align-items:center; justify-content:space-between; padding:26px 0 0}
+.brand{font-weight:800; font-variation-settings:"wdth" 118; font-size:19px; letter-spacing:.02em; color:var(--paper); text-decoration:none}
+.brand small{display:block; font-weight:400; font-variation-settings:"wdth" 100; font-size:11.5px; color:var(--dim); letter-spacing:.06em}
+.langs{display:flex; gap:2px; border:1px solid var(--hair); border-radius:999px; padding:2px}
+.langs button{border:0; background:transparent; color:var(--dim); font:inherit; font-size:12.5px; padding:4px 12px; border-radius:999px; cursor:pointer}
+.langs button.on{background:var(--amber); color:var(--ink); font-weight:700}
 
-  /* Hero: the company as a flight-plan strip */
-  .strip{background:var(--navy);color:#fff;border-radius:6px;padding:28px 28px 22px;margin-top:8px}
-  .strip h1{margin:0 0 18px;font-size:clamp(1.6rem,3.5vw,2.3rem);font-weight:500;line-height:1.2;max-width:22ch}
-  .fpl{font-family:"IBM Plex Mono",monospace;font-size:.95rem;display:grid;grid-template-columns:max-content 1fr;gap:6px 22px;margin:0;padding:18px 0 0;border-top:1px solid rgba(255,255,255,.25)}
-  .fpl dt{color:rgba(255,255,255,.65)}
-  .fpl dd{margin:0;color:#fff}
-  .fpl dd.hl{color:var(--amber)}
-  @media (max-width:560px){.fpl{grid-template-columns:1fr;gap:2px}.fpl dt{margin-top:10px}}
+/* ------- herói ------- */
+.hero{position:relative; padding:64px 0 8px}
+.hero h1{
+  margin:0; font-weight:850; font-variation-settings:"wdth" 122;
+  font-size:clamp(34px, 6vw, 62px); line-height:1.04; color:var(--paper);
+  max-width:15ch; text-wrap:balance;
+}
+.hero p.lead{max-width:52ch; color:var(--dim); font-size:16.5px; margin:20px 0 0}
+.hero .sky{display:block; width:100%; height:auto; margin-top:-8px}
 
-  section{padding:56px 0 8px}
-  h2{font-size:1.35rem;font-weight:600;margin:0 0 20px}
-  p{max-width:64ch;margin:0 0 16px}
-  .lead{font-size:1.15rem;max-width:58ch}
+/* rota que costura a página */
+.route-rail{position:relative}
+.route-rail::before{
+  content:""; position:absolute; top:0; bottom:0; left:31px;
+  border-left:2px dashed var(--amber); opacity:.85;
+}
+@media (min-width:760px){ .route-rail::before{left:50%} }
 
-  .services{list-style:none;padding:0;margin:0;border-top:1px solid var(--line)}
-  .services li{display:grid;grid-template-columns:220px 1fr;gap:20px;padding:20px 0;border-bottom:1px solid var(--line)}
-  .services li b{font-weight:600}
-  .services li p{margin:0;color:var(--muted)}
-  @media (max-width:640px){.services li{grid-template-columns:1fr;gap:6px}}
+/* ------- waypoints (calculadoras) ------- */
+.fixes{padding:8px 0 30px}
+.fixes h2{
+  font-weight:800; font-variation-settings:"wdth" 116; color:var(--paper);
+  font-size:clamp(24px,3.4vw,34px); margin:26px 0 6px; text-align:center;
+}
+.fixes .sub{color:var(--dim); text-align:center; max-width:60ch; margin:0 auto 40px}
+.fix{
+  position:relative; display:flex; gap:18px; align-items:flex-start;
+  background:var(--chart); border:1px solid var(--hair); border-radius:14px;
+  padding:20px; margin:0 0 34px 64px; max-width:560px;
+}
+.fix .marker{
+  position:absolute; left:-64px; top:26px; width:64px; text-align:center;
+}
+.fix .marker svg{display:block; margin:0 auto}
+.fix .marker code{
+  display:block; font-size:11px; letter-spacing:.14em; color:var(--amber);
+  font-weight:700; margin-top:4px;
+}
+@media (min-width:760px){
+  .fix{margin-left:calc(50% + 44px); margin-right:0}
+  .fix:nth-of-type(even){margin-left:auto; margin-right:calc(50% + 44px)}
+  .fix .marker{left:-58px}
+  .fix:nth-of-type(even) .marker{left:auto; right:-58px}
+}
+@media (max-width:759px){ .route-rail::before{left:31px} .fix{margin-left:64px} }
+.fix img{width:56px; height:56px; border-radius:13px; flex:none; box-shadow:0 3px 14px rgba(0,0,0,.45)}
+.fix h3{margin:0 0 4px; font-size:17.5px; color:var(--paper); font-weight:750}
+.fix p{margin:0 0 10px; font-size:13.8px; color:var(--dim)}
+.fix .open{
+  display:inline-block; background:var(--amber); color:var(--ink); text-decoration:none;
+  font-weight:750; font-size:13.5px; padding:7px 16px; border-radius:8px;
+}
+.fix .open:hover{filter:brightness(1.08)}
 
-  .facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px 32px;background:var(--tint);padding:24px;border-radius:6px}
-  .facts div b{display:block;font-weight:600;font-size:.9rem;color:var(--muted)}
+/* destino / fim da rota */
+.dest{position:relative; text-align:center; padding:0 0 46px}
+.dest .rwy{display:inline-block}
 
-  .contact a{font-weight:500}
-  .contact ul{list-style:none;padding:0;margin:0;display:grid;gap:8px}
+/* ------- cartão iPad ------- */
+.boarding{
+  background:var(--paper); color:#1B2233; border-radius:18px;
+  padding:30px 28px; margin:12px 0 56px; position:relative; overflow:hidden;
+}
+.boarding::before{
+  content:""; position:absolute; inset:0 auto 0 0; width:8px; background:var(--amber);
+}
+.boarding h2{margin:0 0 4px; font-weight:850; font-variation-settings:"wdth" 116; font-size:24px; color:#101828}
+.boarding .sub{color:#5A6478; margin:0 0 22px; font-size:14.5px}
+.steps{display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:18px}
+.step{border-top:2px solid #101828; padding-top:12px}
+.step b{display:flex; align-items:baseline; gap:10px; font-size:15px; color:#101828}
+.step b span{
+  font-weight:850; font-variation-settings:"wdth" 122; font-size:22px; color:var(--amber);
+}
+.step p{margin:6px 0 0; font-size:13.5px; color:#4A5468}
+.boarding .tip{margin-top:20px; font-size:12.5px; color:#5A6478}
 
-  footer{margin-top:56px;padding:24px 0 40px;border-top:1px solid var(--line);color:var(--muted);font-size:.9rem}
+/* ------- serviços + contato ------- */
+.ops{border-top:1px solid var(--hair); padding:44px 0 10px}
+.ops h2{font-weight:800; font-variation-settings:"wdth" 116; color:var(--paper); font-size:26px; margin:0 0 8px}
+.ops .sub{color:var(--dim); max-width:62ch; margin:0 0 26px}
+.svc{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:26px}
+.svc div{border-left:2px solid var(--blue); padding-left:14px}
+.svc b{color:var(--paper); font-size:15px}
+.svc p{margin:4px 0 0; font-size:13.5px; color:var(--dim)}
+.contact{margin:34px 0 0; font-size:15px}
+.contact a{color:var(--amber); font-weight:700; text-decoration:none}
+footer{padding:36px 0 44px; color:var(--dim); font-size:12.5px; border-top:1px solid var(--hair); margin-top:40px}
 
-  [lang-block]{display:none}
-  html[data-lang="en"] [lang-block="en"],html[data-lang="pt"] [lang-block="pt"]{display:revert}
-  html[data-lang="en"] li[lang-block="en"],html[data-lang="pt"] li[lang-block="pt"]{display:grid}
-  @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+/* ------- animação única (rota se desenha) ------- */
+#routepath{opacity:0; animation:fadein 1.6s ease-out .2s forwards}
+#jet{animation:fly 2.2s ease-out .2s forwards}
+@keyframes fadein{to{opacity:1}}
+@keyframes fly{from{transform:translate(-170px,64px); opacity:0} to{transform:translate(0,0); opacity:1}}
+@media (prefers-reduced-motion:reduce){
+  #routepath{animation:none; opacity:1}
+  #jet{animation:none}
+  html{scroll-behavior:auto}
+}
+
+/* bilíngue */
+[lang-en]{display:none}
+html.en [lang-en]{display:revert}
+html.en [lang-pt]{display:none}
+
+button:focus-visible, a:focus-visible{outline:2px solid var(--amber); outline-offset:2px}
 </style>
 </head>
 <body>
 <div class="wrap">
+
 <header>
-  <a class="brand" href="#">LR Aviation<small>Flight support &amp; dispatch</small></a>
-  <div class="lang" role="group" aria-label="Language">
-    <button type="button" data-set="en" aria-pressed="true">EN</button>
-    <button type="button" data-set="pt" aria-pressed="false">PT</button>
+  <a class="brand" href="./">LR AVIATION
+    <small lang-pt>flight support &amp; despacho</small>
+    <small lang-en>flight support &amp; dispatch</small>
+  </a>
+  <div class="langs" role="group" aria-label="Idioma">
+    <button id="btn-pt" class="on" onclick="setLang('pt')">PT</button>
+    <button id="btn-en" onclick="setLang('en')">EN</button>
   </div>
 </header>
 
-<div class="strip">
-  <h1 lang-block="en">Flight planning and dispatch for business aviation, Brazil and Europe.</h1>
-  <h1 lang-block="pt">Planejamento de voo e despacho operacional para aviação executiva, Brasil e Europa.</h1>
-  <dl class="fpl">
-    <dt>OPR/</dt><dd>LR AVIATION LTDA</dd>
-    <dt>BASE/</dt><dd>SBSJ SAO JOSE DOS CAMPOS SP BR</dd>
-    <dt>AREA/</dt><dd class="hl">SB SA EU</dd>
-    <dt>SVC/</dt><dd lang-block="en">FLIGHT PLANNING DISPATCH ATFM SLOT COORDINATION HANDLING PERMITS</dd>
-    <dd lang-block="pt">PLANEJAMENTO DESPACHO COORDENACAO ATFM SLOT HANDLING PERMISSOES</dd>
-    <dt>RMK/</dt><dd>OPS AT LRAVIATION DOT COM DOT BR</dd>
-  </dl>
-</div>
+<section class="hero">
+  <h1 lang-pt>Apoio de solo para quem cruza continentes.</h1>
+  <h1 lang-en>Ground support for crews that cross continents.</h1>
+  <p class="lead" lang-pt>Planejamento, coordenação ATFM e permissões para aviação executiva de longo alcance — e uma suíte de calculadoras de bordo feitas na operação real, para instalar no seu iPad.</p>
+  <p class="lead" lang-en>Flight planning, ATFM coordination and permits for long-range business aviation — plus a suite of flight-deck calculators born in real operations, ready to install on your iPad.</p>
 
-<section id="about">
-  <p class="lead" lang-block="en">LR Aviation supports owners and operators of business jets from the planning table to the departure clearance: routes, flight plans, slots, permits, handling and the coordination that keeps a flight on time when the airspace is not.</p>
-  <p class="lead" lang-block="pt">A LR Aviation apoia proprietários e operadores de jatos executivos da mesa de planejamento à autorização de decolagem: rotas, planos de voo, slots, permissões, handling e a coordenação que mantém o voo no horário quando o espaço aéreo não colabora.</p>
-  <p lang-block="en">Based in São José dos Campos, working in the time zones of the flights we support. Our current operation is concentrated on transatlantic and intra-European business jet flights, with day-to-day experience of EUROCONTROL ATFM regulations, A-CDM airports and slot-coordinated aerodromes.</p>
-  <p lang-block="pt">Sediada em São José dos Campos, trabalhando no fuso dos voos que apoiamos. A operação atual concentra-se em voos transatlânticos e intraeuropeus de jatos executivos, com experiência diária em regulações ATFM do EUROCONTROL, aeroportos A-CDM e aeródromos coordenados.</p>
+  <svg class="sky" viewBox="0 0 1000 300" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <path id="routepath" d="M -40 250 C 200 240, 340 200, 500 170 S 830 120, 1010 118"
+          fill="none" stroke="#E8A33D" stroke-width="3" stroke-dasharray="14 12" stroke-linecap="round"/>
+    <g opacity=".55" fill="none" stroke="#6FB3E0" stroke-width="1">
+      <circle cx="150" cy="245" r="4"/><circle cx="500" cy="170" r="4"/><circle cx="840" cy="122" r="4"/>
+    </g>
+    <g id="jet" transform="translate(0,0)">
+      <g transform="translate(500,170) rotate(-9)">
+        <!-- silhueta original de jato executivo de longo alcance (vista superior) -->
+        <path fill="#F4F6FB" d="M0,-64 C4,-52 5,-38 5,-20 L44,16 L44,26 L6,10 L5,34
+          C5,40 8,44 14,46 L26,54 L26,61 L2,55 L0,58 L-2,55 L-26,61 L-26,54 L-14,46
+          C-8,44 -5,40 -5,34 L-6,10 L-44,26 L-44,16 L-5,-20 C-5,-38 -4,-52 0,-64 Z"/>
+        <ellipse cx="11" cy="6" rx="4" ry="10" fill="#0E1526" opacity=".28"/>
+        <ellipse cx="-11" cy="6" rx="4" ry="10" fill="#0E1526" opacity=".28"/>
+      </g>
+    </g>
+  </svg>
 </section>
 
-<section id="services">
-  <h2 lang-block="en">What we do</h2>
-  <h2 lang-block="pt">O que fazemos</h2>
-  <ul class="services">
-    <li lang-block="en"><b>Flight planning and filing</b><p>Route and level selection, fuel and alternates, ICAO flight plan preparation and filing through the operator's flight-planning provider, with validation against RAD and airspace restrictions.</p></li>
-    <li lang-block="pt"><b>Planejamento e apresentação do plano</b><p>Escolha de rota e nível, combustível e alternados, preparação e apresentação do plano de voo ICAO pelo provedor do operador, com validação contra o RAD e restrições de espaço aéreo.</p></li>
-    <li lang-block="en"><b>ATFM slot coordination</b><p>Monitoring of CTOT and regulations affecting the flight, assessment of alternative levels, routes and departure times, coordination with handlers and towers, and requests to the Network Manager on the operator's behalf.</p></li>
-    <li lang-block="pt"><b>Coordenação de slot ATFM</b><p>Acompanhamento de CTOT e das regulações que afetam o voo, avaliação de níveis, rotas e horários alternativos, coordenação com handlers e torres, e pedidos ao Network Manager em nome do operador.</p></li>
-    <li lang-block="en"><b>Permits, handling and airport slots</b><p>Overflight and landing permits, PPR, airport slot requests, handler selection and briefing, customs and immigration coordination.</p></li>
-    <li lang-block="pt"><b>Permissões, handling e slots aeroportuários</b><p>Permissões de sobrevoo e pouso, PPR, slots aeroportuários, seleção e briefing de handlers, coordenação de alfândega e imigração.</p></li>
-    <li lang-block="en"><b>Crew briefing and trip file</b><p>A single briefing per flight: weather, NOTAM, airport particulars, ATFM outlook and the decisions already taken, kept as a record for the operator and the owner.</p></li>
-    <li lang-block="pt"><b>Briefing de tripulação e dossiê do voo</b><p>Um briefing único por voo: meteorologia, NOTAM, particularidades do aeroporto, previsão ATFM e as decisões já tomadas, mantido como registro para o operador e o proprietário.</p></li>
-  </ul>
-</section>
+<div class="route-rail">
+<section class="fixes" id="apps">
+  <h2 lang-pt>Ferramentas de bordo</h2>
+  <h2 lang-en>Flight-deck tools</h2>
+  <p class="sub" lang-pt>Cinco calculadoras que funcionam offline depois do primeiro acesso — cada uma é um fixo desta rota. Toque em abrir e depois instale no iPad (instruções abaixo).</p>
+  <p class="sub" lang-en>Five calculators that work offline after the first visit — each one a fix on this route. Open, then install on your iPad (instructions below).</p>
 
-<section id="company">
-  <h2 lang-block="en">Company</h2>
-  <h2 lang-block="pt">Empresa</h2>
-  <div class="facts">
-    <div><b lang-block="en">Legal name</b><b lang-block="pt">Razão social</b>LR AVIATION LTDA</div>
-    <div><b>CNPJ</b>54.037.757/0001-89</div>
-    <div><b lang-block="en">Registered activity</b><b lang-block="pt">Atividade registrada</b><span lang-block="en">Auxiliary activities for air transport (CNAE 52.40-1-99)</span><span lang-block="pt">Atividades auxiliares dos transportes aéreos (CNAE 52.40-1-99)</span></div>
-    <div><b lang-block="en">Established</b><b lang-block="pt">Fundação</b><span lang-block="en">February 2024, São José dos Campos, SP, Brazil</span><span lang-block="pt">Fevereiro de 2024, São José dos Campos, SP</span></div>
-    <div><b lang-block="en">Address</b><b lang-block="pt">Endereço</b>Rua José Alves dos Santos, 391 — Floradas de São José<br>São José dos Campos, SP, 12230-081</div>
-    <div><b lang-block="en">Reference airport</b><b lang-block="pt">Aeroporto de referência</b>SBSJ / SJK</div>
+  <div class="fix">
+    <span class="marker"><svg width="18" height="16" viewBox="0 0 18 16"><path d="M9 0 L18 16 L0 16 Z" fill="none" stroke="#E8A33D" stroke-width="2"/></svg><code>ANDES</code></span>
+    <img src="data:image/png;base64,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" alt="" width="56" height="56">
+    <div>
+      <h3 lang-pt>Andes Crossing Advisor</h3><h3 lang-en>Andes Crossing Advisor</h3>
+      <p lang-pt>Turbulência no cruzamento SCEL/SAME: ΔQNH + Ábaco de Harrison, com sugestão de rota.</p>
+      <p lang-en>Turbulence for the SCEL/SAME crossing: ΔQNH + Harrison abaco, with route guidance.</p>
+      <a class="open" href="./andes/"><span lang-pt>Abrir</span><span lang-en>Open</span></a>
+    </div>
+  </div>
+
+  <div class="fix">
+    <span class="marker"><svg width="18" height="16" viewBox="0 0 18 16"><path d="M9 0 L18 16 L0 16 Z" fill="none" stroke="#E8A33D" stroke-width="2"/></svg><code>FLEXX</code></span>
+    <img src="data:image/png;base64,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" alt="" width="56" height="56">
+    <div>
+      <h3>FLEX Takeoff Calculator</h3>
+      <p lang-pt>Decolagem com empuxo reduzido no G550: temperatura assumida e margens.</p>
+      <p lang-en>Reduced-thrust takeoff for the G550: assumed temperature and margins.</p>
+      <a class="open" href="./flex/"><span lang-pt>Abrir</span><span lang-en>Open</span></a>
+    </div>
+  </div>
+
+  <div class="fix">
+    <span class="marker"><svg width="18" height="16" viewBox="0 0 18 16"><path d="M9 0 L18 16 L0 16 Z" fill="none" stroke="#E8A33D" stroke-width="2"/></svg><code>TANKR</code></span>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAIAAADdvvtQAAAEwklEQVR4nO3cUXLTMBSFYZdhF7ACuhO6XpbSHXQhPBhMm9qJ8bF1z5H+75GBiXT1WySdTJ++/fg5AUd9qV4AshEQJAQECQFBQkCQEBAkBAQJAUFCQJAQECQEBAkBQUJAkBAQJAQECQFBQkCQEBAkBAQJAUFCQJAQECQEBAkBQUJAkBAQJAQECQFBQkCQENADb6+/qpdgjYDumeuhoTsIaNP7bmhoCwGto5idCGjFaj0ktYqAbt0JhYY+I6APHiZCQzcI6J+dcdDQe0/8ltbpaBPfn19OX0kcbqDjNwpX0URAYgQ0NHRApxz/4A0N+h7oilMf8y3RiDfQRXfGmFfRcAFdeswDNjRWQA0OeLSGBgqo2dEO1dAoATU+1HEaGiKgkuMcpKH+Ayo8yBEa6jyg8iMsX8DVeg7I5PBMlnGRbgOyOjarxZyrz4AMD8xwSafoMCDbo7JdmKK3gMwPyXx5B3QVUMTxRCxyv64CQnv9BBT0ZAct9aFOAoo7krgFb+khoNDDCF32jeyvtPZxBtHfhQ2+gfqoZwrfSGpA0UP/LHc7qQHBRGRAuc/rHaGbygsodNB7JG4tLKDEEf+XuA0mBRQ33GOythkTUNZYRUGbzQgoaKBnSdlyQEApozxdxMbdA4oY4nX8t+8eEMxZB+T//DVgPgTrgODPNyDzJ68l51GYBuQ8shK2AzENCCkcA7J92mp5jsUuIM8xmTAcjl1AyOIVkOET5sZtREYBuY3GltWgXAKyGoo/n3FZBOQzjiAmQ7MICLnqAzJ5khI5jK4+IEQrDsjhGYpWPkBuoAeif/NBA5UBlT89fagdY1lAEfXM14//JVQ4TP4Lg6QmoKDrJ0XVSLmBICGgXbJuo5YIaB3F7FQQUMQboEQlg+UGWrF6/XAnrSIgSAjo1p2bhkvoMwL64GEiNHSDgP7ZGQcNvUdAf/xXFjS0IKBpOhQEDc0I6HgKNDQREESjByTeIlxCQwd0yvH7NFSykoKATCZ+4jJMdlRi0Bvo9CMftqGagGrHfdGrd7mph4a7gS4d9ID3UFlAJbNu8KK97mtL5Q3k9ry+vf56+J2sPX9nKF+rF1DvQBDLP3F4BmrXUBzQ9+eXqgf6lNctL6m84PobqHFDF71WSUnl9Uwmn8KaDaJBqc0eBod6JpOAJptxpPAZl0tAk8dQIr7S6rCGhVFAU/VoIr7SalXP5BbQFPJxJmKRbTx9+/Gzeg0rGn+2P3YwLRdpmM6s/mP8qsKfDy1uFlB4hLb1TLYBTX+n1j6jrVec/7zxWTqnM/MNaNYso50v0ewHhv7pzEzfA60q/0+tjZR0ZkkBLXotKSudWWRAi25KSkxnlh3QLDej3G4WPQS0CCqpg3RmXQU0s82om2je6zCgLVVhddnNYqCAVp1YVd+hbBk9oC33wxqzlVUEBInd1zmQhYAgISBICAgSAoKEgCAhIEgICBICgoSAICEgSAgIEgKChIAgISBICAgSAoKEgCAhIEgICBICgoSAICEgSAgIEgKChIAgISBICAgSAoKEgCAhIEgICBICgoSAICEgSAgIEgKChIAgISBICAgSAoKEgCAhIEgICBICgoSAICEgSAgIEgKChIAgISBICAgSAoKEgCD5DVQ0kEaOsjMwAAAAAElFTkSuQmCC" alt="" width="56" height="56">
+    <div>
+      <h3>Fuel Tankering Calculator</h3>
+      <p lang-pt>Vale levar combustível extra? Fator de transporte por Mach e tempo de voo.</p>
+      <p lang-en>Is tankering worth it? Carriage factor by Mach and flight time.</p>
+      <a class="open" href="./tankering/"><span lang-pt>Abrir</span><span lang-en>Open</span></a>
+    </div>
+  </div>
+
+  <div class="fix">
+    <span class="marker"><svg width="18" height="16" viewBox="0 0 18 16"><path d="M9 0 L18 16 L0 16 Z" fill="none" stroke="#E8A33D" stroke-width="2"/></svg><code>ACNPC</code></span>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAIAAADdvvtQAAAD4klEQVR4nO3cIXIUWxiG4eYWDtxVaBwGJIYFsAVAUGgkbAKQaAoBa2ABMVdeDC46Ko4FIIYKYdIZmvl6us+c/3lkqqBP1Xnr7/Sczty49eTNAPv6Z+0FcNwERERARAREREBEBEREQEQERERARAREREBEBEREQEQERERARAREREBEBEREQEQERERARAREREBEBEREQEQERERARAREREBEBEREQEQERERARAREREBEBEREQERurr2AJbx/9vDRg3sLX/Tk/28vP/238EWXZwIRERARAREREBEBEREQEQERERARAREp8Un0Hu6/+rD1k6/vXqyyksaZQH/w/fPrtZfQNAEREdAum/FjCO0gICICutblwWMIXUdARAREREDjrt6z7t75d5WVNE5ARAQ04rphYwhdJSAiAiIioG2771PuYlsERERAv5kyYAyhywREREC/TB8thtAFAf30t01oaENAw7BvDRoaBDRkHWioekB5AcUbKh1Q8b2fRd2AZqyncohFA5p9y8s2VDGgA212zYbKBXTQbS7YUK2AFtjgag3VCmgZpRoqFNCS+1qnoSoBLb+jzx8/WviKqygR0Fp7WeHvWfsPaN1d7L6hzgNqYf9aWMPh9BxQ3zvXiG4DaqqephYzrz4DanDDGlzSLDoMqNmtanZhid4CanyTGl/eHroK6Ci25ygWOV1XAe3n9Oz89Ox8mX/Vn7pfND7L9l/8J3UOv7aUC+hAY6NsSYUCWuaOs7lKnYz6/x3o9tO3H7+cLPz7yunZ+ccvJ7efvl3yoqvodgI1snkXy+js4etCbwE10s1VvZbU1S2s2XouO4pFTtdVQCxPQEQENAx7PXXXeVDfTUD7p6ChQUBhBBoqHdAs21+8oboB+XqXWRQNyNe7zKViQL7eZUa9HWXMaOsj486OIOYioG2bc/v7rz6M/nyoOmmuI6Cfpr/vUe2Nn92qB7T3e0IG0kbRgGZ8v6x4SRWfwg79WnQpFQNiRgIiIiAiAiIiICICIlL0c6A/+vruxdpLOA4mEBEBEREQEQERERARARHxGD/u6huJHuxHmUBEBEREQEQERERARAREREBEBEREQEQERERARJyFjXPyNZEJRERARAREREBEBEREQEQERMTnQOO8Ez2RCUREQEQERERARAREREBEBEREQEQERERARBxljHNwMZEJRERARAREREBEBEREQEQERMTnQOO80jqRCUREQEQERERARAREREBEBEREQEQERERARBxljHNwMZEJRERARG7cevJm7TVwxEwgIgIiIiAiAiIiICICIiIgIgIiIiAiAiIiICICIiIgIgIi8gMS/6sxAMTRhAAAAABJRU5ErkJggg==" alt="" width="56" height="56">
+    <div>
+      <h3>ACN / PCN Calculator</h3>
+      <p lang-pt>A pista aguenta? ACN interpolado por peso contra o PCN reportado, com restrição de pressão.</p>
+      <p lang-en>Can the runway take it? Weight-interpolated ACN against the reported PCN, with tire-pressure limits.</p>
+      <a class="open" href="./acnpcn/"><span lang-pt>Abrir</span><span lang-en>Open</span></a>
+    </div>
+  </div>
+
+  <div class="fix">
+    <span class="marker"><svg width="18" height="16" viewBox="0 0 18 16"><path d="M9 0 L18 16 L0 16 Z" fill="none" stroke="#E8A33D" stroke-width="2"/></svg><code>FOEHN</code></span>
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAIAAADdvvtQAAAFWklEQVR4nO3dz3HTQBiGcYXhGGa4hwrCJTM0kHMoIXX4QAUcUodLyJ0GmOGSDlJAZnABHMQYIVvyat/98327z+9KYuTdJyutZMLVze3DAMR6V/sA4BsBQUJAkBAQJAQECQFBQkCQEBAkBAQJAUFCQJAQECQEBAkBQUJAkBAQJAQECQFBQkCQEBAkBAQJAUFCQJAQECQEBAkBQUJAkBAQJAQECQFBQkCQEBAkBAQJAUFCQJAQECQEBAkBQUJAkBAQJAQECQFd8HZ3X/sQTCOgNWM9NLSCgCAhoEXThYdFaAkBnXdaDA2d9b72AXTk57ffcd/45fuHtEeS0BX/X9iplcXm468fgS8SnUsIO0mxAs2tn6peX54/ff669KdZo1n6i+rGxAo0d/Fa53QRKtbNuiolcRH9n5Ar5dnXGKlnqHQkBPRPxD7LTj2j8sdDQDHG1KzVMyp8VAT019blh9tCIwIahtga7OylpwofFQHFe7u7t9ZQ+eMhIOlk9PrybKehKkfS+30g/VJmeluoymU1NxJrSnItfPb5Bo8y2pdqJ3X2+cbpHPMwtSlp9+HhD1kbw0V0Gt3eFuo0oBzz/frynPw17esxoEyrxfXjU46XNa7HgPLp8ETW3S4s9xyvf+JsxaY9mp19WV+7sDIrROCOLOGNooo9dbcCzRz2uyH28mXpey8uQsnvMY4vyKOMvGbLzzj9R1sbWv/2w353tqECzzoKZ9RLQNN6ZnN/FN5QyCvMTmSFH5MVy6ivXdhhv1ua+2E5i/Avm75+J7eFuliB3u7uA+MYrSxF4a9z/fh0XIQafkrfxQq0qZ6Vr9/0Oof9rodFqP2A4mbxtJWtFU7/9vL7I66B0lDWgGkxcfX0oPFrIP0kcv34pNdz3NKzjffE1CXI9LZQpoyq3Ehs9k60qXpmxplu41FGsyuQwYASPt/gYWpeBusZxT2ot6zBXZjZeprUYECWtRd3a6cwFzO06US2fm1U/WKoqV2Yi3pChF9QV/9dd02tQI4CWlqE9L09v50jkqN6hoWjTXJniF8wFcNXPWclnPiSDTUSkEfT6DN9SrqAFgJqYPnxy31ArutxffAj9wF5570h3wF5H/2j5HtvPpF4WTP1JP/Ya8lbQY4DaknChgrfSPT6KKOZ5WdG+awZjzJCtVpPxL+Grv4wlYBscfeJM3/XQA3X45G/gNrm7sfDWUDuxjeCr/foKSBfI9sJTwH1w9GPipuAHI1pEl7er4+AvIxmh3wE1CcXPzYOAnIxjpnYf+/WA7I/gp2zHhCM/wiZDsj42GGwHBD1HFkeCrsBYcpsQ0YDMjtemLEYEPWcZXNYLAaEJQYbMheQwTHCClsBUc9F1obIVkAIYaohQwGZGhcEshIQ9WxiZ7isBIStjDRkIiAjY4EI9QOinmgWhq5+QFBUb6hyQNXfP0Q1A6KeJOoOI6cwSKoFxPKTUMXBrBMQ9SRXa0g5hUFSISCWn0yqDGzpgKgnq/LDyykMkqIBsfwUUHiQywVEPcWUHGpOYZAUCojlp7BiA84K1KwyDZUIiOWnYdkDop6KCgw+p7DG5W4ob0AsP83LGBD1GJF1IjiFdSFfQ7kCYvnpRJaAqMegTJPCKQyS9AGx/JiVY2oSB0Q9xiWfIE5hkKQMiOXHhbTTlCwg6nEk4WRxCoMkTUAsP+6kmrKrm9uHJC+EPnEKg4SAICEgSAgIEgKChIAgISBICAgSAoKEgCAhIEgICBICgoSAICEgSAgIEgKChIAgISBICAgSAoKEgCAhIEgICBICgoSAICEgSAgIEgKChIAgISBICAgSAoKEgCAhIEgICBICguQPeYsAy5ithGsAAAAASUVORK5CYII=" alt="" width="56" height="56">
+    <div>
+      <h3 lang-pt>Foehn Advisor — Alpes</h3><h3 lang-en>Foehn Advisor — Alps</h3>
+      <p lang-pt>Genebra/Zurique × Milão: ΔQNH através dos Alpes, sentido do Foehn e lado da turbulência.</p>
+      <p lang-en>Geneva/Zurich × Milan: cross-Alpine ΔQNH, foehn direction and the turbulent side.</p>
+      <a class="open" href="./foehn/"><span lang-pt>Abrir</span><span lang-en>Open</span></a>
+    </div>
   </div>
 </section>
+</div>
 
-<section id="contact" class="contact">
-  <h2 lang-block="en">Contact</h2>
-  <h2 lang-block="pt">Contato</h2>
-  <ul>
-    <li lang-block="en">Operations: <a href="mailto:ops@lraviation.com.br">ops@lraviation.com.br</a></li>
-    <li lang-block="pt">Operações: <a href="mailto:ops@lraviation.com.br">ops@lraviation.com.br</a></li>
-    <li>Luciano Rocha: <a href="mailto:luciano@lraviation.com.br">luciano@lraviation.com.br</a></li>
-    <li lang-block="en">Phone / WhatsApp: <a href="tel:+5511984453130">+55 11 98445-3130</a></li>
-    <li lang-block="pt">Telefone / WhatsApp: <a href="tel:+5511984453130">+55 11 98445-3130</a></li>
-  </ul>
-  <p lang-block="en" style="margin-top:20px;color:var(--muted)">Operations mailbox monitored during supported flights, including outside Brazilian business hours.</p>
-  <p lang-block="pt" style="margin-top:20px;color:var(--muted)">Caixa de operações monitorada durante os voos apoiados, inclusive fora do horário comercial brasileiro.</p>
+<div class="dest" aria-hidden="true">
+  <svg class="rwy" width="46" height="46" viewBox="0 0 46 46">
+    <rect x="17" y="4" width="12" height="38" rx="2" fill="none" stroke="#E8A33D" stroke-width="2"/>
+    <line x1="23" y1="10" x2="23" y2="36" stroke="#E8A33D" stroke-width="2" stroke-dasharray="4 4"/>
+  </svg>
+</div>
+
+<section class="boarding" id="ipad">
+  <h2 lang-pt>Instale no iPad como um app</h2>
+  <h2 lang-en>Install on your iPad like an app</h2>
+  <p class="sub" lang-pt>Cada calculadora vira um ícone na Tela de Início, abre em tela cheia e funciona sem internet.</p>
+  <p class="sub" lang-en>Each calculator becomes a Home Screen icon, opens full screen and works with no connection.</p>
+  <div class="steps">
+    <div class="step"><b><span>1</span><span lang-pt>Abra no Safari</span><span lang-en>Open in Safari</span></b>
+      <p lang-pt>Toque em abrir na calculadora desejada — precisa ser o Safari.</p>
+      <p lang-en>Open the calculator you want — it must be Safari.</p></div>
+    <div class="step"><b><span>2</span><span lang-pt>Toque em Compartilhar</span><span lang-en>Tap Share</span></b>
+      <p lang-pt>O botão do quadrado com a seta para cima, na barra do navegador.</p>
+      <p lang-en>The square-with-arrow button in the browser bar.</p></div>
+    <div class="step"><b><span>3</span><span lang-pt>Adicionar à Tela de Início</span><span lang-en>Add to Home Screen</span></b>
+      <p lang-pt>Role a lista, toque em "Adicionar à Tela de Início" e confirme.</p>
+      <p lang-en>Scroll the list, tap "Add to Home Screen" and confirm.</p></div>
+  </div>
+  <p class="tip" lang-pt>Depois do primeiro acesso com internet, o app fica disponível offline — inclusive na cabine.</p>
+  <p class="tip" lang-en>After the first visit online, the app stays available offline — flight deck included.</p>
+</section>
+
+<section class="ops" id="services">
+  <h2 lang-pt>O que fazemos</h2>
+  <h2 lang-en>What we do</h2>
+  <p class="sub" lang-pt>Apoio de despacho para aviação executiva de longo alcance, com experiência diária em voos transatlânticos e intraeuropeus, regulações ATFM do EUROCONTROL e aeroportos coordenados.</p>
+  <p class="sub" lang-en>Dispatch support for long-range business aviation, with day-to-day experience of transatlantic and intra-European flights, EUROCONTROL ATFM regulations and coordinated airports.</p>
+  <div class="svc">
+    <div><b lang-pt>Planejamento de voo</b><b lang-en>Flight planning</b>
+      <p lang-pt>Rota, nível, combustível e alternados; preparação e apresentação do plano ICAO com validação contra RAD e restrições.</p>
+      <p lang-en>Route, level, fuel and alternates; ICAO flight plan preparation and filing, validated against RAD and airspace restrictions.</p></div>
+    <div><b lang-pt>Coordenação de slot ATFM</b><b lang-en>ATFM slot coordination</b>
+      <p lang-pt>Acompanhamento de CTOT e regulações, avaliação de alternativas de nível, rota e horário, e pedidos ao Network Manager.</p>
+      <p lang-en>CTOT and regulation monitoring, assessment of level, route and time alternatives, and requests to the Network Manager.</p></div>
+    <div><b lang-pt>Permissões e handling</b><b lang-en>Permits and handling</b>
+      <p lang-pt>Sobrevoo e pouso, PPR, slots aeroportuários, seleção e briefing de handlers.</p>
+      <p lang-en>Overflight and landing permits, PPR, airport slots, handler selection and briefing.</p></div>
+  </div>
+  <p class="contact" lang-pt>Fale com a operação: <a href="mailto:ops@lraviation.com.br">ops@lraviation.com.br</a></p>
+  <p class="contact" lang-en>Talk to operations: <a href="mailto:ops@lraviation.com.br">ops@lraviation.com.br</a></p>
 </section>
 
 <footer>
-  <span lang-block="en">© 2026 LR Aviation Ltda · São José dos Campos, SP, Brazil</span>
-  <span lang-block="pt">© 2026 LR Aviation Ltda · São José dos Campos, SP</span>
+  <span lang-pt>LR Aviation Ltda — São José dos Campos, SP, Brasil. As calculadoras são ferramentas de apoio ao estudo e planejamento; não substituem manuais, briefing oficial nem o julgamento do comandante.</span>
+  <span lang-en>LR Aviation Ltda — São José dos Campos, SP, Brazil. The calculators are study and planning aids; they do not replace manuals, official briefings or the captain's judgement.</span>
 </footer>
-</div>
 
+</div>
 <script>
-  var root=document.documentElement;
-  function setLang(l){root.setAttribute('data-lang',l);root.lang=(l==='pt'?'pt-BR':'en');
-    document.querySelectorAll('.lang button').forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.set===l))});
-    try{localStorage.setItem('lang',l)}catch(e){}}
-  document.querySelectorAll('.lang button').forEach(function(b){b.addEventListener('click',function(){setLang(b.dataset.set)})});
-  var saved=null;try{saved=localStorage.getItem('lang')}catch(e){}
-  setLang(saved||((navigator.language||'').toLowerCase().startsWith('pt')?'pt':'en'));
+function setLang(l){
+  document.documentElement.classList.toggle('en', l === 'en');
+  document.documentElement.lang = l === 'en' ? 'en' : 'pt-BR';
+  document.getElementById('btn-pt').classList.toggle('on', l === 'pt');
+  document.getElementById('btn-en').classList.toggle('on', l === 'en');
+  try { localStorage.setItem('lr_lang', l); } catch(e){}
+}
+try {
+  var saved = localStorage.getItem('lr_lang');
+  if (saved === 'en') setLang('en');
+  else if (!saved && navigator.language && navigator.language.slice(0,2) !== 'pt') setLang('en');
+} catch(e){}
 </script>
 </body>
 </html>
