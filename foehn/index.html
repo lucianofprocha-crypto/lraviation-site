@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Foehn Advisor - Alpes (Genebra / Milão)</title>
+<style>
+  :root{
+    --navy:#1B2A4A; --accent:#0B5A8A; --gray:#5b5f66; --line:#e2e5ea;
+    --bg:#f5f7fa; --card:#ffffff;
+    --green:#1b7a3d; --green-bg:#e7f5ec; --green-line:#bfe3cc;
+    --yellow:#8a7a00; --yellow-bg:#faf6dd; --yellow-line:#e8dfa0;
+    --amber:#a15c00; --amber-bg:#fdf1e0; --amber-line:#f2d4a3;
+    --red:#b71c1c; --red-bg:#fdeceb; --red-line:#f3c3c1;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    background:var(--bg); color:#1c1f24; padding:28px 16px 60px;}
+  .wrap{max-width:780px; margin:0 auto;}
+  .header{text-align:center; margin-bottom:20px;}
+  .header h1{font-size:22px; margin:0 0 4px; color:var(--navy); font-weight:700;}
+  .header p{font-size:13px; color:var(--gray); margin:0;}
+  .card{background:var(--card); border:1px solid var(--line); border-radius:12px;
+    padding:20px 22px; margin-bottom:18px;}
+  .card h2{font-size:14px; text-transform:uppercase; letter-spacing:.04em;
+    color:var(--accent); margin:0 0 14px; font-weight:700;}
+  .row{display:flex; gap:14px; flex-wrap:wrap; margin-bottom:14px;}
+  .field{flex:1 1 170px; min-width:150px;}
+  .field label{display:block; font-size:12.5px; color:var(--gray); margin-bottom:5px; font-weight:600;}
+  select, input[type=number]{width:100%; padding:9px 10px; font-size:14.5px;
+    border:1px solid var(--line); border-radius:8px; background:#fff; color:#1c1f24;}
+  select:focus, input:focus{outline:none; border-color:var(--accent);}
+  .result-banner{border-radius:10px; padding:16px 18px; margin-bottom:14px;
+    display:flex; align-items:center; gap:14px; border:1px solid;}
+  .result-banner.calm{background:var(--green-bg); border-color:var(--green-line);}
+  .result-banner.weak{background:var(--yellow-bg); border-color:var(--yellow-line);}
+  .result-banner.strong{background:var(--amber-bg); border-color:var(--amber-line);}
+  .result-banner.severe{background:var(--red-bg); border-color:var(--red-line);}
+  .badge{font-size:13px; font-weight:700; padding:6px 14px; border-radius:20px;
+    color:#fff; white-space:nowrap;}
+  .calm .badge{background:var(--green);}
+  .weak .badge{background:var(--yellow);}
+  .strong .badge{background:var(--amber);}
+  .severe .badge{background:var(--red);}
+  .result-text{font-size:13.5px; line-height:1.5;}
+  .calm .result-text{color:var(--green);}
+  .weak .result-text{color:var(--yellow);}
+  .strong .result-text{color:var(--amber);}
+  .severe .result-text{color:var(--red);}
+  .stat-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(140px,1fr)); gap:10px;}
+  .stat{background:#f7f9fb; border-radius:8px; padding:10px 12px;}
+  .stat .label{font-size:11.5px; color:var(--gray); margin-bottom:3px;}
+  .stat .value{font-size:17px; font-weight:700; color:var(--navy);}
+  .note{font-size:12px; color:var(--gray); line-height:1.5; margin-top:10px;}
+  .note.warn{color:var(--amber);}
+  ul.recs{margin:6px 0 0; padding-left:18px;}
+  ul.recs li{font-size:13px; line-height:1.55; margin-bottom:6px; color:#333;}
+  table.hist{width:100%; border-collapse:collapse; font-size:12.5px;}
+  table.hist th, table.hist td{text-align:left; padding:6px 8px; border-bottom:1px solid var(--line);}
+  table.hist th{color:var(--gray); font-weight:600;}
+  td.sev{color:var(--red); font-weight:700;}
+  td.str{color:var(--amber); font-weight:700;}
+  td.wk{color:var(--yellow); font-weight:700;}
+  td.cm{color:var(--green); font-weight:700;}
+  .footer{text-align:center; font-size:11.5px; color:var(--gray); margin-top:24px; line-height:1.6;}
+  .concept summary{cursor:pointer; font-size:14px; font-weight:700; color:var(--accent);
+    text-transform:uppercase; letter-spacing:.04em; list-style:none; outline:none;}
+  .concept summary::-webkit-details-marker{display:none;}
+  .concept summary::before{content:"+ "; color:var(--accent);}
+  .concept[open] summary::before{content:"- ";}
+  .concept p{font-size:13.5px; line-height:1.7; color:#333; margin:12px 0;}
+</style>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1B2A4A">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Foehn">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+</head>
+<body>
+<div class="wrap">
+
+  <div class="header">
+    <h1>Foehn Advisor - Alpes</h1>
+    <p>Genebra / Zurique × Milão · ΔQNH através da cordilheira + vento em altitude</p>
+  </div>
+
+  <details class="card concept">
+    <summary>O que é o efeito Foehn?</summary>
+    <p><strong>Foehn</strong> é o vento que cruza os Alpes forçado por uma diferença de pressão
+    entre os dois lados da cordilheira. O ar sobe pelo lado de pressão mais alta (barlavento),
+    desce aquecido e seco pelo lado de pressão mais baixa (sotavento) - e é no sotavento que
+    ficam a onda de montanha, os rotores e a turbulência, às vezes severa, afetando os vales
+    alpinos e as chegadas/saídas dos aeroportos daquele lado.</p>
+    <p><strong>Foehn Sul</strong>: pressão mais alta em Milão (LIMC) do que no norte -
+    turbulência no lado de Genebra (LSGG), Zurique (LSZH) e vales do norte.
+    <strong>Foehn Norte</strong>: pressão mais alta no norte - turbulência no lado de
+    Milão/Lugano e chegadas LIMC.</p>
+    <p>Critério do manual: diferença maior que <strong>5-8 hPa</strong> entre LSZH e LIMC é
+    forte indicação de turbulência; recomenda-se voar <strong>5.000-8.000 ft acima do ponto
+    mais elevado</strong> da cordilheira.</p>
+  </details>
+
+  <div class="card">
+    <h2>Pressões (QNH)</h2>
+    <div class="row">
+      <div class="field">
+        <label for="northsta">Estação do lado norte</label>
+        <select id="northsta">
+          <option value="LSGG">LSGG - Genebra</option>
+          <option value="LSZH">LSZH - Zurique</option>
+        </select>
+      </div>
+      <div class="field"><label for="qnorth">QNH lado norte (hPa)</label>
+        <input type="number" id="qnorth" value="1015" step="1"></div>
+      <div class="field"><label for="qlimc">QNH LIMC - Milão (hPa)</label>
+        <input type="number" id="qlimc" value="1013" step="1"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Vento em altitude (700-500 hPa · FL100-FL180)</h2>
+    <div class="row">
+      <div class="field"><label for="wdir">Direção (°)</label>
+        <input type="number" id="wdir" value="180" step="5" min="0" max="360"></div>
+      <div class="field"><label for="wspd">Velocidade (kt)</label>
+        <input type="number" id="wspd" value="25" step="5" min="0"></div>
+    </div>
+    <div class="note">O eixo principal dos Alpes é aproximadamente Leste-Oeste entre a Suíça e a
+    Itália: a componente que atravessa a cordilheira é a componente Norte-Sul do vento.</div>
+  </div>
+
+  <div id="banner" class="result-banner calm">
+    <span class="badge" id="badge-text">-</span>
+    <span class="result-text" id="result-text"></span>
+  </div>
+
+  <div class="card">
+    <h2>Detalhe da avaliação</h2>
+    <div class="stat-grid">
+      <div class="stat"><div class="label">ΔP (norte − LIMC)</div><div class="value" id="dp-out">-</div></div>
+      <div class="stat"><div class="label">Sentido do Foehn</div><div class="value" id="dir-out">-</div></div>
+      <div class="stat"><div class="label">Lado da turbulência</div><div class="value" id="lee-out">-</div></div>
+      <div class="stat"><div class="label">Componente N-S do vento</div><div class="value" id="perp-out">-</div></div>
+    </div>
+    <div class="note" id="wind-note"></div>
+    <div class="note warn" id="coh-note"></div>
+    <div style="margin-top:12px">
+      <div class="stat" style="background:transparent; padding:0">
+        <div class="label" style="margin-bottom:6px">Recomendações</div>
+        <ul class="recs" id="recs"></ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Histórico</h2>
+    <table class="hist">
+      <thead><tr><th>UTC</th><th>ΔP</th><th>Sentido</th><th>Vento</th><th>Indicação</th></tr></thead>
+      <tbody id="hist-body"></tbody>
+    </table>
+  </div>
+
+  <div class="footer">
+    Critério de ΔP conforme manual "Operação sobre os Andes REV1" (nota sobre os Alpes: LSZH × LIMC).<br>
+    Ferramenta de apoio ao estudo/planejamento - não substitui o briefing meteorológico oficial
+    (SIGMET/GAFOR/SIGWX) nem o julgamento do comandante.
+  </div>
+
+</div>
+
+<script>
+var TH_WEAK = 3, TH_STRONG = 5, TH_SEVERE = 8;
+
+function fmt(n, d){
+  d = d === undefined ? 1 : d;
+  return Number(n).toLocaleString('pt-BR', {minimumFractionDigits: d, maximumFractionDigits: d});
+}
+
+function assess(qn, qm, wdir, wspd, staName){
+  var dp = qn - qm;                       // norte − LIMC
+  var adp = Math.abs(dp);
+  var ns = Math.abs(wspd * Math.cos(wdir * Math.PI / 180));  // componente N-S
+  var fromSouth = Math.cos(wdir * Math.PI / 180) < 0 ? false : true;
+  // direção "de onde vem": 180° = do sul. cos(180°)=-1 → componente do sul.
+  var windFromSouth = Math.cos(wdir * Math.PI / 180) < 0;
+
+  var sense, lee;
+  if (adp < 0.5){ sense = 'Indefinido'; lee = '-'; }
+  else if (dp < 0){ sense = 'Foehn Sul'; lee = 'Norte: ' + staName + ' e vales alpinos'; }
+  else { sense = 'Foehn Norte'; lee = 'Sul: Milão (LIMC) / Lugano'; }
+
+  var cls, badge, txt;
+  if (adp < TH_WEAK){
+    cls = 'calm'; badge = 'SEM INDICAÇÃO';
+    txt = 'ΔP de ' + fmt(adp) + ' hPa através dos Alpes: sem indicação significativa de Foehn.';
+  } else if (adp < TH_STRONG){
+    cls = 'weak'; badge = 'INDICAÇÃO FRACA';
+    txt = 'ΔP de ' + fmt(adp) + ' hPa: possível ' + sense.toLowerCase() +
+      ' em formação - monitorar tendência e reportes.';
+  } else if (adp <= TH_SEVERE){
+    cls = 'strong'; badge = 'FORTE INDICAÇÃO';
+    txt = 'ΔP de ' + fmt(adp) + ' hPa (faixa 5-8 do manual): forte indicação de turbulência de ' +
+      sense.toLowerCase() + ' no sotavento.';
+  } else {
+    cls = 'severe'; badge = 'INDICAÇÃO SEVERA';
+    txt = 'ΔP de ' + fmt(adp) + ' hPa (> 8): ' + sense.toLowerCase() +
+      ' intenso - turbulência moderada a severa provável no sotavento, com onda de montanha e rotores.';
+  }
+
+  // coerência vento × gradiente
+  var coh = '';
+  if (adp >= TH_WEAK && ns >= 10){
+    var expectSouthWind = dp < 0;         // Foehn Sul → vento de quadrante sul
+    if (expectSouthWind !== windFromSouth){
+      coh = 'Atenção: a direção do vento em altitude não é coerente com o sentido do gradiente ' +
+        'de pressão - situação de transição ou dado desatualizado; reavaliar com METAR/vento recentes.';
+    }
+  }
+  var windTxt = ns < 10 ? 'Componente N-S fraca (' + fmt(ns, 0) + ' kt): pouco suporte de vento ao Foehn.'
+    : ns < 30 ? 'Componente N-S de ' + fmt(ns, 0) + ' kt: suporte moderado ao Foehn.'
+    : 'Componente N-S de ' + fmt(ns, 0) + ' kt: suporte forte - onda de montanha provável no sotavento.';
+
+  var recs = [];
+  if (adp >= TH_STRONG){
+    recs.push('Voar 5.000-8.000 ft acima do ponto mais elevado da cordilheira (Mont Blanc 15.781 ft / Monte Rosa 15.203 ft).');
+    recs.push('Esperar turbulência, onda de montanha e rotores no lado ' +
+      (dp < 0 ? 'norte (chegadas/saídas ' + staName + ', vales do Valais e do Reno)' :
+                'sul (chegadas/saídas LIMC, região de Lugano/Como)') + '.');
+    recs.push('Atenção a nuvens lenticulares e a variações rápidas de vento na aproximação do lado sotavento.');
+  } else if (adp >= TH_WEAK){
+    recs.push('Monitorar a evolução do ΔP e os reportes de tripulações na região antes do cruzamento.');
+  } else {
+    recs.push('Condição de gradiente fraco - cruzamento dos Alpes sem indicação de Foehn pelos critérios de pressão.');
+  }
+  recs.push('Confirmar com o briefing oficial: SIGMET, GAFOR suíço e cartas SIGWX da região.');
+
+  return {dp: dp, adp: adp, ns: ns, sense: sense, lee: lee, cls: cls,
+          badge: badge, txt: txt, windTxt: windTxt, coh: coh, recs: recs};
+}
+
+function loadHist(){
+  var h = [];
+  try { h = JSON.parse(localStorage.getItem('foehn_hist') || '[]'); } catch(e){ h = []; }
+  var cls = {calm:'cm', weak:'wk', strong:'str', severe:'sev'};
+  document.getElementById('hist-body').innerHTML = h.slice(0, 25).map(function(r){
+    return '<tr><td>' + r.ts + '</td><td>' + r.dp + ' hPa</td><td>' + r.sense +
+      '</td><td>' + r.w + '</td><td class="' + (cls[r.cls] || '') + '">' + r.badge + '</td></tr>';
+  }).join('') || '<tr><td colspan="5" style="color:var(--gray)">Nenhuma avaliação ainda</td></tr>';
+}
+
+function saveHist(entry){
+  try {
+    var h = JSON.parse(localStorage.getItem('foehn_hist') || '[]');
+    h.unshift(entry);
+    localStorage.setItem('foehn_hist', JSON.stringify(h.slice(0, 50)));
+  } catch(e){}
+}
+
+var saveTimer = null;
+
+function recompute(save){
+  var staSel = document.getElementById('northsta');
+  var staName = staSel.value;
+  var qn = parseFloat(document.getElementById('qnorth').value) || 0;
+  var qm = parseFloat(document.getElementById('qlimc').value) || 0;
+  var wdir = parseFloat(document.getElementById('wdir').value) || 0;
+  var wspd = parseFloat(document.getElementById('wspd').value) || 0;
+  if (!qn || !qm) return;
+
+  var a = assess(qn, qm, wdir, wspd, staName);
+
+  document.getElementById('banner').className = 'result-banner ' + a.cls;
+  document.getElementById('badge-text').textContent = a.badge;
+  document.getElementById('result-text').textContent = a.txt;
+  document.getElementById('dp-out').textContent =
+    (a.dp > 0 ? '+' : '') + fmt(a.dp) + ' hPa';
+  document.getElementById('dir-out').textContent = a.sense;
+  document.getElementById('lee-out').textContent = a.lee;
+  document.getElementById('perp-out').textContent = fmt(a.ns, 0) + ' kt';
+  document.getElementById('wind-note').textContent = a.windTxt;
+  document.getElementById('coh-note').textContent = a.coh;
+  document.getElementById('recs').innerHTML =
+    a.recs.map(function(r){ return '<li>' + r + '</li>'; }).join('');
+
+  if (save){
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(function(){
+      saveHist({
+        ts: new Date().toISOString().slice(0, 16).replace('T', ' '),
+        dp: (a.dp > 0 ? '+' : '') + fmt(a.dp),
+        sense: a.sense,
+        w: ('00' + Math.round(wdir)).slice(-3) + '/' + Math.round(wspd) + 'kt',
+        cls: a.cls, badge: a.badge
+      });
+      loadHist();
+    }, 1500);
+  }
+}
+
+['northsta','qnorth','qlimc','wdir','wspd'].forEach(function(id){
+  document.getElementById(id).addEventListener('input', function(){ recompute(true); });
+  document.getElementById(id).addEventListener('change', function(){ recompute(true); });
+});
+
+recompute(false);
+loadHist();
+</script>
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function(){
+    navigator.serviceWorker.register('sw.js');
+  });
+}
+</script>
+</body>
+</html>
