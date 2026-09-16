@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>G550 - Calculadora de Fuel Tankering</title>
+<style>
+  :root{
+    --navy:#1B2A4A; --accent:#0B5A8A; --gray:#5b5f66; --line:#e2e5ea; --bg:#f5f7fa; --card:#fff;
+    --green:#1b7a3d; --green-bg:#e7f5ec; --green-line:#bfe3cc;
+    --red:#b71c1c; --red-bg:#fdeceb; --red-line:#f3c3c1;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; background:var(--bg); color:#1c1f24; padding:28px 16px 60px;}
+  .wrap{max-width:780px; margin:0 auto;}
+  .header{text-align:center; margin-bottom:20px;}
+  .header h1{font-size:22px; margin:0 0 4px; color:var(--navy); font-weight:700;}
+  .header p{font-size:13px; color:var(--gray); margin:0;}
+  .card{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:20px 22px; margin-bottom:18px;}
+  .card h2{font-size:14px; text-transform:uppercase; letter-spacing:.04em; color:var(--accent); margin:0 0 14px; font-weight:700;}
+  .row{display:flex; gap:14px; flex-wrap:wrap; margin-bottom:14px;}
+  .field{flex:1 1 170px; min-width:150px;}
+  .field label{display:block; font-size:12.5px; color:var(--gray); margin-bottom:5px; font-weight:600;}
+  select, input[type=number]{width:100%; padding:9px 10px; font-size:14.5px; border:1px solid var(--line); border-radius:8px; background:#fff; color:#1c1f24;}
+  select:focus, input:focus{outline:none; border-color:var(--accent);}
+  input[type=range]{width:100%;}
+  .slider-val{font-size:13px; color:var(--navy); font-weight:700; float:right;}
+  .result-banner{border-radius:10px; padding:16px 18px; margin-bottom:14px; display:flex; align-items:center; gap:14px; border:1px solid;}
+  .result-banner.go{background:var(--green-bg); border-color:var(--green-line);}
+  .result-banner.nogo{background:var(--red-bg); border-color:var(--red-line);}
+  .badge{font-size:13px; font-weight:700; padding:6px 14px; border-radius:20px; color:#fff; white-space:nowrap;}
+  .go .badge{background:var(--green);}
+  .nogo .badge{background:var(--red);}
+  .result-text{font-size:13.5px; line-height:1.5;}
+  .go .result-text{color:var(--green);}
+  .nogo .result-text{color:var(--red);}
+  .stat-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(140px,1fr)); gap:10px;}
+  .stat{background:#f7f9fb; border-radius:8px; padding:10px 12px;}
+  .stat .label{font-size:11.5px; color:var(--gray); margin-bottom:3px;}
+  .stat .value{font-size:17px; font-weight:700; color:var(--navy);}
+  .note{font-size:12px; color:var(--gray); line-height:1.5; margin-top:10px;}
+  .footer{text-align:center; font-size:11.5px; color:var(--gray); margin-top:24px; line-height:1.6;}
+  .concept summary{cursor:pointer; font-size:14px; font-weight:700; color:var(--accent); text-transform:uppercase; letter-spacing:.04em; list-style:none; outline:none;}
+  .concept summary::-webkit-details-marker{display:none;}
+  .concept summary::before{content:"+ "; color:var(--accent);}
+  .concept[open] summary::before{content:"- ";}
+  .concept p{font-size:13.5px; line-height:1.7; color:#333; margin:12px 0;}
+  .concept .example{background:#f7f9fb; border-radius:8px; padding:12px 14px; margin-top:10px; font-size:13px; line-height:1.7;}
+  .concept .example strong{color:var(--navy);}
+  .concept .formula{background:#eef4f8; border:1px solid var(--line); border-radius:8px; padding:10px 14px; margin:12px 0; font-size:13.5px; font-weight:600; color:var(--navy); text-align:center;}
+</style>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1B2A4A">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Tankering">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+</head>
+<body>
+<div class="wrap">
+
+  <div class="header">
+    <h1>Calculadora de Fuel Tankering - G550</h1>
+    <p>Decisão de abastecer combustível extra com base no fator de custo de transporte</p>
+  </div>
+
+  <details class="card concept">
+    <summary>O que é fuel tankering?</summary>
+    <p><strong>Fuel tankering</strong> é a decisão de embarcar mais combustível do que o necessário para o voo, aproveitando um preço mais baixo no aeroporto de partida, para evitar (ou reduzir) o abastecimento no destino, onde o combustível é mais caro.</p>
+    <p>A pegadinha é que combustível extra pesa, e carregar esse peso a mais faz o avião queimar mais combustível durante o voo - então parte da economia de preço é consumida só para "carregar" o combustível extra. Quanto mais longo o voo e quanto mais rápido (Mach mais alto) o cruzeiro, maior essa penalidade, porque o excedente fica mais tempo sendo carregado a um consumo mais alto.</p>
+    <div class="formula">economia por galão = preço no destino - (preço na origem x fator de tankering)</div>
+    <p>O <strong>fator de tankering</strong> representa quanto combustível é queimado para transportar cada galão extra ao longo daquele voo específico - ele é sempre maior que 1, e cresce com o tempo de voo e com o Mach de cruzeiro.</p>
+    <div class="example">
+      <strong>Exemplo prático</strong> (Mach 0,85, voo de 6 horas):<br>
+      Preço em DEP: US$ 4,00/gal &nbsp;|&nbsp; Preço em ARR: US$ 4,90/gal &nbsp;|&nbsp; Fator de tankering: 1,251<br><br>
+      Economia por galão = 4,90 - (4,00 x 1,251) = 4,90 - 5,004 = <strong>-US$ 0,10 por galão</strong><br><br>
+      Mesmo com o combustível US$ 0,90 mais barato na origem, nesse voo de 6 horas em Mach 0,85 <strong>não compensa</strong> fazer tankering - a penalidade de carregar o peso extra (25,1% de sobrecusto de queima) supera a vantagem de preço. Se o mesmo voo fosse de apenas 3 horas (fator 1,090), a conta mudaria para 4,90 - (4,00x1,090) = <strong>+US$ 0,54/galão</strong> - aí sim valeria a pena abastecer o máximo possível.
+    </div>
+  </details>
+
+  <div class="card">
+    <h2>Preços de combustível</h2>
+    <div class="row">
+      <div class="field"><label for="depPrice">Preço no DEP (US$/gal)</label><input type="number" id="depPrice" value="4.00" step="0.01"></div>
+      <div class="field"><label for="arrPrice">Preço no ARR (US$/gal)</label><input type="number" id="arrPrice" value="4.90" step="0.01"></div>
+      <div class="field"><label for="uplift">Fuel uplift (gal)</label><input type="number" id="uplift" value="3500" step="50"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Perfil de voo</h2>
+    <div class="row">
+      <div class="field">
+        <label for="mach">Mach de cruzeiro <span class="slider-val" id="mach-val">0.85</span></label>
+        <input type="range" id="mach" min="0.80" max="0.87" step="0.01" value="0.85">
+      </div>
+      <div class="field">
+        <label for="time">Tempo de voo (h) <span class="slider-val" id="time-val">6.0</span></label>
+        <input type="range" id="time" min="3" max="10" step="0.1" value="6">
+      </div>
+    </div>
+  </div>
+
+  <div id="banner" class="result-banner go">
+    <span class="badge" id="badge-text">TANKER</span>
+    <span class="result-text" id="result-text"></span>
+  </div>
+
+  <div class="card">
+    <h2>Detalhe do cálculo</h2>
+    <div class="stat-grid">
+      <div class="stat"><div class="label">Fator de tankering (interpolado)</div><div class="value" id="factor-out">-</div></div>
+      <div class="stat"><div class="label">Ratio ARR / DEP</div><div class="value" id="ratio-out">-</div></div>
+      <div class="stat"><div class="label">Economia por galão</div><div class="value" id="savings-gal">-</div></div>
+      <div class="stat"><div class="label">Economia total</div><div class="value" id="savings-total">-</div></div>
+    </div>
+    <div class="note">Fórmula: economia/galão = Preço ARR - Preço DEP x Fator(mach, tempo). Tanker compensa quando Ratio (ARR/DEP) &gt; Fator - o fator cresce com o tempo de voo e com o Mach de cruzeiro, pois mais combustível é queimado para carregar o peso extra.</div>
+    <div class="note" id="extrap-note"></div>
+  </div>
+
+  <div class="footer">
+    Fator de tankering derivado da planilha "tankering.numbers" (grade Mach 0.80-0.87 x tempo 3-10h), reconciliado com a fórmula economia = PreçoARR - PreçoDEP x Fator.<br>
+    Ferramenta de apoio ao estudo/planejamento pessoal - sempre confirme com o despacho operacional antes de decidir o abastecimento.
+  </div>
+
+</div>
+
+<script>
+var MACHS = [0.80, 0.83, 0.85, 0.87];
+var TIMES = [3,4,5,6,7,8,9,10];
+
+var FACTOR = [
+  [1.090,1.127,1.165,1.203,1.242,1.282,1.323,1.365],
+  [1.094,1.133,1.172,1.213,1.255,1.298,1.343,1.388],
+  [1.107,1.153,1.201,1.251,1.303,1.357,1.413,1.471],
+  [1.133,1.191,1.253,1.319,1.391,1.467,1.549,null]
+];
+
+function lerp(a,b,f){ return a + (b-a)*f; }
+
+function findBracket(arr, x){
+  if (x <= arr[0]) return [0,0,0];
+  if (x >= arr[arr.length-1]) return [arr.length-2, arr.length-1, 1];
+  for (var i=0;i<arr.length-1;i++){
+    if (x >= arr[i] && x <= arr[i+1]){
+      var f = (x-arr[i])/(arr[i+1]-arr[i]);
+      return [i, i+1, f];
+    }
+  }
+}
+
+function factorAt(mach, time){
+  var mb = findBracket(MACHS, mach);
+  var tb = findBracket(TIMES, time);
+  var m0=mb[0], m1=mb[1], mf=mb[2];
+  var t0=tb[0], t1=tb[1], tf=tb[2];
+
+  var v00 = FACTOR[m0][t0], v01 = FACTOR[m0][t1];
+  var v10 = FACTOR[m1][t0], v11 = FACTOR[m1][t1];
+
+  var extrapolated = false;
+  if (v00===null || v01===null || v10===null || v11===null){
+    extrapolated = true;
+    v00 = v00===null ? FACTOR[m0][t0-1] : v00;
+    v01 = v01===null ? FACTOR[m0][t1-1] : v01;
+    v10 = v10===null ? FACTOR[m1][t0-1] : v10;
+    v11 = v11===null ? FACTOR[m1][t1-1] : v11;
+  }
+
+  var top = lerp(v00, v01, tf);
+  var bot = lerp(v10, v11, tf);
+  var result = lerp(top, bot, mf);
+  return {value: result, extrapolated: extrapolated};
+}
+
+function fmt(n,d){ d=d===undefined?2:d; return Number(n).toLocaleString('pt-BR',{minimumFractionDigits:d, maximumFractionDigits:d}); }
+
+function recompute(){
+  var dep = parseFloat(document.getElementById('depPrice').value)||0;
+  var arr = parseFloat(document.getElementById('arrPrice').value)||0;
+  var uplift = parseFloat(document.getElementById('uplift').value)||0;
+  var mach = parseFloat(document.getElementById('mach').value);
+  var time = parseFloat(document.getElementById('time').value);
+
+  document.getElementById('mach-val').textContent = fmt(mach,2);
+  document.getElementById('time-val').textContent = fmt(time,1);
+
+  var f = factorAt(mach, time);
+  var factor = f.value;
+  var ratio = dep>0 ? arr/dep : 0;
+  var savingsGal = arr - dep*factor;
+  var savingsTotal = uplift*savingsGal;
+
+  document.getElementById('factor-out').textContent = fmt(factor,3);
+  document.getElementById('ratio-out').textContent = fmt(ratio,3);
+  document.getElementById('savings-gal').textContent = 'US$ ' + fmt(savingsGal,3);
+  document.getElementById('savings-total').textContent = 'US$ ' + fmt(savingsTotal,2);
+
+  document.getElementById('extrap-note').textContent = f.extrapolated ?
+    'Combinação próxima do limite da grade original (Mach 0.87 / 10h não tabulado) - valor extrapolado do último ponto disponível, confirmar com o despacho.' : '';
+
+  var banner = document.getElementById('banner');
+  var badge = document.getElementById('badge-text');
+  var text = document.getElementById('result-text');
+
+  if (savingsGal > 0){
+    banner.className = 'result-banner go';
+    badge.textContent = 'TANKER';
+    text.textContent = 'Vale a pena abastecer combustível extra: economia estimada de US$ ' + fmt(savingsGal,3) + ' por galão (US$ ' + fmt(savingsTotal,2) + ' no total para ' + fmt(uplift,0) + ' gal).';
+  } else {
+    banner.className = 'result-banner nogo';
+    badge.textContent = 'NÃO TANKER';
+    text.textContent = 'Não compensa abastecer combustível extra: o custo de carregá-lo supera a economia de preço (US$ ' + fmt(savingsGal,3) + ' por galão).';
+  }
+}
+
+['depPrice','arrPrice','uplift','mach','time'].forEach(function(id){
+  document.getElementById(id).addEventListener('input', recompute);
+  document.getElementById(id).addEventListener('change', recompute);
+});
+
+recompute();
+</script>
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function(){
+    navigator.serviceWorker.register('sw.js');
+  });
+}
+</script>
+</body>
+</html>
