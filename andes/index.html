@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#10141b">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<title>Andes Crossing Advisor — PS-SRN</title>
+<title>Andes Crossing Advisor</title>
 <style>
 :root {
   --bg: #f2f4f8; --panel: #ffffff; --panel2: #e9edf3; --border: #d4dae3;
@@ -82,7 +82,7 @@ td.nogo { color: var(--red); font-weight: 700; }
 <div class="grid">
   <div>
     <h1>Andes Crossing Advisor</h1>
-    <div class="sub">SBGR/SBFI ↔ SCEL · ΔQNH + Ábaco de Harrison · Operação sobre os Andes REV1</div>
+    <div class="sub">Brasil ↔ Santiago (SCEL) · ΔQNH + Ábaco de Harrison</div>
 
     <div class="card">
       <h2>Dados de entrada</h2>
@@ -112,6 +112,17 @@ td.nogo { color: var(--red); font-weight: 700; }
       <h2>Ábaco de Harrison</h2>
       <svg id="abaco" viewBox="0 0 460 420" xmlns="http://www.w3.org/2000/svg"></svg>
     </div>
+    <details class="card" style="margin-top:14px">
+  <summary style="cursor:pointer; font-weight:700; font-size:.85rem">Sobre o app</summary>
+  <p style="font-size:.85rem; margin:8px 0 0"><b>Andes Crossing Advisor</b> — Ferramenta de apoio à decisão
+  para o cruzamento da Cordilheira dos Andes na rota Brasil–Santiago (SCEL). A partir da diferença de QNH
+  entre Santiago (SCEL) e Mendoza (SAME) e do vento a 500&nbsp;mb em Juan Fernández, o app aplica o Ábaco
+  de Harrison para indicar a probabilidade de turbulência orográfica — sem turbulência, leve ou
+  moderada/forte — e emitir uma recomendação GO/NO-GO, com sugestão de rota (entrada preferencial via
+  UMKAL ou alternativa ao sul via ICO/EROLO). Funciona offline após o primeiro acesso e mantém o
+  histórico de avaliações no dispositivo. Não substitui o briefing meteorológico oficial nem o
+  julgamento do comandante.</p>
+</details>
     <div class="card" style="margin-top:14px">
       <h2>Histórico</h2>
       <table id="hist"><thead><tr>
@@ -120,7 +131,7 @@ td.nogo { color: var(--red); font-weight: 700; }
     </div>
   </div>
 </div>
-<div class="disclaimer">Ferramenta de apoio à decisão baseada no manual "Operação sobre os Andes REV1".
+<div class="disclaimer">Ferramenta de apoio à decisão baseada no manual "Operação sobre os Andes".
 Não substitui briefing meteorológico oficial (SIGMET/SIGWX), a consulta a MERINO (HF 10635) nem o julgamento do comandante.</div>
 
 <script>

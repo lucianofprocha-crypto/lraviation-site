@@ -1,6 +1,6 @@
 /* Andes Crossing Advisor — service worker (cache-first, funciona offline).
    Ao atualizar o app, mude a versão abaixo para forçar novo cache. */
-const CACHE = "andes-advisor-v1";
+const CACHE = "andes-advisor-v3";
 const ASSETS = [
   "./", "index.html", "manifest.webmanifest",
   "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png"
