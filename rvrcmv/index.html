@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>G550 - Calculadora RVR / CMV (EFVS)</title>
+<style>
+  :root{
+    --navy:#1B2A4A; --accent:#0B5A8A; --gray:#5b5f66; --line:#e2e5ea;
+    --bg:#f5f7fa; --card:#ffffff;
+    --green:#1b7a3d; --green-bg:#e7f5ec; --green-line:#bfe3cc;
+    --amber:#a15c00; --amber-bg:#fdf1e0; --amber-line:#f2d4a3;
+    --red:#b71c1c; --red-bg:#fdeceb; --red-line:#f3c3c1;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    background:var(--bg); color:#1c1f24; padding:28px 16px 60px;}
+  .wrap{max-width:780px; margin:0 auto;}
+  .header{text-align:center; margin-bottom:20px;}
+  .header h1{font-size:22px; margin:0 0 4px; color:var(--navy); font-weight:700;}
+  .header p{font-size:13px; color:var(--gray); margin:0;}
+  .card{background:var(--card); border:1px solid var(--line); border-radius:12px;
+    padding:20px 22px; margin-bottom:18px;}
+  .card h2{font-size:14px; text-transform:uppercase; letter-spacing:.04em;
+    color:var(--accent); margin:0 0 14px; font-weight:700;}
+  .row{display:flex; gap:14px; flex-wrap:wrap; margin-bottom:14px;}
+  .field{flex:1 1 200px; min-width:150px;}
+  .field label{display:block; font-size:12.5px; color:var(--gray); margin-bottom:5px; font-weight:600;}
+  select, input[type=number]{width:100%; padding:9px 10px; font-size:14.5px;
+    border:1px solid var(--line); border-radius:8px; background:#fff; color:#1c1f24;}
+  select:focus, input:focus{outline:none; border-color:var(--accent);}
+  .result-banner{border-radius:10px; padding:16px 18px; margin-bottom:14px;
+    display:flex; align-items:center; gap:14px; border:1px solid;}
+  .result-banner.ok{background:var(--green-bg); border-color:var(--green-line);}
+  .result-banner.efvs{background:var(--amber-bg); border-color:var(--amber-line);}
+  .result-banner.below{background:var(--red-bg); border-color:var(--red-line);}
+  .badge{font-size:13px; font-weight:700; padding:6px 14px; border-radius:20px;
+    color:#fff; white-space:nowrap;}
+  .ok .badge{background:var(--green);}
+  .efvs .badge{background:var(--amber);}
+  .below .badge{background:var(--red);}
+  .result-text{font-size:13.5px; line-height:1.5;}
+  .ok .result-text{color:var(--green);}
+  .efvs .result-text{color:var(--amber);}
+  .below .result-text{color:var(--red);}
+  .stat-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(150px,1fr)); gap:10px;}
+  .stat{background:#f7f9fb; border-radius:8px; padding:10px 12px;}
+  .stat .label{font-size:11.5px; color:var(--gray); margin-bottom:3px;}
+  .stat .value{font-size:17px; font-weight:700; color:var(--navy);}
+  .note{font-size:12px; color:var(--gray); line-height:1.5; margin-top:10px;}
+  .note.warn{color:var(--amber); font-weight:600;}
+  .note.stop{color:var(--red); font-weight:600;}
+  .footer{text-align:center; font-size:11.5px; color:var(--gray); margin-top:24px; line-height:1.6;}
+  .concept summary{cursor:pointer; font-size:14px; font-weight:700; color:var(--accent);
+    text-transform:uppercase; letter-spacing:.04em; list-style:none; outline:none;}
+  .concept summary::-webkit-details-marker{display:none;}
+  .concept summary::before{content:"+ "; color:var(--accent);}
+  .concept[open] summary::before{content:"- ";}
+  .concept p, .concept li{font-size:13.5px; line-height:1.7; color:#333;}
+  .concept ul{margin:10px 0; padding-left:20px;}
+</style>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1B2A4A">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="RVR-CMV">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+</head>
+<body>
+<div class="wrap">
+
+  <div class="header">
+    <h1>Calculadora RVR / CMV - G550</h1>
+    <p>Crédito operacional EFVS: conversão de visibilidade em CMV e RVR/CMV reduzido</p>
+  </div>
+
+  <div class="card">
+    <h2>Mínimo publicado da aproximação</h2>
+    <div class="row">
+      <div class="field">
+        <label for="minPub">RVR/CMV mínimo da carta (m)</label>
+        <input type="number" id="minPub" value="700" step="50" min="0">
+      </div>
+      <div class="field">
+        <label for="apptype">Tipo de aproximação</label>
+        <select id="apptype">
+          <option value="cat1">CAT I (HAT mín. 100 ft com EFVS)</option>
+          <option value="apv">APV - com guia vertical (HAT mín. 200 ft)</option>
+          <option value="npa">NPA - sem guia vertical (HAT mín. 200 ft)</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Condição reportada</h2>
+    <div class="row">
+      <div class="field">
+        <label for="repmode">Informação disponível</label>
+        <select id="repmode">
+          <option value="rvr">RVR reportado</option>
+          <option value="vis">Visibilidade reportada (converter em CMV)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="repval" id="repval-label">RVR reportado (m)</label>
+        <input type="number" id="repval" value="500" step="50" min="0">
+      </div>
+    </div>
+    <div class="row" id="vis-extra" style="display:none">
+      <div class="field">
+        <label for="lights">Luzes na operação</label>
+        <select id="lights">
+          <option value="hi">Aproximação e pista de alta intensidade</option>
+          <option value="other">Qualquer outro sistema de luzes</option>
+          <option value="none">Sem luzes</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="period">Período</label>
+        <select id="period">
+          <option value="day">Dia</option>
+          <option value="night">Noite</option>
+        </select>
+      </div>
+    </div>
+    <div class="note" id="cmv-note"></div>
+  </div>
+
+  <div id="banner" class="result-banner ok">
+    <span class="badge" id="badge-text">-</span>
+    <span class="result-text" id="result-text"></span>
+  </div>
+
+  <div class="card">
+    <h2>Detalhe do cálculo</h2>
+    <div class="stat-grid">
+      <div class="stat"><div class="label">Mínimo publicado</div><div class="value" id="min-out">-</div></div>
+      <div class="stat"><div class="label">Mínimo reduzido (EFVS)</div><div class="value" id="red-out">-</div></div>
+      <div class="stat"><div class="label">Reportado / CMV</div><div class="value" id="rep-out">-</div></div>
+      <div class="stat"><div class="label">Margem c/ crédito EFVS</div><div class="value" id="margin-out">-</div></div>
+    </div>
+    <div class="note" id="table-note"></div>
+    <div class="note warn" id="pilot-note"></div>
+    <div class="note stop" id="restr-note"></div>
+  </div>
+
+  <details class="card concept">
+    <summary>Limites e proibições EFVS</summary>
+    <ul>
+      <li><b>Alturas-limite com EFVS:</b> CAT I - 100 ft acima da elevação da cabeceira;
+        APV/NPA - 200 ft. Abaixo disso, só a olho nu (sem a imagem EFVS): cabeceira e/ou zona de toque.</li>
+      <li><b>APV/NPA:</b> CDFA obrigatória; ângulo de planeio publicado máx. 3,7°;
+        deslocamento angular máx. 2°; vento de través dentro do certificado para o EFVS.</li>
+      <li><b>Dois pilotos:</b> RVR reduzido abaixo de 550 m não é permitido com um só piloto.</li>
+      <li><b>Não autorizado com EFVS:</b> circular (exceto pouso direto), aproximação visual, CAT II e CAT III.</li>
+      <li><b>VGSI (PAPI/VASI) não conta</b> como referência visual em operação EFVS.</li>
+      <li><b>Recência:</b> 6 aproximações EFVS nos últimos 6 meses, piloto manuseando os controles,
+        mesmo tipo de aeronave/equipamento, terminando em pouso completo.</li>
+      <li><b>Conversão de visibilidade em CMV:</b> não pode ser usada quando há RVR reportado,
+        para mínimos de decolagem, nem para qualquer RVR mínimo inferior a 800 m.</li>
+    </ul>
+  </details>
+
+  <div class="footer">
+    Tabelas e critérios do "EFVS Operations Guide" (RBAC 91 / ANAC e G550 AFM).<br>
+    Ferramenta de apoio ao estudo pessoal - sempre confirme com a regulamentação e o AFM antes de operar.
+  </div>
+
+</div>
+
+<script>
+// Tabela RVR/CMV normal -> reduzido (visão intensificada), 46 linhas do guia
+var RVR_TABLE = [
+  [550,350],[600,400],[650,450],[700,450],[750,500],[800,550],[900,600],[1000,650],
+  [1100,750],[1200,800],[1300,900],[1400,900],[1500,1000],[1600,1100],[1700,1100],
+  [1800,1200],[1900,1300],[2000,1300],[2100,1400],[2200,1500],[2300,1500],[2400,1600],
+  [2500,1700],[2600,1700],[2700,1800],[2800,1900],[2900,1900],[3000,2000],[3100,2000],
+  [3200,2100],[3300,2200],[3400,2200],[3500,2300],[3600,2400],[3700,2400],[3800,2500],
+  [3900,2600],[4000,2600],[4100,2700],[4200,2800],[4300,2800],[4400,2900],[4500,3000],
+  [4600,3000],[4700,3100],[4800,3200],[4900,3200],[5000,3300]
+];
+
+var CMV_FACTORS = {
+  hi:    {day:1.5, night:2.0},
+  other: {day:1.0, night:1.5},
+  none:  {day:1.0, night:null}
+};
+
+function fmt(n){ return Number(n).toLocaleString('pt-BR'); }
+
+// mínimo publicado -> reduzido: linha da tabela igual ou imediatamente SUPERIOR (conservador)
+function reducedMinimum(pub){
+  if (pub < RVR_TABLE[0][0]) return {red:null, row:null, reason:'below'};
+  for (var i=0; i<RVR_TABLE.length; i++){
+    if (RVR_TABLE[i][0] >= pub){
+      return {red:RVR_TABLE[i][1], row:RVR_TABLE[i][0],
+              rounded:RVR_TABLE[i][0] !== pub, reason:null};
+    }
+  }
+  return {red:null, row:null, reason:'above'};
+}
+
+function recompute(){
+  var pub = parseFloat(document.getElementById('minPub').value) || 0;
+  var mode = document.getElementById('repmode').value;
+  var rep = parseFloat(document.getElementById('repval').value) || 0;
+  var lights = document.getElementById('lights').value;
+  var period = document.getElementById('period').value;
+
+  document.getElementById('vis-extra').style.display = mode === 'vis' ? 'flex' : 'none';
+  document.getElementById('repval-label').textContent =
+    mode === 'vis' ? 'Visibilidade reportada (m)' : 'RVR reportado (m)';
+
+  // ----- CMV -----
+  var effective = rep, cmvNote = '', cmvBlocked = false;
+  if (mode === 'vis'){
+    var factor = CMV_FACTORS[lights][period];
+    if (factor === null){
+      cmvBlocked = true;
+      cmvNote = 'Sem luzes à noite: conversão de visibilidade em CMV não aplicável (N/A na tabela).';
+      effective = 0;
+    } else {
+      effective = rep * factor;
+      cmvNote = 'CMV = ' + fmt(rep) + ' m × ' + factor.toLocaleString('pt-BR') +
+        ' (' + (period === 'day' ? 'dia' : 'noite') + ') = ' + fmt(effective) + ' m. ' +
+        'Lembrete: a conversão não vale se houver RVR reportado nem para mínimos de decolagem.';
+    }
+  }
+  document.getElementById('cmv-note').textContent = cmvNote;
+
+  // ----- mínimo reduzido -----
+  var r = reducedMinimum(pub);
+  var tableNote = '';
+  if (r.reason === 'below'){
+    tableNote = 'Mínimo publicado abaixo de 550 m: fora da tabela de crédito EFVS - sem redução aplicável.';
+  } else if (r.reason === 'above'){
+    tableNote = 'Mínimo publicado acima de 5.000 m: fora da tabela - crédito EFVS não tabulado.';
+  } else if (r.rounded){
+    tableNote = 'Mínimo de ' + fmt(pub) + ' m não está tabulado: usada a linha superior (' +
+      fmt(r.row) + ' m → ' + fmt(r.red) + ' m), critério conservador.';
+  }
+  document.getElementById('table-note').textContent = tableNote;
+
+  // ----- restrições -----
+  var restr = [];
+  if (mode === 'vis' && pub < 800 && !cmvBlocked){
+    restr.push('Conversão de visibilidade em CMV NÃO pode ser usada para mínimo inferior a 800 m ' +
+      '(mínimo publicado: ' + fmt(pub) + ' m) - use somente RVR reportado nesta aproximação.');
+  }
+  var pilotNote = '';
+  if (r.red !== null && r.red < 550){
+    pilotNote = 'RVR reduzido de ' + fmt(r.red) + ' m (abaixo de 550 m): operação exige dois ou mais pilotos.';
+  }
+  document.getElementById('pilot-note').textContent = pilotNote;
+
+  // ----- veredito -----
+  var banner = document.getElementById('banner');
+  var badge = document.getElementById('badge-text');
+  var text = document.getElementById('result-text');
+  var invalidVis = cmvBlocked || (mode === 'vis' && pub < 800);
+
+  document.getElementById('min-out').textContent = pub ? fmt(pub) + ' m' : '-';
+  document.getElementById('red-out').textContent = r.red !== null ? fmt(r.red) + ' m' : '-';
+  document.getElementById('rep-out').textContent =
+    invalidVis ? '-' : fmt(effective) + ' m' + (mode === 'vis' ? ' (CMV)' : '');
+  document.getElementById('margin-out').textContent =
+    (r.red !== null && !invalidVis) ? (effective - r.red >= 0 ? '+' : '') + fmt(effective - r.red) + ' m' : '-';
+
+  if (invalidVis){
+    banner.className = 'result-banner below';
+    badge.textContent = 'DADO INVÁLIDO';
+    text.textContent = cmvBlocked
+      ? 'Conversão em CMV não aplicável nesta condição de luzes/período - obtenha RVR reportado.'
+      : 'Para mínimo inferior a 800 m a conversão de visibilidade não é permitida - obtenha RVR reportado.';
+  } else if (r.red === null){
+    if (effective >= pub && pub > 0){
+      banner.className = 'result-banner ok';
+      badge.textContent = 'ATENDE';
+      text.textContent = 'Reportado (' + fmt(effective) + ' m) atende o mínimo publicado (' + fmt(pub) + ' m). ' + tableNote;
+    } else {
+      banner.className = 'result-banner below';
+      badge.textContent = 'NÃO ATENDE';
+      text.textContent = 'Reportado (' + fmt(effective) + ' m) abaixo do mínimo publicado (' + fmt(pub) + ' m), e sem crédito EFVS aplicável. ' + tableNote;
+    }
+  } else if (effective >= pub){
+    banner.className = 'result-banner ok';
+    badge.textContent = 'ATENDE SEM CRÉDITO';
+    text.textContent = 'Reportado (' + fmt(effective) + ' m) atende o próprio mínimo publicado (' +
+      fmt(pub) + ' m) - crédito EFVS disponível como margem (' + fmt(r.red) + ' m).';
+  } else if (effective >= r.red){
+    banner.className = 'result-banner efvs';
+    badge.textContent = 'ATENDE COM EFVS';
+    text.textContent = 'Reportado (' + fmt(effective) + ' m) abaixo do mínimo publicado (' + fmt(pub) +
+      ' m), mas atende o mínimo reduzido com crédito EFVS (' + fmt(r.red) + ' m) - utilizável para planejamento e liberação.';
+  } else {
+    banner.className = 'result-banner below';
+    badge.textContent = 'NÃO ATENDE';
+    text.textContent = 'Reportado (' + fmt(effective) + ' m) abaixo até do mínimo reduzido com EFVS (' +
+      fmt(r.red) + ' m).';
+  }
+
+  document.getElementById('restr-note').textContent = restr.join(' ');
+}
+
+['minPub','apptype','repmode','repval','lights','period'].forEach(function(id){
+  document.getElementById(id).addEventListener('input', recompute);
+  document.getElementById(id).addEventListener('change', recompute);
+});
+
+recompute();
+</script>
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function(){
+    navigator.serviceWorker.register('sw.js');
+  });
+}
+</script>
+</body>
+</html>
