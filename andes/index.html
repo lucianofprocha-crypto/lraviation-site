@@ -95,7 +95,9 @@ td.nogo { color: var(--red); font-weight: 700; }
         <div><label>500 mb wind — direction (°)</label><input id="wdir" type="number" inputmode="numeric" value="270"></div>
         <div><label>500 mb wind — speed (kt)</label><input id="wspd" type="number" inputmode="numeric" value="30"></div>
       </div>
+      <button id="fetchbtn" onclick="autoFetch()" style="background:#233350; color:var(--text); margin-bottom:8px">Auto-fetch (METAR + GFS 500 hPa)</button>
       <button onclick="evaluateCrossing()">Assess crossing</button>
+      <div id="fetchstatus" style="font-size:.75rem; color:var(--muted); margin-top:8px"></div>
       <div class="links">
         Quick reference: <a href="https://aviationweather.gov/data/metar/?ids=SCEL,SAME" target="_blank" rel="noopener">METAR SCEL/SAME</a> ·
         <a href="https://www.windy.com/-33.640/-78.830?500h,-33.640,-78.830,7" target="_blank" rel="noopener">500 hPa wind at Juan Fernandez (Windy)</a>
@@ -215,6 +217,54 @@ function drawAbaco(point) {
     s.push(`<circle cx="${X(point.dp)}" cy="${Y(point.perp)}" r="4" fill="#1c64d1"/>`);
   }
   document.getElementById('abaco').innerHTML = s.join('');
+}
+
+
+// ===== auto-fetch: METAR (aviationweather.gov) + GFS 500 hPa (Open-Meteo) =====
+function qnhFrom(item){
+  var v = item && item.altim;
+  if (v == null) return null;
+  if (v > 850 && v < 1100) return Math.round(v);
+  if (v > 25 && v < 35) return Math.round(v * 33.8639);
+  return null;
+}
+async function autoFetch(){
+  var btn = document.getElementById('fetchbtn'), st = document.getElementById('fetchstatus');
+  btn.disabled = true;
+  st.textContent = 'Fetching SCEL/SAME METAR and GFS 500 hPa wind…';
+  try {
+    var metarUrl = 'https://aviationweather.gov/api/data/metar?ids=SCEL,SAME&format=json';
+    var windUrl = 'https://api.open-meteo.com/v1/gfs?latitude=-33.64&longitude=-78.83' +
+      '&hourly=wind_speed_500hPa,wind_direction_500hPa&wind_speed_unit=kn&forecast_days=1&timezone=UTC';
+    var res = await Promise.all([fetch(metarUrl), fetch(windUrl)]);
+    if (!res[0].ok || !res[1].ok) throw new Error('HTTP ' + res[0].status + '/' + res[1].status);
+    var metars = await res[0].json();
+    var wx = await res[1].json();
+    var parts = [];
+    metars.forEach(function(m){
+      var q = qnhFrom(m);
+      if (!q) return;
+      if (m.icaoId === 'SCEL'){ document.getElementById('qscel').value = q; parts.push('SCEL Q' + q); }
+      if (m.icaoId === 'SAME'){ document.getElementById('qsame').value = q; parts.push('SAME Q' + q); }
+    });
+    var h = wx.hourly, now = new Date().toISOString().slice(0, 13);
+    var idx = -1;
+    for (var i = 0; i < h.time.length; i++){
+      if (h.wind_speed_500hPa[i] != null && h.time[i].slice(0, 13) <= now) idx = i;
+    }
+    if (idx < 0) for (var j = 0; j < h.time.length; j++){ if (h.wind_speed_500hPa[j] != null){ idx = j; break; } }
+    if (idx >= 0){
+      document.getElementById('wdir').value = Math.round(h.wind_direction_500hPa[idx]);
+      document.getElementById('wspd').value = Math.round(h.wind_speed_500hPa[idx]);
+      parts.push('500 mb ' + String(Math.round(h.wind_direction_500hPa[idx])).padStart(3, '0') +
+        '/' + Math.round(h.wind_speed_500hPa[idx]) + 'kt (' + h.time[idx].slice(11, 16) + 'Z)');
+    }
+    st.textContent = parts.length ? 'OK: ' + parts.join(' · ') : 'No data returned — enter values manually.';
+    if (parts.length) evaluateCrossing();
+  } catch (e){
+    st.textContent = 'Fetch failed (' + e.message + '). Enter the values manually — auto-fetch needs internet and works on the installed app / website.';
+  }
+  btn.disabled = false;
 }
 
 // ===== histórico (localStorage, tolerante a falha) =====
