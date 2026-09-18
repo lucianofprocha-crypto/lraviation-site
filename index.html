@@ -93,6 +93,24 @@ header{display:flex; align-items:center; justify-content:space-between; padding:
 .dest{position:relative; text-align:center; padding:0 0 46px}
 .dest .rwy{display:inline-block}
 
+
+/* ------- biblioteca (guia CTOT) ------- */
+.library{
+  background:var(--chart); border:1px solid var(--hair); border-left:6px solid var(--amber);
+  border-radius:14px; padding:24px 26px; margin:6px 0 26px;
+  display:flex; gap:20px; align-items:flex-start; flex-wrap:wrap;
+}
+.library img{width:64px; height:64px; border-radius:14px; flex:none; box-shadow:0 3px 14px rgba(0,0,0,.45)}
+.library .lib-body{flex:1 1 340px; min-width:260px}
+.library .eyebrow{font-size:11.5px; letter-spacing:.14em; color:var(--amber); font-weight:800; margin:0 0 4px}
+.library h2{margin:0 0 6px; font-weight:800; font-variation-settings:"wdth" 116; color:var(--paper); font-size:22px}
+.library p{margin:0 0 14px; color:var(--dim); font-size:14px}
+.library .open{
+  display:inline-block; background:var(--amber); color:var(--ink); text-decoration:none;
+  font-weight:750; font-size:13.5px; padding:8px 18px; border-radius:8px;
+}
+.library .open:hover{filter:brightness(1.08)}
+
 /* ------- cartão iPad ------- */
 .boarding{
   background:var(--paper); color:#1B2233; border-radius:18px;
@@ -281,6 +299,18 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--amber); outline-of
     <line x1="23" y1="10" x2="23" y2="36" stroke="#E8A33D" stroke-width="2" stroke-dasharray="4 4"/>
   </svg>
 </div>
+
+<section class="library" id="library">
+  <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAIAAADdvvtQAAAHWUlEQVR4nO2dMbIUNxCG9VyEOCaAzBmEzp0byifgXYOAEzjgGuYELso5OSGhMxLHvAM4EDUMq9lZSS11/936vyJ4wVIjtT51S7Ozmrunz18mQnr5yboBxDcUiIigQEQEBSIiKBARQYGICApERFAgIoICEREUiIigQEQEBSIiKBARQYGICApERFAgIoICERGPrBsAwae3Xzv+169//jy8Je64W/CR1j5dalhQqSUEmmfMOSv4FFkgK29KApsUUCAcb0rimRRHIGRvSsKYFEEgX+rsCaCRb4H8qrPHtUa8kWjPp7df/c4ECoSCU418l7AUpYpd4KioMQMh4igbuc9AaVASenL/senz//31m/yiN8FPRYsK1KpLDfOUQtYogkCpzqEZ0lxjuEywDsUXSNObkoEmYToURKBUOGTrTckok9A0CihQnzrPXrxq+vyXzx86rjJEIyiH4giUGge11ZiBl5ZrhONQEIEqx2+sNNeobIxQIxCH3AtUM1o63pTUtM27Ro4Fujk8Vt6U3GyqRCNbh1wK5EidPfM0MnTIn0DnwyBRp34hPO8q7hxyJtBJ9HX24QpX9+WQG4FGqTPWm5JRjenTSN8hHwJdC3T9aM32pkTetg6HKNABEnv0vSmRtBPfIXSBuu1BUGdPd4PBHcIVKIw6e9Q0UnMIVKA+e5DV2dPXC0yHEJ+Jjm1P6r2VhfaASgYuA3XY40idCzo61ZSHFJIQlkCHUQuTeA7p6B2UQ4glbE9se9LMb2Yys38eBCRQGcrzDB/Ansx5X8ogQC2GUARqtWdycwyY59DUJAQhUJMQIe3JNHUNxCF7gZoWzoHtyTRtQhFqmb1AJcvak5F/c6yJ8Ta+fumziD0b9XG4uaufupO3FIj2nCN3SOFGolkJq3cC0J7Hr98pXKW+44eLIZ3vwoBedXA44QDtyWwOPbx/M+8qXz5/KMPy7MWr87DEf5zDdfE6ST8zZGoqZPpPJELswhzZo0/9pszkoXoDgSq1cGfPvFqGHDH7DOR06aNMx3MKOmgLBGtGDPTDa5yBfKWfE6buxTKYSUhVoBozkO2xql8bgAG0zEDmsycGtmHUEwhw9oxCoX5toIXRLAMx/QzEMJhKAqHNmw7MF0AbUMG0yUBMP8OxCqn9jcQMePo5QXMBtIETLg2BcHrbDU79qkcn7AYZiPVrEiaBhShhflOUSf3KgARtukAg/ZTgsX5lFIKvnYFYv6aiH177EuY3RRnWrwxC6OwFAsdv/dJhrkAIU2RxZg+BagYqK7Rfw8zrV6bpUIoZsISdwfp1EwpERFCgHkDqFwIUiIiYKNDF+s7dLUS/C6CLUE/dqVhmIL9bMChswwh0uAIa//7+9/b3L//8sf3NBdAeCnRAedxOlmmvEclwEX3JyYFf+5xEMhSoDdavCyjQD9w8b1D4mvd4UKBmHr9+53eHPxwuojvROeIOHwokZXGTKNAPPLn/eL7KOdnJr2kSBRrPUiZRoEtOklDrjcQVTKJAB+Rzu/ca8R70NSjQVfbHvz/cf/ujYwMfOP0kW4FunrgOyGYDzq2gsCeUaT6Vos/D+zf5n3VDDtB8EoslTApgTtKEAg3j0CTMFDUQCjSepXISv0ydSPj0k8wPGnf3pD0a5j/2nSsQ/TBn9hCwhBER9gIxS3WDEDq+7ikUAV/3hDBLlkUh+PYlLFGyLkCChvvOVNJK2HemgsyV1dAJO0QJS5SsEZxw2QjEKjYcq5AqCVQzY3BmFThQwTQrYUxCAzEMpp5AUPPGL2hh5All7rENo/FB432fWRbAABpv4w9nDx065DAs5lmcr3sKBV/39A16dgFm+knI70ylQxvIEbPPQOn6TKJD6XoQENJPshLI/FFw7+D8PAEiA2W4GCqBXfpsmAlUb8ayDrkIkWUGqi9kCzpUv/QJezpHDXToEC/2JHOBDlncIfBt1wX2AjWtE8M71GQPQjTsBUqNgUCI2iQ8xgFCoNR4ZwgkdmM56RTg0mfj7unzl9Zt+E5rpDCXBa209hHHnoSTga5xrghUKPvwPkOwMlDqWj7jR/kaHZ1CmzNwAqXe2PnSqK8vaPYkzBLWdyMEMLjXCGNPwsxAme44Iqei7sZj2pOQBcqE0SieOhl0gZIssggaSdoJbk9yIVAaEV99k+Rtw7cneREojbsxPdukUY1xYU9yJFBmYMTHmjTw6l7UyTgTKM3czNcrNe8qvuxJHgVKFSONOQxOm32OS4EyjsbDUVNbcSxQpqbuWA0PcttG4V6gTOXyRWe0oBozmyACZZo2VmPHz/DStoQSKNO3P9e5CxBJnUxAgTIIX2LsiadOJqxAG7YmRfVmI75AG5omhfdmYyGB9syQaR1p9iwqUEmrUmvqUkKBiAjEZ6KJIygQEUGBiAgKRERQICKCAhERFIiIoEBEBAUiIigQEUGBiAgKRERQICKCAhERFIiIoEBEBAUiIigQEUGBiAgKRERQICKCAhERFIiIoEBEBAUiIigQEUGBiAgKRERQICLif3cIdfM13SN0AAAAAElFTkSuQmCC" alt="">
+  <div class="lib-body">
+    <p class="eyebrow"><span lang-pt>BIBLIOTECA</span><span lang-en>LIBRARY</span></p>
+    <h2 lang-pt>Guia de Regulação ATFM (CTOT) — EUROCONTROL</h2>
+    <h2 lang-en>ATFM Regulation (CTOT) Guide — EUROCONTROL</h2>
+    <p lang-pt>Como o slot é calculado, as mensagens SAM/SRM/SIP, o procedimento do plano de voo à decolagem, a escada de ações para melhorar um CTOT ruim e as particularidades por aeroporto. Documento vivo, nascido da operação real — leitura offline no iPad.</p>
+    <p lang-en>How the slot is computed, the SAM/SRM/SIP messages, the flight-plan-to-takeoff procedure, the action ladder for a bad CTOT and per-airport particulars. A living document born in real operations — offline reading on the iPad. In Portuguese.</p>
+    <a class="open" href="./ctot/"><span lang-pt>Ler o guia</span><span lang-en>Read the guide</span></a>
+  </div>
+</section>
 
 <section class="boarding" id="ipad">
   <h2 lang-pt>Instale no iPad como um app</h2>
