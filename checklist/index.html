@@ -97,7 +97,7 @@ label{display:block; font-size:.82rem; font-weight:600; margin:.7rem 0 .25rem; c
   <a class="brand" href="#/">✓ Flight Checklist</a>
   <div class="actions">
     <button class="secondary small" id="btn-backup">Backup</button>
-    <button class="secondary small" id="btn-restore">Restore</button>
+    <button class="secondary small" id="btn-restore">Import</button>
     <input type="file" id="restore-file" accept="application/json,.json" class="hide">
   </div>
 </div>
@@ -223,7 +223,7 @@ function validLeg(d){ return /^[A-Z0-9]{3,4}$/.test(up(d.origin)) && /^[A-Z0-9]{
 function renderNew(){
   view.innerHTML = '<a class="back" href="#/">← Flights</a><h1>New flight</h1>' +
     '<label>Flight name</label><input id="f-name" placeholder="e.g. Europe Trip">' +
-    '<label>Aircraft</label><input id="f-acft" placeholder="e.g. PS-SRN" autocapitalize="characters">' +
+    '<label>Aircraft</label><input id="f-acft" placeholder="Registration (optional)" autocapitalize="characters">' +
     '<div id="legs"></div>' +
     '<button type="button" class="secondary" id="add-leg" style="margin-top:.8rem">+ Leg</button>' +
     '<div class="form-actions"><button id="create">Create flight</button><a href="#/">Cancel</a></div>';
@@ -255,7 +255,9 @@ function renderFlight(fid){
   var f = findFlight(fid); if (!f) return go("#/");
   var h = '<a class="back" href="#/">← Flights</a>' +
     '<div class="row-top"><h1>' + esc(f.name) + '</h1><button class="danger small" id="del-flight">Delete flight</button></div>' +
-    '<p class="muted">' + esc(f.aircraft || "") + '</p><div class="grid">';
+    '<p class="muted">' + esc(f.aircraft || "") + '</p>' +
+    '<div class="toolbar"><button class="small" id="share-flight">Share (AirDrop)</button>' +
+    '<button class="secondary small" id="pdf-flight">PDF (all legs)</button></div><div class="grid">';
   f.legs.forEach(function(l, i){
     var p = progress(l), pct = p.total ? p.done / p.total * 100 : 0;
     h += '<div class="card"><div class="row-top">' + tag(l.type) + '<span class="muted" style="font-size:.8rem">Leg ' + (i+1) + '</span></div>' +
@@ -268,6 +270,8 @@ function renderFlight(fid){
   });
   h += '</div><a class="btn secondary" style="margin-top:1rem" href="#/f/' + f.id + '/e/new">+ Add leg</a>';
   view.innerHTML = h;
+  document.getElementById("share-flight").onclick = function(){ shareFlight(f); };
+  document.getElementById("pdf-flight").onclick = function(){ sharePDF(f, f.legs); };
   document.getElementById("del-flight").onclick = function(){
     if (!confirm("Delete flight '" + f.name + "' and its whole checklist?")) return;
     state.flights = state.flights.filter(function(x){ return x !== f; }); save(); go("#/");
@@ -312,7 +316,8 @@ function renderLeg(fid, lid){
     '<h1>' + esc(l.origin) + ' → ' + esc(l.destination) + ' ' + tag(l.type) + '</h1>' +
     '<p class="muted" style="margin:.2rem 0">' + esc(f.aircraft || "") + (f.aircraft ? " · " : "") + timesLine(l) + '</p>' +
     '<div class="summary" id="summary"></div>' +
-    '<div class="toolbar"><button class="secondary small" id="print">Print / PDF</button>' +
+    '<div class="toolbar"><button class="secondary small" id="print">PDF</button>' +
+    '<button class="secondary small" id="share-flight">Share flight (AirDrop)</button>' +
     '<button class="secondary small" id="hide-done">Hide completed</button>' +
     '<button class="danger small" id="reset">Reset checklist</button></div>' +
     '<div id="checklist">';
@@ -364,7 +369,8 @@ function renderLeg(fid, lid){
       r.classList.toggle("hide", hideDone && isDone(it));
     });
   };
-  document.getElementById("print").onclick = function(){ window.print(); };
+  document.getElementById("print").onclick = function(){ sharePDF(f, [l]); };
+  document.getElementById("share-flight").onclick = function(){ shareFlight(f); };
   document.getElementById("reset").onclick = function(){
     if (!confirm("Reset this leg? Rebuilds the default " + (l.type === "INTL" ? "INTERNATIONAL" : "DOMESTIC") + " list and clears all status and notes.")) return;
     l.items = buildItems(l.type); save(); renderLeg(fid, lid);
@@ -390,21 +396,32 @@ function updateSummary(l){
       return '<span>' + (s === "None" ? "No status" : s) + ': ' + c[s] + '</span>'; }).join("");
 }
 function footer(){
-  return '<div class="footer">Data is stored only on this iPad. Use <b>Backup</b> from time to time to keep a copy (Files/iCloud).<br>LR Aviation · Flight Checklist</div>';
+  return '<div class="footer">Data is stored only on this iPad. Use <b>Backup</b> from time to time to keep a copy (Files/iCloud). To send a flight to another iPad, open it and tap <b>Share (AirDrop)</b>; on the other iPad tap <b>Import</b> and pick the file (it lands in Files › Downloads).<br>LR Aviation · Flight Checklist</div>';
 }
 
-/* ===================== Backup / restauração ===================== */
-document.getElementById("btn-backup").onclick = function(){
-  var blob = new Blob([JSON.stringify(state, null, 1)], {type: "application/json"});
-  var d = new Date(), name = "checklist-backup-" + d.getFullYear() + pad(d.getMonth()+1) + pad(d.getDate()) + ".json";
-  var file = null; try { file = new File([blob], name, {type: "application/json"}); } catch(e){}
+/* ===================== Compartilhar / backup / importar ===================== */
+function shareFile(blob, name){
+  var file = null; try { file = new File([blob], name, {type: blob.type}); } catch(e){}
   if (file && navigator.canShare && navigator.canShare({files: [file]})){
-    navigator.share({files: [file], title: name}).catch(function(){});
+    navigator.share({files: [file], title: name}).catch(function(err){
+      if (err && err.name !== "AbortError") alert("Could not share: " + err.message);
+    });
   } else {
-    var a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name;
-    document.body.appendChild(a); a.click(); a.remove();
+    var url = URL.createObjectURL(blob), a = document.createElement("a");
+    a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 60000);
   }
+}
+function safeName(s){ return (s || "flight").replace(/[\\\/:*?"<>|]+/g, "").replace(/\s+/g, "_").slice(0, 60) || "flight"; }
+function shareFlight(f){
+  var data = {kind: "lr-flight", version: 1, exported: new Date().toISOString(), flight: f};
+  shareFile(new Blob([JSON.stringify(data)], {type: "application/json"}), safeName(f.name) + ".json");
+}
+document.getElementById("btn-backup").onclick = function(){
+  var d = new Date(), name = "checklist-backup-" + d.getFullYear() + pad(d.getMonth()+1) + pad(d.getDate()) + ".json";
+  shareFile(new Blob([JSON.stringify(state)], {type: "application/json"}), name);
 };
+function validFlight(f){ return f && typeof f.name === "string" && Array.isArray(f.legs) && f.legs.every(function(l){ return Array.isArray(l.items); }); }
 document.getElementById("btn-restore").onclick = function(){ document.getElementById("restore-file").click(); };
 document.getElementById("restore-file").onchange = function(){
   var file = this.files[0]; if (!file) return;
@@ -412,14 +429,135 @@ document.getElementById("restore-file").onchange = function(){
   r.onload = function(){
     try {
       var s = JSON.parse(r.result);
-      if (!s || !Array.isArray(s.flights)) throw new Error("invalid file");
-      if (!confirm("Replace current data with this backup (" + s.flights.length + " flights)?")) return;
-      state = s; save(); go("#/"); route();
-    } catch(e){ alert("Could not restore: " + e.message); }
+      if (s && s.kind === "lr-flight" && validFlight(s.flight)){
+        var f = s.flight, ex = findFlight(f.id);
+        if (ex){
+          if (confirm("'" + ex.name + "' already exists on this iPad.\n\nOK = replace it with the received version\nCancel = keep both")){
+            state.flights[state.flights.indexOf(ex)] = f;
+          } else {
+            f.id = uid(); f.name = f.name + " (copy)"; state.flights.unshift(f);
+          }
+        } else state.flights.unshift(f);
+        save(); go("#/f/" + f.id);
+      } else if (s && Array.isArray(s.flights) && s.flights.every(validFlight)){
+        if (!confirm("This is a full backup (" + s.flights.length + " flights).\nReplace ALL data on this iPad with it?")) return;
+        state = {flights: s.flights}; save(); go("#/");
+      } else throw new Error("not a Flight Checklist file");
+    } catch(e){ alert("Could not import: " + e.message); }
   };
   r.readAsText(file);
   this.value = "";
 };
+
+/* ===================== PDF (gerado no próprio iPad, sem internet) ===================== */
+var HW = [278,278,355,556,556,889,667,191,333,333,389,584,278,333,278,278,556,556,556,556,556,556,556,556,556,556,278,278,584,584,584,556,1015,667,667,722,722,667,611,778,722,278,500,667,556,833,722,778,667,778,722,667,611,722,667,944,667,667,611,278,278,278,469,556,333,556,556,500,556,556,278,556,556,222,222,500,222,833,556,556,556,556,333,500,278,556,500,722,500,500,500,334,260,334,584,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,278,333,556,556,556,556,260,556,333,737,370,556,584,333,737,333,400,584,333,333,333,556,537,278,333,333,365,556,834,834,834,611,667,667,667,667,667,667,1000,722,667,667,667,667,278,278,278,278,722,722,778,778,778,778,778,584,778,722,722,722,722,667,667,611,556,556,556,556,556,556,889,500,556,556,556,556,278,278,278,278,556,556,556,556,556,556,556,584,611,556,556,556,556,500,556,500], HBW = [278,333,474,556,556,889,722,238,333,333,389,584,278,333,278,278,556,556,556,556,556,556,556,556,556,556,333,333,584,584,584,611,975,722,722,722,722,667,611,778,722,278,556,722,611,833,722,778,667,778,722,667,611,722,667,944,667,667,611,333,278,333,584,556,333,556,611,556,611,556,333,611,611,278,278,556,278,889,611,611,611,611,389,556,333,611,556,778,556,556,500,389,280,389,584,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,278,333,556,556,556,556,280,556,333,737,370,556,584,333,737,333,400,584,333,333,333,611,556,278,333,333,365,556,834,834,834,611,722,722,722,722,722,722,1000,722,667,667,667,667,278,278,278,278,722,722,778,778,778,778,778,584,778,722,722,722,722,667,667,611,556,556,556,556,556,556,889,556,556,556,556,556,278,278,278,278,611,611,611,611,611,611,611,584,611,611,611,611,611,556,611,556];
+var PMAP = {"—":"-","–":"-","→":"->","‘":"'","’":"'","“":'"',"”":'"',"•":"*","€":"EUR","…":"...","✓":"v"};
+function ptxt(s){
+  s = String(s == null ? "" : s); var o = "";
+  for (var i = 0; i < s.length; i++){
+    var ch = s[i], c = s.charCodeAt(i);
+    if (PMAP[ch]) o += PMAP[ch];
+    else if ((c >= 32 && c <= 126) || (c >= 160 && c <= 255)) o += ch;
+    else if (c === 9 || c === 10 || c === 13) o += " ";
+    else o += "?";
+  }
+  return o;
+}
+function tw(s, size, bold){ var w = bold ? HBW : HW, t = 0; for (var i = 0; i < s.length; i++) t += w[s.charCodeAt(i) - 32] || 556; return t * size / 1000; }
+function wrap(s, size, bold, maxw){
+  var words = s.split(/\s+/).filter(Boolean), lines = [], cur = "";
+  words.forEach(function(w){
+    while (tw(w, size, bold) > maxw && w.length > 1){ // palavra longa demais: quebra
+      var k = w.length; while (k > 1 && tw(w.slice(0, k), size, bold) > maxw) k--;
+      if (cur){ lines.push(cur); cur = ""; }
+      lines.push(w.slice(0, k)); w = w.slice(k);
+    }
+    var t = cur ? cur + " " + w : w;
+    if (tw(t, size, bold) <= maxw) cur = t; else { if (cur) lines.push(cur); cur = w; }
+  });
+  if (cur) lines.push(cur);
+  return lines.length ? lines : [""];
+}
+function pesc(s){ return s.replace(/\\/g, "\\\\").replace(/\(/g, "\\(").replace(/\)/g, "\\)"); }
+function n2(v){ return (Math.round(v * 100) / 100).toString(); }
+var PW = 595.28, PH = 841.89, PM = 40;
+var C = {text:"0.1 0.12 0.15", muted:"0.42 0.45 0.5", accent:"0 0.5 0.53", line:"0.85 0.87 0.9", band:"0.93 0.95 0.96",
+  Completed:"0.1 0.55 0.25", Pending:"0.8 0.5 0", Standby:"0.2 0.4 0.85", Updated:"0.5 0.35 0.85", "N/A":"0.55 0.57 0.6", None:"0.55 0.57 0.6"};
+function buildPDF(f, legs){
+  var pages = [], cur, y;
+  function page(){ cur = []; pages.push(cur); y = PH - PM; }
+  function T(x, yy, s, size, bold, col){ cur.push("BT /" + (bold ? "F2" : "F1") + " " + size + " Tf " + (col || C.text) + " rg " + n2(x) + " " + n2(yy) + " Td (" + pesc(s) + ") Tj ET"); }
+  function R(x, yy, w, h, col){ cur.push(col + " rg " + n2(x) + " " + n2(yy) + " " + n2(w) + " " + n2(h) + " re f"); }
+  function L(x1, y1, x2, y2, col){ cur.push(col + " RG 0.5 w " + n2(x1) + " " + n2(y1) + " m " + n2(x2) + " " + n2(y2) + " l S"); }
+  var now = new Date(), gen = pad(now.getDate()) + "/" + pad(now.getMonth()+1) + "/" + now.getFullYear() + " " + pad(now.getHours()) + ":" + pad(now.getMinutes());
+  var X1 = PM, X2 = PM + 88, X3 = PM + 262, WR = PW - PM;
+  legs.forEach(function(l){
+    var idx = f.legs.indexOf(l) + 1, route = ptxt(l.origin + " -> " + l.destination), p = progress(l);
+    function colHeads(){
+      T(X1, y, "STATUS", 7, true, C.muted); T(X2, y, "ITEM", 7, true, C.muted); T(X3, y, "NOTES", 7, true, C.muted);
+      y -= 5; L(PM, y, WR, y, C.line); y -= 12;
+    }
+    function cont(){ page(); T(PM, y - 4, ptxt(f.name) + "  |  " + route + " (cont.)", 9, true, C.muted); y -= 24; colHeads(); }
+    page();
+    T(PM, y - 2, "FLIGHT CHECKLIST", 8, true, C.accent); y -= 22;
+    T(PM, y, ptxt(f.name), 18, true); y -= 22;
+    T(PM, y, route, 13, true);
+    var tl = (l.type === "INTL" ? "INTERNATIONAL" : "DOMESTIC") + "  |  Leg " + idx;
+    T(PM + tw(route, 13, true) + 12, y, tl, 9, true, C.accent); y -= 16;
+    T(PM, y, ptxt((f.aircraft ? f.aircraft + "  |  " : "") + timesLine(l)), 9.5, false, C.muted); y -= 14;
+    T(PM, y, p.done + " / " + p.total + " items completed   |   generated " + gen, 8.5, false, C.muted); y -= 22;
+    colHeads();
+    var sec = null;
+    l.items.forEach(function(it){
+      var task = wrap(ptxt(it.task), 9, true, X3 - X2 - 10), notes = wrap(ptxt(it.notes), 9, false, WR - X3);
+      var st = stamp(it) ? (function(d){ return pad(d.getDate()) + "/" + pad(d.getMonth()+1) + " " + pad(d.getHours()) + ":" + pad(d.getMinutes()); })(new Date(it.at)) : "";
+      var rows = Math.max(task.length, it.notes ? notes.length : 1, st ? 2 : 1), h = rows * 11 + 6;
+      var needSec = it.section !== sec;
+      if (y - h - (needSec ? 22 : 0) < PM + 24) cont();
+      if (needSec){
+        sec = it.section; R(PM, y - 5, WR - PM, 15, C.band); T(PM + 5, y, ptxt(sec), 8, true, C.accent); y -= 19;
+      }
+      var top = y;
+      T(X1, top, it.status === "None" ? "-" : it.status, 8.5, true, C[it.status] || C.muted);
+      if (st) T(X1, top - 11, st, 7, false, C.muted);
+      task.forEach(function(s, k){ T(X2, top - k * 11, s, 9, true); });
+      if (it.notes) notes.forEach(function(s, k){ T(X3, top - k * 11, s, 9, false); });
+      y = top - rows * 11 - 2; L(PM, y + 6, WR, y + 6, C.line); y -= 6;
+    });
+  });
+  pages.forEach(function(pg, i){
+    pg.push("BT /F1 7.5 Tf " + C.muted + " rg " + PM + " 22 Td (LR Aviation  |  Flight Checklist) Tj ET");
+    var s = "Page " + (i + 1) + " / " + pages.length;
+    pg.push("BT /F1 7.5 Tf " + C.muted + " rg " + n2(PW - PM - tw(s, 7.5)) + " 22 Td (" + s + ") Tj ET");
+  });
+  // montar o arquivo PDF
+  var objs = [], kids = [];
+  objs[1] = "<< /Type /Catalog /Pages 2 0 R >>";
+  objs[3] = "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>";
+  objs[4] = "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>";
+  pages.forEach(function(pg, i){
+    var po = 5 + i * 2, co = po + 1, content = pg.join("\n");
+    kids.push(po + " 0 R");
+    objs[po] = "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 " + PW + " " + PH + "] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents " + co + " 0 R >>";
+    objs[co] = "<< /Length " + content.length + " >>\nstream\n" + content + "\nendstream";
+  });
+  objs[2] = "<< /Type /Pages /Kids [" + kids.join(" ") + "] /Count " + pages.length + " >>";
+  var out = "%PDF-1.4\n", offs = [];
+  for (var k = 1; k < objs.length; k++){ offs[k] = out.length; out += k + " 0 obj\n" + objs[k] + "\nendobj\n"; }
+  var xref = out.length;
+  out += "xref\n0 " + objs.length + "\n0000000000 65535 f \n";
+  for (k = 1; k < objs.length; k++) out += ("0000000000" + offs[k]).slice(-10) + " 00000 n \n";
+  out += "trailer\n<< /Size " + objs.length + " /Root 1 0 R >>\nstartxref\n" + xref + "\n%%EOF";
+  var bytes = new Uint8Array(out.length);
+  for (k = 0; k < out.length; k++) bytes[k] = out.charCodeAt(k) & 255;
+  return new Blob([bytes], {type: "application/pdf"});
+}
+function sharePDF(f, legs){
+  try {
+    var name = safeName(f.name) + (legs.length === 1 ? "_" + legs[0].origin + "-" + legs[0].destination : "") + ".pdf";
+    shareFile(buildPDF(f, legs), name);
+  } catch(e){ alert("Could not create PDF: " + e.message); }
+}
 
 /* ===================== Roteamento ===================== */
 function go(h){ if (location.hash === h) route(); else location.hash = h; }
