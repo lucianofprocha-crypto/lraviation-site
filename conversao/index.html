@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conversão de Preço de Combustível</title>
+<style>
+  :root{
+    --navy:#1B2A4A; --accent:#0B5A8A; --gray:#5b5f66; --line:#e2e5ea;
+    --bg:#f5f7fa; --card:#ffffff;
+    --green:#1b7a3d; --green-bg:#e7f5ec; --green-line:#bfe3cc;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    background:var(--bg); color:#1c1f24; padding:28px 16px 60px;}
+  .wrap{max-width:780px; margin:0 auto;}
+  .header{text-align:center; margin-bottom:20px;}
+  .header h1{font-size:22px; margin:0 0 4px; color:var(--navy); font-weight:700;}
+  .header p{font-size:13px; color:var(--gray); margin:0;}
+  .card{background:var(--card); border:1px solid var(--line); border-radius:12px;
+    padding:20px 22px; margin-bottom:18px;}
+  .card h2{font-size:14px; text-transform:uppercase; letter-spacing:.04em;
+    color:var(--accent); margin:0 0 14px; font-weight:700;}
+  .row{display:flex; gap:14px; flex-wrap:wrap; margin-bottom:6px;}
+  .field{flex:1 1 170px; min-width:140px;}
+  .field label{display:block; font-size:12.5px; color:var(--gray); margin-bottom:5px; font-weight:600;}
+  select{width:100%; padding:9px 10px; font-size:15px;
+    border:1px solid var(--line); border-radius:8px; background:#fff; color:#1c1f24;}
+  select:focus{outline:none; border-color:var(--accent);}
+  .stat.src{background:var(--green-bg); border:1px solid var(--green-line);}
+  .stat.src .value{color:var(--green);}
+  input[type=number]{width:100%; padding:9px 10px; font-size:15px;
+    border:1px solid var(--line); border-radius:8px; background:#fff; color:#1c1f24;}
+  input:focus{outline:none; border-color:var(--accent);}
+  .result{background:var(--green-bg); border:1px solid var(--green-line);
+    border-radius:10px; padding:12px 16px; margin-top:12px;}
+  .result .big{font-size:22px; font-weight:800; color:var(--green);}
+  .result .mid{font-size:13px; color:var(--gray); margin-top:2px;}
+  .stat-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(150px,1fr)); gap:10px; margin-top:12px;}
+  .stat{background:#f7f9fb; border-radius:8px; padding:10px 12px;}
+  .stat .label{font-size:11.5px; color:var(--gray); margin-bottom:3px;}
+  .stat .value{font-size:17px; font-weight:700; color:var(--navy);}
+  .note{font-size:12px; color:var(--gray); line-height:1.5; margin-top:10px;}
+  .footer{text-align:center; font-size:11.5px; color:var(--gray); margin-top:24px; line-height:1.6;}
+</style>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1B2A4A">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Conversão">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+</head>
+<body>
+<div class="wrap">
+
+  <div class="header">
+    <h1>Conversão de Preço de Combustível</h1>
+    <p>US$/galão · €/litro · R$/litro — com as cotações do dia</p>
+  </div>
+
+  <div class="card">
+    <h2>Cotações (R$)</h2>
+    <div class="row">
+      <div class="field"><label for="usd">Dólar (R$)</label>
+        <input type="number" id="usd" value="5.80" step="0.01" min="0"></div>
+      <div class="field"><label for="eur">Euro (R$)</label>
+        <input type="number" id="eur" value="6.26" step="0.01" min="0"></div>
+    </div>
+    <div class="note">As cotações ficam salvas neste dispositivo para o próximo uso.</div>
+  </div>
+
+  <div class="card">
+    <h2>Preço informado</h2>
+    <div class="row">
+      <div class="field"><label for="price">Valor</label>
+        <input type="number" id="price" value="7.91" step="0.01" min="0"></div>
+      <div class="field"><label for="unit">Unidade / moeda</label>
+        <select id="unit">
+          <option value="usgal">US$ / galão</option>
+          <option value="usl">US$ / litro</option>
+          <option value="eurl">€ / litro</option>
+          <option value="brll">R$ / litro</option>
+        </select></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Resultado em todas as unidades</h2>
+    <div class="stat-grid">
+      <div class="stat" id="c-usgal"><div class="label">US$ / galão</div><div class="value" id="o-usgal">-</div></div>
+      <div class="stat" id="c-usl"><div class="label">US$ / litro</div><div class="value" id="o-usl">-</div></div>
+      <div class="stat" id="c-eurl"><div class="label">€ / litro</div><div class="value" id="o-eurl">-</div></div>
+      <div class="stat" id="c-brll"><div class="label">R$ / litro</div><div class="value" id="o-brll">-</div></div>
+    </div>
+    <div class="note" id="calc-note"></div>
+  </div>
+
+  <div class="footer">
+    1 galão (US) = 3,785 litros. Ferramenta de apoio à comparação de cotações de combustível —
+    confirme moeda, unidade e impostos no fuel release antes de fechar.
+  </div>
+
+</div>
+
+<script>
+var GAL = 3.785;
+
+function num(id){ return parseFloat(document.getElementById(id).value) || 0; }
+function fmt(n, d){
+  d = d === undefined ? 2 : d;
+  return Number(n).toLocaleString('pt-BR', {minimumFractionDigits: d, maximumFractionDigits: d});
+}
+
+function recompute(){
+  var usd = num('usd'), eur = num('eur');
+  var v = num('price');
+  var unit = document.getElementById('unit').value;
+
+  // normaliza tudo para R$/litro
+  var brll = 0;
+  if (unit === 'usgal') brll = v / GAL * usd;
+  else if (unit === 'usl') brll = v * usd;
+  else if (unit === 'eurl') brll = v * eur;
+  else brll = v;
+
+  var out = {
+    usgal: usd > 0 ? brll / usd * GAL : 0,
+    usl:   usd > 0 ? brll / usd : 0,
+    eurl:  eur > 0 ? brll / eur : 0,
+    brll:  brll
+  };
+
+  document.getElementById('o-usgal').textContent = 'US$ ' + fmt(out.usgal);
+  document.getElementById('o-usl').textContent = 'US$ ' + fmt(out.usl, 4);
+  document.getElementById('o-eurl').textContent = '€ ' + fmt(out.eurl, 3);
+  document.getElementById('o-brll').textContent = 'R$ ' + fmt(out.brll);
+
+  ['usgal','usl','eurl','brll'].forEach(function(u){
+    document.getElementById('c-' + u).className = 'stat' + (u === unit ? ' src' : '');
+  });
+
+  document.getElementById('calc-note').textContent =
+    'Base: R$ ' + fmt(brll, 4) + '/L · dólar ' + fmt(usd) + ' · euro ' + fmt(eur) +
+    ' · 1 galão (US) = ' + fmt(GAL, 3) + ' L. O cartão destacado é a unidade informada.';
+
+  try {
+    localStorage.setItem('fuelconv_rates', JSON.stringify({usd: usd, eur: eur}));
+  } catch(e){}
+}
+
+try {
+  var saved = JSON.parse(localStorage.getItem('fuelconv_rates') || 'null');
+  if (saved && saved.usd) document.getElementById('usd').value = saved.usd;
+  if (saved && saved.eur) document.getElementById('eur').value = saved.eur;
+} catch(e){}
+
+['usd','eur','price','unit'].forEach(function(id){
+  document.getElementById(id).addEventListener('input', recompute);
+  document.getElementById(id).addEventListener('change', recompute);
+});
+
+recompute();
+</script>
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function(){
+    navigator.serviceWorker.register('sw.js');
+  });
+}
+</script>
+</body>
+</html>
