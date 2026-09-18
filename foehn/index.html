@@ -127,6 +127,12 @@
       <div class="field"><label for="wspd">Speed (kt)</label>
         <input type="number" id="wspd" value="25" step="5" min="0"></div>
     </div>
+    <div class="row">
+      <div class="field" style="flex:1 1 100%">
+        <button id="fetchbtn" onclick="autoFetch()" style="width:100%; padding:10px; border:none; border-radius:8px; background:var(--accent); color:#fff; font-size:14px; font-weight:700; cursor:pointer">Auto-fetch (METAR + GFS 700 hPa)</button>
+        <div class="note" id="fetchstatus"></div>
+      </div>
+    </div>
     <div class="note">The main axis of the Alps runs roughly East-West between Switzerland and Italy: the cross-ridge component is the North-South component of the wind.</div>
   </div>
 
@@ -237,6 +243,55 @@ function assess(qn, qm, wdir, wspd, staName){
 
   return {dp: dp, adp: adp, ns: ns, sense: sense, lee: lee, cls: cls,
           badge: badge, txt: txt, windTxt: windTxt, coh: coh, recs: recs};
+}
+
+
+// ===== auto-fetch: METAR (aviationweather.gov) + GFS 700 hPa sobre os Alpes (Open-Meteo) =====
+function qnhFrom(item){
+  var v = item && item.altim;
+  if (v == null) return null;
+  if (v > 850 && v < 1100) return Math.round(v);
+  if (v > 25 && v < 35) return Math.round(v * 33.8639);
+  return null;
+}
+async function autoFetch(){
+  var btn = document.getElementById('fetchbtn'), st = document.getElementById('fetchstatus');
+  var north = document.getElementById('northsta').value;
+  btn.disabled = true;
+  st.textContent = 'Fetching ' + north + '/LIMC METAR and GFS 700 hPa wind…';
+  try {
+    var metarUrl = 'https://aviationweather.gov/api/data/metar?ids=' + north + ',LIMC&format=json';
+    var windUrl = 'https://api.open-meteo.com/v1/gfs?latitude=46.0&longitude=8.7' +
+      '&hourly=wind_speed_700hPa,wind_direction_700hPa&wind_speed_unit=kn&forecast_days=1&timezone=UTC';
+    var res = await Promise.all([fetch(metarUrl), fetch(windUrl)]);
+    if (!res[0].ok || !res[1].ok) throw new Error('HTTP ' + res[0].status + '/' + res[1].status);
+    var metars = await res[0].json();
+    var wx = await res[1].json();
+    var parts = [];
+    metars.forEach(function(m){
+      var q = qnhFrom(m);
+      if (!q) return;
+      if (m.icaoId === north){ document.getElementById('qnorth').value = q; parts.push(north + ' Q' + q); }
+      if (m.icaoId === 'LIMC'){ document.getElementById('qlimc').value = q; parts.push('LIMC Q' + q); }
+    });
+    var h = wx.hourly, now = new Date().toISOString().slice(0, 13);
+    var idx = -1;
+    for (var i = 0; i < h.time.length; i++){
+      if (h.wind_speed_700hPa[i] != null && h.time[i].slice(0, 13) <= now) idx = i;
+    }
+    if (idx < 0) for (var j = 0; j < h.time.length; j++){ if (h.wind_speed_700hPa[j] != null){ idx = j; break; } }
+    if (idx >= 0){
+      document.getElementById('wdir').value = Math.round(h.wind_direction_700hPa[idx]);
+      document.getElementById('wspd').value = Math.round(h.wind_speed_700hPa[idx]);
+      parts.push('700 mb ' + String(Math.round(h.wind_direction_700hPa[idx])).padStart(3, '0') +
+        '/' + Math.round(h.wind_speed_700hPa[idx]) + 'kt (' + h.time[idx].slice(11, 16) + 'Z)');
+    }
+    st.textContent = parts.length ? 'OK: ' + parts.join(' · ') : 'No data returned — enter values manually.';
+    if (parts.length) recompute(true);
+  } catch (e){
+    st.textContent = 'Fetch failed (' + e.message + '). Enter the values manually — auto-fetch needs internet and works on the installed app / website.';
+  }
+  btn.disabled = false;
 }
 
 function loadHist(){
