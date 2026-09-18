@@ -170,22 +170,36 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--amber); outline-of
     </g>
     <g id="jet" transform="translate(0,0)">
       <g transform="translate(500,170) rotate(-9)">
-        <path fill="#F4F6FB" d="M0,-64 C4,-52 5,-38 5,-20 L44,16 L44,26 L6,10 L5,34
-          C5,40 8,44 14,46 L26,54 L26,61 L2,55 L0,58 L-2,55 L-26,61 L-26,54 L-14,46
-          C-8,44 -5,40 -5,34 L-6,10 L-44,26 L-44,16 L-5,-20 C-5,-38 -4,-52 0,-64 Z"/>
-        <ellipse cx="11" cy="6" rx="4" ry="10" fill="#0E1526" opacity=".28"/>
-        <ellipse cx="-11" cy="6" rx="4" ry="10" fill="#0E1526" opacity=".28"/>
+        <g fill="#F4F6FB">
+          <!-- fuselagem longa e fina -->
+          <path d="M0,-70 C3.6,-64 5.4,-54 5.6,-40 L5.6,36 C5.6,46 3.4,55 0,62 C-3.4,55 -5.6,46 -5.6,36 L-5.6,-40 C-5.4,-54 -3.6,-64 0,-70 Z"/>
+          <!-- asas enflechadas com winglets -->
+          <path d="M5,-10 L45,18 L49,15 L50,17 L47,24 L5,10 Z"/>
+          <path d="M-5,-10 L-45,18 L-49,15 L-50,17 L-47,24 L-5,10 Z"/>
+          <!-- motores na traseira da fuselagem -->
+          <rect x="4" y="27" width="6" height="3" rx="1"/>
+          <rect x="-10" y="27" width="6" height="3" rx="1"/>
+          <rect x="9" y="19" width="8" height="21" rx="4"/>
+          <rect x="-17" y="19" width="8" height="21" rx="4"/>
+          <!-- estabilizador em T -->
+          <path d="M2,51 L20,59 L20,63 L2,60 Z"/>
+          <path d="M-2,51 L-20,59 L-20,63 L-2,60 Z"/>
+        </g>
+        <!-- entradas de ar e para-brisa -->
+        <rect x="10" y="19" width="6" height="3" rx="1.5" fill="#0E1526" opacity=".45"/>
+        <rect x="-16" y="19" width="6" height="3" rx="1.5" fill="#0E1526" opacity=".45"/>
+        <path d="M-3.4,-58 C-2,-61 2,-61 3.4,-58 L3,-55 C1.2,-56.2 -1.2,-56.2 -3,-55 Z" fill="#0E1526" opacity=".5"/>
       </g>
     </g>
   </svg>
 </section>
 
-<div class="route-rail">
 <section class="fixes" id="apps">
   <h2 lang-pt>FlightOps Companion</h2>
   <h2 lang-en>FlightOps Companion</h2>
   <p class="sub" lang-pt>As ferramentas de bordo da LR Aviation: sete calculadoras e um checklist de voo que funcionam offline depois do primeiro acesso — cada uma é um fixo desta rota. Toque em abrir e depois instale no iPad (instruções abaixo).</p>
   <p class="sub" lang-en>LR Aviation’s flight-deck tools: seven calculators and a flight checklist that work offline after the first visit — each one a fix on this route. Open, then install on your iPad (instructions below).</p>
+  <div class="route-rail">
 
   <div class="fix">
     <span class="marker"><svg width="18" height="16" viewBox="0 0 18 16"><path d="M9 0 L18 16 L0 16 Z" fill="none" stroke="#E8A33D" stroke-width="2"/></svg><code>ANDES</code></span>
@@ -269,13 +283,13 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--amber); outline-of
     <img src="data:image/png;base64,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" alt="" width="56" height="56">
     <div>
       <h3 lang-pt>Checklist de Voo</h3><h3 lang-en>Flight Checklist</h3>
-      <p lang-pt>Missões e etapas INTL/NAC com checklist de despacho, status e notas por item. Dados salvos só no seu iPad.</p>
-      <p lang-en>Missions and INTL/DOM legs with a dispatch checklist, per-item status and notes. Data stays on your iPad.</p>
+      <p lang-pt>Flights e etapas INTL/NAC com checklist de despacho, status e notas por item. Dados salvos só no seu iPad.</p>
+      <p lang-en>Flights and INTL/DOM legs with a dispatch checklist, per-item status and notes. Data stays on your iPad.</p>
       <a class="open" href="./checklist/"><span lang-pt>Abrir</span><span lang-en>Open</span></a>
     </div>
   </div>
+  </div>
 </section>
-</div>
 
 <div class="dest" aria-hidden="true">
   <svg class="rwy" width="46" height="46" viewBox="0 0 46 46">
