@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
@@ -83,57 +83,55 @@ td.nogo { color: var(--red); font-weight: 700; }
 <div class="grid">
   <div>
     <h1>Andes Crossing Advisor</h1>
-    <div class="sub">Brasil ↔ Santiago (SCEL) · ΔQNH + Ábaco de Harrison</div>
+    <div class="sub">Brazil ↔ Santiago (SCEL) · ΔQNH + Harrison Abaco</div>
 
     <div class="card">
-      <h2>Dados de entrada</h2>
+      <h2>Input data</h2>
       <div class="row">
         <div><label>QNH SCEL (hPa)</label><input id="qscel" type="number" inputmode="decimal" value="1015"></div>
         <div><label>QNH SAME (hPa)</label><input id="qsame" type="number" inputmode="decimal" value="1013"></div>
       </div>
       <div class="row">
-        <div><label>Vento 500 mb — direção (°)</label><input id="wdir" type="number" inputmode="numeric" value="270"></div>
-        <div><label>Vento 500 mb — vel. (kt)</label><input id="wspd" type="number" inputmode="numeric" value="30"></div>
+        <div><label>500 mb wind — direction (°)</label><input id="wdir" type="number" inputmode="numeric" value="270"></div>
+        <div><label>500 mb wind — speed (kt)</label><input id="wspd" type="number" inputmode="numeric" value="30"></div>
       </div>
-      <button onclick="evaluateCrossing()">Avaliar cruzamento</button>
+      <button onclick="evaluateCrossing()">Assess crossing</button>
       <div class="links">
-        Consulta rápida: <a href="https://aviationweather.gov/data/metar/?ids=SCEL,SAME" target="_blank" rel="noopener">METAR SCEL/SAME</a> ·
-        <a href="https://www.windy.com/-33.640/-78.830?500h,-33.640,-78.830,7" target="_blank" rel="noopener">Vento 500 hPa Juan Fernández (Windy)</a>
+        Quick reference: <a href="https://aviationweather.gov/data/metar/?ids=SCEL,SAME" target="_blank" rel="noopener">METAR SCEL/SAME</a> ·
+        <a href="https://www.windy.com/-33.640/-78.830?500h,-33.640,-78.830,7" target="_blank" rel="noopener">500 hPa wind at Juan Fernandez (Windy)</a>
       </div>
     </div>
 
     <div class="card" style="margin-top:14px">
-      <div id="verdict">Preencha os dados e toque em Avaliar</div>
+      <div id="verdict">Enter the data and tap Assess</div>
       <div id="analysis"></div>
     </div>
   </div>
 
   <div>
     <div class="card abaco-wrap">
-      <h2>Ábaco de Harrison</h2>
+      <h2>Harrison Abaco</h2>
       <svg id="abaco" viewBox="0 0 460 420" xmlns="http://www.w3.org/2000/svg"></svg>
     </div>
     <details class="card" style="margin-top:14px">
-  <summary style="cursor:pointer; font-weight:700; font-size:.85rem">Sobre o app</summary>
-  <p style="font-size:.85rem; margin:8px 0 0"><b>Andes Crossing Advisor</b> — Ferramenta de apoio à decisão
-  para o cruzamento da Cordilheira dos Andes na rota Brasil–Santiago (SCEL). A partir da diferença de QNH
-  entre Santiago (SCEL) e Mendoza (SAME) e do vento a 500&nbsp;mb em Juan Fernández, o app aplica o Ábaco
-  de Harrison para indicar a probabilidade de turbulência orográfica — sem turbulência, leve ou
-  moderada/forte — com sugestão de rota (entrada preferencial via
-  UMKAL ou alternativa ao sul via ICO/EROLO). Funciona offline após o primeiro acesso e mantém o
-  histórico de avaliações no dispositivo. Não substitui o briefing meteorológico oficial nem o
-  julgamento do comandante.</p>
+  <summary style="cursor:pointer; font-weight:700; font-size:.85rem">About</summary>
+  <p style="font-size:.85rem; margin:8px 0 0"><b>Andes Crossing Advisor</b> — Decision-support tool for
+  crossing the Andes on the Brazil–Santiago (SCEL) route. From the QNH difference between Santiago (SCEL)
+  and Mendoza (SAME) and the 500&nbsp;mb wind at Juan Fernandez, the app applies the Harrison Abaco to
+  indicate the likelihood of orographic turbulence — none, light or moderate/severe — with routing
+  guidance (preferred entry via UMKAL or the southern alternative via ICO/EROLO). Works offline after the
+  first visit and keeps the assessment history on the device. It does not replace the official weather
+  briefing or the captain's judgement.</p>
 </details>
     <div class="card" style="margin-top:14px">
-      <h2>Histórico</h2>
+      <h2>History</h2>
       <table id="hist"><thead><tr>
-        <th>UTC</th><th>ΔP</th><th>Vento</th><th>Perp</th><th>Turbulência</th>
+        <th>UTC</th><th>ΔP</th><th>Wind</th><th>Perp</th><th>Turbulence</th>
       </tr></thead><tbody></tbody></table>
     </div>
   </div>
 </div>
-<div class="disclaimer">Ferramenta de apoio à decisão baseada no manual "Operação sobre os Andes".
-Não substitui briefing meteorológico oficial (SIGMET/SIGWX), a consulta a MERINO (HF 10635) nem o julgamento do comandante.</div>
+<div class="disclaimer">Decision-support tool based on the "Operação sobre os Andes" manual. It does not replace the official weather briefing (SIGMET/SIGWX), MERINO on HF 10635, or the captain’s judgement.</div>
 
 <script>
 // ===== lógica (idêntica ao módulo Python) =====
@@ -145,38 +143,38 @@ function assess(qs, qm, dir, spd) {
   const dp = Math.abs(qs - qm), perp = perpComp(dir, spd), b = bound(dp);
   const reasons = [
     `ΔQNH SCEL−SAME = ${dp.toFixed(1)} hPa`,
-    `Vento 500 mb: ${String(Math.round(dir)).padStart(3,'0')}°/${Math.round(spd)} kt — componente perpendicular ≈ ${Math.round(perp)} kt`
+    `500 mb wind: ${String(Math.round(dir)).padStart(3,'0')}°/${Math.round(spd)} kt — componente perpendicular ≈ ${Math.round(perp)} kt`
   ];
   let cat, label;
-  if (perp < NO_TURB) { cat = 'none'; label = 'SEM TURBULÊNCIA PREVISTA';
-    reasons.push(`Componente perpendicular < ${NO_TURB} kt → faixa verde do ábaco`); }
-  else if (perp >= b) { cat = 'severe'; label = 'TURBULÊNCIA MODERADA/FORTE';
-    reasons.push(`Acima da curva do ábaco (limite ≈ ${Math.round(b)} kt para ΔP ${dp.toFixed(1)} hPa)`); }
-  else if (perp >= b * 0.9) { cat = 'caution'; label = 'LIMITE — TENDÊNCIA A MODERADA';
-    reasons.push('Dentro da banda de transição do ábaco (≤10% da curva)'); }
-  else { cat = 'light'; label = 'TURBULÊNCIA LEVE';
-    reasons.push('Abaixo da curva do ábaco → faixa amarela'); }
+  if (perp < NO_TURB) { cat = 'none'; label = 'NO TURBULENCE EXPECTED';
+    reasons.push(`Perpendicular component < ${NO_TURB} kt → green band of the abaco`); }
+  else if (perp >= b) { cat = 'severe'; label = 'MODERATE/SEVERE TURBULENCE';
+    reasons.push(`Above the abaco curve (boundary ≈ ${Math.round(b)} kt for ΔP ${dp.toFixed(1)} hPa)`); }
+  else if (perp >= b * 0.9) { cat = 'caution'; label = 'MARGINAL — TRENDING MODERATE';
+    reasons.push('Within the abaco transition band (≤10% of the curve)'); }
+  else { cat = 'light'; label = 'LIGHT TURBULENCE';
+    reasons.push('Below the abaco curve → yellow band'); }
 
   let critical = false;
   if (dp > DP_NOGO) { critical = true;
-    label = `RISCO DE TURBULÊNCIA OROGRÁFICA SEVERA (ΔP ${dp.toFixed(1)} hPa > ${DP_NOGO})`;
-    reasons.push(`ΔP > ${DP_NOGO} hPa: turbulência orográfica pode causar danos severos à aeronave`); }
+    label = `SEVERE OROGRAPHIC TURBULENCE RISK (ΔP ${dp.toFixed(1)} hPa > ${DP_NOGO})`;
+    reasons.push(`ΔP > ${DP_NOGO} hPa: orographic turbulence may cause severe damage to the aircraft`); }
   else if (dp > DP_CAUTION) {
-    reasons.push(`ΔP > ${DP_CAUTION} hPa: condição desfavorável`);
+    reasons.push(`ΔP > ${DP_CAUTION} hPa: unfavorable condition`);
   }
 
   const recs = [];
   if (critical || cat === 'severe') {
-    recs.push('Condição desfavorável: o manual indica retorno/alternado Mendoza (SAME) ou Córdoba (SACO), ou contorno ao sul da cordilheira (via ICO/EROLO — ARR EROL4F).');
+    recs.push('Unfavorable condition: the manual calls for return/alternate Mendoza (SAME) or Cordoba (SACO), or routing south of the cordillera (via ICO/EROLO — ARR EROL4F).');
   } else if (cat === 'caution') {
-    recs.push('Condição marginal: considerar rota alternativa ao sul (via ICO/EROLO) ou aguardar melhora.');
+    recs.push('Marginal condition: consider the southern alternative routing (via ICO/EROLO) or wait for improvement.');
   } else {
-    recs.push('Rota preferencial: entrada via UMKAL (ARR UMKA4C); ASIMO conforme fluxo.');
+    recs.push('Preferred routing: entry via UMKAL (ARR UMKA4C); ASIMO as per flow.');
   }
-  recs.push('Voar 5.000–8.000 ft acima do ponto mais elevado da cordilheira.');
-  recs.push('Confirmar turbulência com MERINO em HF 10635 antes do cruzamento.');
-  recs.push('Pontos de decisão driftdown/despressurização: ASIMO, UMKAL e VOR MLG — antes deles, retornar SAME; depois, prosseguir SCEL.');
-  recs.push('Atenção a nuvens lenticulares reportadas (indício de onda de montanha).');
+  recs.push('Fly 5,000–8,000 ft above the highest point of the cordillera.');
+  recs.push('Confirm turbulence with MERINO on HF 10635 before the crossing.');
+  recs.push('Driftdown/depressurization decision points: ASIMO, UMKAL and VOR MLG — before them, return SAME; past them, continue SCEL.');
+  recs.push('Watch for reported lenticular clouds (a sign of mountain wave).');
   return { dp, perp, cat, critical, label, reasons, recs };
 }
 
@@ -208,10 +206,10 @@ function drawAbaco(point) {
   for (let v = 0; v <= 90; v += 10)
     s.push(`<text x="${M.l - 8}" y="${Y(v) + 4}" font-size="11" fill="var(--muted)" text-anchor="end">${v}</text>`);
   s.push(`<text x="${M.l + pw / 2}" y="${H - 14}" font-size="12" fill="var(--muted)" text-anchor="middle">ΔP SCEL − SAME (hPa)</text>`);
-  s.push(`<text x="14" y="${M.t + ph / 2}" font-size="12" fill="var(--muted)" text-anchor="middle" transform="rotate(-90 14 ${M.t + ph / 2})">Vento perpendicular 500 mb (kt)</text>`);
-  s.push(`<text x="${X(17)}" y="${Y(76)}" font-size="12" font-weight="700" fill="#101418">Moderada/Forte</text>`);
-  s.push(`<text x="${X(1.2)}" y="${Y(30)}" font-size="12" font-weight="700" fill="#101418">Leve</text>`);
-  s.push(`<text x="${X(10)}" y="${Y(8)}" font-size="12" font-weight="700" fill="#101418">Sem turbulência</text>`);
+  s.push(`<text x="14" y="${M.t + ph / 2}" font-size="12" fill="var(--muted)" text-anchor="middle" transform="rotate(-90 14 ${M.t + ph / 2})">Perpendicular wind 500 mb (kt)</text>`);
+  s.push(`<text x="${X(17)}" y="${Y(76)}" font-size="12" font-weight="700" fill="#101418">Moderate/Severe</text>`);
+  s.push(`<text x="${X(1.2)}" y="${Y(30)}" font-size="12" font-weight="700" fill="#101418">Light</text>`);
+  s.push(`<text x="${X(10)}" y="${Y(8)}" font-size="12" font-weight="700" fill="#101418">No turbulence</text>`);
   if (point) {
     s.push(`<circle cx="${X(point.dp)}" cy="${Y(point.perp)}" r="8" fill="#fff" stroke="#101418" stroke-width="2"/>`);
     s.push(`<circle cx="${X(point.dp)}" cy="${Y(point.perp)}" r="4" fill="#1c64d1"/>`);
@@ -227,7 +225,7 @@ function loadHist() {
   tb.innerHTML = h.slice(0, 25).map(r =>
     `<tr><td>${r.ts}</td><td>${r.dp} hPa</td><td>${r.w}</td><td>${r.perp} kt</td>` +
     `<td class="${r.cls || ''}">${r.lvl || ''}</td></tr>`).join('') ||
-    '<tr><td colspan="5" style="color:var(--muted)">Nenhuma avaliação ainda</td></tr>';
+    '<tr><td colspan="5" style="color:var(--muted)">No assessments yet</td></tr>';
 }
 function saveHist(entry) {
   try {
@@ -250,9 +248,9 @@ function evaluateCrossing() {
   el.className = a.critical || a.cat === 'severe' ? 'nogo'
     : a.cat === 'caution' ? 'warn' : a.cat === 'light' ? 'light' : 'go';
   document.getElementById('analysis').innerHTML =
-    '<div class="section-title">Análise</div><ul>' +
+    '<div class="section-title">Analysis</div><ul>' +
     a.reasons.map(r => `<li>${r}</li>`).join('') +
-    '</ul><div class="section-title">Recomendações</div><ul>' +
+    '</ul><div class="section-title">Recommendations</div><ul>' +
     a.recs.map(r => `<li>${r}</li>`).join('') + '</ul>';
   drawAbaco(a);
   saveHist({
@@ -260,7 +258,7 @@ function evaluateCrossing() {
     dp: a.dp.toFixed(1),
     w: `${String(Math.round(d)).padStart(3,'0')}/${Math.round(v)}kt`,
     perp: Math.round(a.perp),
-    lvl: a.critical ? 'Severa (ΔP)' : ({none:'Nenhuma', light:'Leve', caution:'Limite', severe:'Mod/Forte'})[a.cat],
+    lvl: a.critical ? 'Severa (ΔP)' : ({none:'None', light:'Light', caution:'Marginal', severe:'Mod/Severe'})[a.cat],
     cls: a.critical || a.cat === 'severe' ? 'nogo' : a.cat === 'none' ? 'go' : ''
   });
   loadHist();
