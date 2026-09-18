@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>G550 - Calculadora ACN/PCN</title>
+<title>G550 - ACN/PCN Calculator</title>
 <style>
   :root{
     --navy:#1B2A4A; --accent:#0B5A8A; --gray:#5b5f66; --line:#e2e5ea;
@@ -85,60 +85,60 @@
 <div class="wrap">
 
   <div class="header">
-    <h1>Calculadora ACN / PCN - G550</h1>
+    <h1>ACN / PCN Calculator - G550</h1>
     <p>Aircraft Classification Number vs. Pavement Classification Number</p>
   </div>
 
   <div class="card">
-    <h2>Dados da pista (PCN)</h2>
+    <h2>Runway data (PCN)</h2>
     <div class="row">
       <div class="field">
-        <label for="pavement">Tipo de pavimento</label>
+        <label for="pavement">Pavement type</label>
         <select id="pavement">
-          <option value="flexible">Flexível (F)</option>
-          <option value="rigid">Rígido (R)</option>
+          <option value="flexible">Flexible (F)</option>
+          <option value="rigid">Rigid (R)</option>
         </select>
       </div>
       <div class="field">
-        <label for="subgrade">Categoria de subleito</label>
+        <label for="subgrade">Subgrade category</label>
         <select id="subgrade">
-          <option value="A">A - Alta (CBR 15 / k 150)</option>
-          <option value="B">B - Média (CBR 10 / k 80)</option>
-          <option value="C" selected>C - Baixa (CBR 6 / k 40)</option>
-          <option value="D">D - Ultra baixa (CBR 3 / k 20)</option>
+          <option value="A">A - High (CBR 15 / k 150)</option>
+          <option value="B">B - Medium (CBR 10 / k 80)</option>
+          <option value="C" selected>C - Low (CBR 6 / k 40)</option>
+          <option value="D">D - Ultra-low (CBR 3 / k 20)</option>
         </select>
       </div>
     </div>
     <div class="row">
       <div class="field">
-        <label for="pcn">PCN (número reportado)</label>
+        <label for="pcn">PCN (reported number)</label>
         <input type="number" id="pcn" value="24" step="0.1">
       </div>
       <div class="field">
-        <label for="pcode">Restrição de pressão do PCN</label>
+        <label for="pcode">PCN tire-pressure code</label>
         <select id="pcode">
-          <option value="9999">W - Ilimitada</option>
-          <option value="254">X - Alta (254 psi)</option>
-          <option value="181" selected>Y - Média (181 psi)</option>
-          <option value="73">Z - Baixa (73 psi)</option>
+          <option value="9999">W - Unlimited</option>
+          <option value="254">X - High (254 psi)</option>
+          <option value="181" selected>Y - Medium (181 psi)</option>
+          <option value="73">Z - Low (73 psi)</option>
         </select>
       </div>
     </div>
-    <div class="legend">Formato Jeppesen: PCN / F ou R / A-D / W-Z / T ou U. Ex.: 24/F/C/Y/T.</div>
+    <div class="legend">Jeppesen format: PCN / F or R / A-D / W-Z / T or U. E.g.: 24/F/C/Y/T.</div>
   </div>
 
   <div class="card">
-    <h2>Dados da aeronave</h2>
+    <h2>Aircraft data</h2>
     <div class="row">
       <div class="field">
-        <label for="pressmode">Regime de pressão dos pneus</label>
+        <label for="pressmode">Tire pressure mode</label>
         <select id="pressmode">
-          <option value="fixed">Fixa - 198 PSI</option>
-          <option value="varied">Variável com o peso</option>
+          <option value="fixed">Fixed - 198 PSI</option>
+          <option value="varied">Varied with weight</option>
         </select>
       </div>
       <div class="field">
-        <label for="weight">Peso bruto atual</label>
+        <label for="weight">Current gross weight</label>
         <div style="display:flex; gap:8px;">
           <input type="number" id="weight" value="75000" step="100" style="flex:1;">
           <div class="unit-toggle" style="width:110px;">
@@ -156,22 +156,22 @@
   </div>
 
   <div class="card">
-    <h2>Detalhe do cálculo</h2>
+    <h2>Calculation detail</h2>
     <div class="stat-grid">
-      <div class="stat"><div class="label">ACN atual (interpolado)</div><div class="value" id="acn-atual">-</div></div>
-      <div class="stat"><div class="label">PCN informado</div><div class="value" id="pcn-out">-</div></div>
-      <div class="stat"><div class="label">ACN mínimo na tabela</div><div class="value" id="acn-min">-</div></div>
-      <div class="stat"><div class="label">ACN máximo na tabela</div><div class="value" id="acn-max">-</div></div>
-      <div class="stat"><div class="label">Peso mínimo da tabela</div><div class="value" id="w-min">-</div></div>
-      <div class="stat"><div class="label">Peso máximo da tabela</div><div class="value" id="w-max">-</div></div>
+      <div class="stat"><div class="label">Current ACN (interpolated)</div><div class="value" id="acn-atual">-</div></div>
+      <div class="stat"><div class="label">Reported PCN</div><div class="value" id="pcn-out">-</div></div>
+      <div class="stat"><div class="label">Minimum table ACN</div><div class="value" id="acn-min">-</div></div>
+      <div class="stat"><div class="label">Maximum table ACN</div><div class="value" id="acn-max">-</div></div>
+      <div class="stat"><div class="label">Minimum table weight</div><div class="value" id="w-min">-</div></div>
+      <div class="stat"><div class="label">Maximum table weight</div><div class="value" id="w-max">-</div></div>
     </div>
     <div class="note" id="interp-note"></div>
     <div class="note warn" id="pressure-note"></div>
   </div>
 
   <div class="footer">
-    Dados extraídos do G550 Performance Handbook, Rev. 43 (2023-01-27), seção 03-01-50 (ACN/PCN Charts).<br>
-    Ferramenta de apoio ao estudo pessoal - sempre confirme com o Performance Handbook antes de operar em pista restrita.
+    ACN data derived from operator performance documentation.<br>
+    Personal study aid - always confirm with the Performance Handbook before operating on a restricted runway.<br><br>Independent tool — not affiliated with, endorsed or approved by Gulfstream Aerospace. Performance data derived from operator documentation, for reference and training only; always use the current official AFM/Performance Handbook. G550 is a trademark of its respective owner.
   </div>
 
 </div>
@@ -235,7 +235,7 @@ function interpolate(weightLb, series){
 
 function fmt(n, d){
   d = d===undefined?2:d;
-  return Number(n).toLocaleString('pt-BR', {minimumFractionDigits:d, maximumFractionDigits:d});
+  return Number(n).toLocaleString('en-US', {minimumFractionDigits:d, maximumFractionDigits:d});
 }
 
 function recompute(){
@@ -260,9 +260,9 @@ function recompute(){
 
   var interpNote = '';
   if (result.lo !== undefined){
-    interpNote = 'Interpolado linearmente entre ' + fmt(result.lo,0) + ' lb e ' + fmt(result.hi,0) + ' lb da tabela do Performance Handbook.';
+    interpNote = 'Linearly interpolated between ' + fmt(result.lo,0) + ' lb and ' + fmt(result.hi,0) + ' lb of the Performance Handbook table.';
   } else if (result.extrapolated){
-    interpNote = 'Peso fora da faixa da tabela (' + fmt(WEIGHTS_LB[0],0) + ' a ' + fmt(WEIGHTS_LB[WEIGHTS_LB.length-1],0) + ' lb) - valor extrapolado, confirmar no Performance Handbook.';
+    interpNote = 'Weight outside the table range (' + fmt(WEIGHTS_LB[0],0) + ' to ' + fmt(WEIGHTS_LB[WEIGHTS_LB.length-1],0) + ' lb) - extrapolated value, confirm in the Performance Handbook.';
   }
   document.getElementById('interp-note').textContent = interpNote;
 
@@ -272,10 +272,10 @@ function recompute(){
   if (pressmode === 'fixed'){
     if (pcode < 198){
       pressureRestricted = true;
-      pressureNote = 'Pressão máxima do PCN (' + fmt(pcode,0) + ' psi) é menor que a pressão do pneu do G550 nesta condição (198 psi) - restrição de pressão se aplica mesmo com ACN dentro do limite.';
+      pressureNote = 'PCN maximum pressure (' + fmt(pcode,0) + ' psi) is lower than the G550 tire pressure in this condition (198 psi) - the pressure restriction applies even with ACN within limits.';
     }
   } else {
-    pressureNote = 'Modo "pressão variável com o peso": o ACN já considera pressão de pneu reduzida para pesos menores. A verificação automática de restrição de pressão (código do PCN) só é feita no modo "pressão fixa - 198 psi".';
+    pressureNote = '"Varied with weight" mode: the ACN already assumes reduced tire pressure at lower weights. The automatic pressure-code check (PCN code) is only performed in "fixed - 198 psi" mode.';
   }
   document.getElementById('pressure-note').textContent = pressureNote;
 
@@ -286,15 +286,15 @@ function recompute(){
   if (!acnOk){
     banner.className = 'result-banner nogo';
     badge.textContent = 'NO-GO';
-    text.textContent = 'ACN (' + fmt(acn) + ') é maior que o PCN (' + fmt(pcn,1) + '). Pista não adequada para esse peso sem avaliação técnica adicional.';
+    text.textContent = 'ACN (' + fmt(acn) + ') is greater than the PCN (' + fmt(pcn,1) + '). Runway not suitable at this weight without further engineering assessment.';
   } else if (pressureRestricted){
     banner.className = 'result-banner go-restricted';
-    badge.textContent = 'GO COM RESTRIÇÃO';
-    text.textContent = 'ACN (' + fmt(acn) + ') está dentro do PCN (' + fmt(pcn,1) + '), mas a pressão dos pneus excede o limite reportado pelo PCN.';
+    badge.textContent = 'GO WITH RESTRICTION';
+    text.textContent = 'ACN (' + fmt(acn) + ') is within the PCN (' + fmt(pcn,1) + '), but tire pressure exceeds the limit reported by the PCN.';
   } else {
     banner.className = 'result-banner go';
     badge.textContent = 'GO';
-    text.textContent = 'ACN (' + fmt(acn) + ') está dentro do PCN (' + fmt(pcn,1) + '). Pista adequada, sem restrição de pressão.';
+    text.textContent = 'ACN (' + fmt(acn) + ') is within the PCN (' + fmt(pcn,1) + '). Runway suitable, no pressure restriction.';
   }
 }
 
