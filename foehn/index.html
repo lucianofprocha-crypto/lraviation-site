@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Foehn Advisor - Alpes (Genebra / Milão)</title>
+<title>Foehn Advisor - Alps (Geneva / Milan)</title>
 <style>
   :root{
     --navy:#1B2A4A; --accent:#0B5A8A; --gray:#5b5f66; --line:#e2e5ea;
@@ -83,53 +83,51 @@
 <div class="wrap">
 
   <div class="header">
-    <h1>Foehn Advisor - Alpes</h1>
-    <p>Genebra / Zurique × Milão · ΔQNH através da cordilheira + vento em altitude</p>
+    <h1>Foehn Advisor - Alps</h1>
+    <p>Geneva / Zurich × Milan · cross-ridge ΔQNH + wind aloft</p>
   </div>
 
   <details class="card concept">
-    <summary>O que é o efeito Foehn?</summary>
-    <p><strong>Foehn</strong> é o vento que cruza os Alpes forçado por uma diferença de pressão
-    entre os dois lados da cordilheira. O ar sobe pelo lado de pressão mais alta (barlavento),
-    desce aquecido e seco pelo lado de pressão mais baixa (sotavento) - e é no sotavento que
-    ficam a onda de montanha, os rotores e a turbulência, às vezes severa, afetando os vales
-    alpinos e as chegadas/saídas dos aeroportos daquele lado.</p>
-    <p><strong>Foehn Sul</strong>: pressão mais alta em Milão (LIMC) do que no norte -
-    turbulência no lado de Genebra (LSGG), Zurique (LSZH) e vales do norte.
-    <strong>Foehn Norte</strong>: pressão mais alta no norte - turbulência no lado de
-    Milão/Lugano e chegadas LIMC.</p>
-    <p>Critério do manual: diferença maior que <strong>5-8 hPa</strong> entre LSZH e LIMC é
-    forte indicação de turbulência; recomenda-se voar <strong>5.000-8.000 ft acima do ponto
-    mais elevado</strong> da cordilheira.</p>
+    <summary>What is the Foehn effect?</summary>
+    <p><strong>Foehn</strong> is the wind that crosses the Alps driven by a pressure difference
+    between the two sides of the range. Air rises on the high-pressure side (windward), descends warm and
+    dry on the low-pressure side (lee) - and it is on the lee side that mountain wave, rotors and
+    turbulence, at times severe, affect the Alpine valleys and the arrivals/departures of that side's airports.</p>
+    <p><strong>South Foehn</strong>: higher pressure in Milan (LIMC) than on the north side -
+    turbulence on the Geneva (LSGG), Zurich (LSZH) and northern-valley side.
+    <strong>North Foehn</strong>: higher pressure on the north side - turbulence on the
+    Milan/Lugano side and LIMC arrivals.</p>
+    <p>Manual criterion: a difference greater than <strong>5-8 hPa</strong> between LSZH and LIMC is a
+    strong indication of turbulence; flying <strong>5,000-8,000 ft above the highest point</strong> of the
+    range is recommended.</p>
   </details>
 
   <div class="card">
-    <h2>Pressões (QNH)</h2>
+    <h2>Pressures (QNH)</h2>
     <div class="row">
       <div class="field">
-        <label for="northsta">Estação do lado norte</label>
+        <label for="northsta">North-side station</label>
         <select id="northsta">
-          <option value="LSGG">LSGG - Genebra</option>
-          <option value="LSZH">LSZH - Zurique</option>
+          <option value="LSGG">LSGG - Geneva</option>
+          <option value="LSZH">LSZH - Zurich</option>
         </select>
       </div>
-      <div class="field"><label for="qnorth">QNH lado norte (hPa)</label>
+      <div class="field"><label for="qnorth">North-side QNH (hPa)</label>
         <input type="number" id="qnorth" value="1015" step="1"></div>
-      <div class="field"><label for="qlimc">QNH LIMC - Milão (hPa)</label>
+      <div class="field"><label for="qlimc">QNH LIMC - Milan (hPa)</label>
         <input type="number" id="qlimc" value="1013" step="1"></div>
     </div>
   </div>
 
   <div class="card">
-    <h2>Vento em altitude (700-500 hPa · FL100-FL180)</h2>
+    <h2>Wind aloft (700-500 hPa · FL100-FL180)</h2>
     <div class="row">
-      <div class="field"><label for="wdir">Direção (°)</label>
+      <div class="field"><label for="wdir">Direction (°)</label>
         <input type="number" id="wdir" value="180" step="5" min="0" max="360"></div>
-      <div class="field"><label for="wspd">Velocidade (kt)</label>
+      <div class="field"><label for="wspd">Speed (kt)</label>
         <input type="number" id="wspd" value="25" step="5" min="0"></div>
     </div>
-    <div class="note">O eixo principal dos Alpes é aproximadamente Leste-Oeste entre a Suíça e a
-    Itália: a componente que atravessa a cordilheira é a componente Norte-Sul do vento.</div>
+    <div class="note">The main axis of the Alps runs roughly East-West between Switzerland and Italy: the cross-ridge component is the North-South component of the wind.</div>
   </div>
 
   <div id="banner" class="result-banner calm">
@@ -138,35 +136,35 @@
   </div>
 
   <div class="card">
-    <h2>Detalhe da avaliação</h2>
+    <h2>Assessment detail</h2>
     <div class="stat-grid">
-      <div class="stat"><div class="label">ΔP (norte − LIMC)</div><div class="value" id="dp-out">-</div></div>
-      <div class="stat"><div class="label">Sentido do Foehn</div><div class="value" id="dir-out">-</div></div>
-      <div class="stat"><div class="label">Lado da turbulência</div><div class="value" id="lee-out">-</div></div>
-      <div class="stat"><div class="label">Componente N-S do vento</div><div class="value" id="perp-out">-</div></div>
+      <div class="stat"><div class="label">ΔP (north − LIMC)</div><div class="value" id="dp-out">-</div></div>
+      <div class="stat"><div class="label">Foehn direction</div><div class="value" id="dir-out">-</div></div>
+      <div class="stat"><div class="label">Turbulent side</div><div class="value" id="lee-out">-</div></div>
+      <div class="stat"><div class="label">N-S wind component</div><div class="value" id="perp-out">-</div></div>
     </div>
     <div class="note" id="wind-note"></div>
     <div class="note warn" id="coh-note"></div>
     <div style="margin-top:12px">
       <div class="stat" style="background:transparent; padding:0">
-        <div class="label" style="margin-bottom:6px">Recomendações</div>
+        <div class="label" style="margin-bottom:6px">Recommendations</div>
         <ul class="recs" id="recs"></ul>
       </div>
     </div>
   </div>
 
   <div class="card">
-    <h2>Histórico</h2>
+    <h2>History</h2>
     <table class="hist">
-      <thead><tr><th>UTC</th><th>ΔP</th><th>Sentido</th><th>Vento</th><th>Indicação</th></tr></thead>
+      <thead><tr><th>UTC</th><th>ΔP</th><th>Direction</th><th>Wind</th><th>Indication</th></tr></thead>
       <tbody id="hist-body"></tbody>
     </table>
   </div>
 
   <div class="footer">
-    Critério de ΔP conforme manual "Operação sobre os Andes REV1" (nota sobre os Alpes: LSZH × LIMC).<br>
-    Ferramenta de apoio ao estudo/planejamento - não substitui o briefing meteorológico oficial
-    (SIGMET/GAFOR/SIGWX) nem o julgamento do comandante.
+    ΔP criterion from the "Operação sobre os Andes REV1" manual (Alps note: LSZH × LIMC).<br>
+    Study/planning aid - it does not replace the official weather briefing
+    (SIGMET/GAFOR/SIGWX) or the captain’s judgement.
   </div>
 
 </div>
@@ -176,7 +174,7 @@ var TH_WEAK = 3, TH_STRONG = 5, TH_SEVERE = 8;
 
 function fmt(n, d){
   d = d === undefined ? 1 : d;
-  return Number(n).toLocaleString('pt-BR', {minimumFractionDigits: d, maximumFractionDigits: d});
+  return Number(n).toLocaleString('en-US', {minimumFractionDigits: d, maximumFractionDigits: d});
 }
 
 function assess(qn, qm, wdir, wspd, staName){
@@ -188,26 +186,26 @@ function assess(qn, qm, wdir, wspd, staName){
   var windFromSouth = Math.cos(wdir * Math.PI / 180) < 0;
 
   var sense, lee;
-  if (adp < 0.5){ sense = 'Indefinido'; lee = '-'; }
-  else if (dp < 0){ sense = 'Foehn Sul'; lee = 'Norte: ' + staName + ' e vales alpinos'; }
-  else { sense = 'Foehn Norte'; lee = 'Sul: Milão (LIMC) / Lugano'; }
+  if (adp < 0.5){ sense = 'Undefined'; lee = '-'; }
+  else if (dp < 0){ sense = 'South Foehn'; lee = 'North: ' + staName + ' and Alpine valleys'; }
+  else { sense = 'North Foehn'; lee = 'South: Milan (LIMC) / Lugano'; }
 
   var cls, badge, txt;
   if (adp < TH_WEAK){
-    cls = 'calm'; badge = 'SEM INDICAÇÃO';
-    txt = 'ΔP de ' + fmt(adp) + ' hPa através dos Alpes: sem indicação significativa de Foehn.';
+    cls = 'calm'; badge = 'NO INDICATION';
+    txt = 'ΔP de ' + fmt(adp) + ' hPa across the Alps: no significant Foehn indication.';
   } else if (adp < TH_STRONG){
-    cls = 'weak'; badge = 'INDICAÇÃO FRACA';
-    txt = 'ΔP de ' + fmt(adp) + ' hPa: possível ' + sense.toLowerCase() +
-      ' em formação - monitorar tendência e reportes.';
+    cls = 'weak'; badge = 'WEAK INDICATION';
+    txt = 'ΔP de ' + fmt(adp) + ' hPa: possible ' + sense.toLowerCase() +
+      ' developing - monitor the trend and pilot reports.';
   } else if (adp <= TH_SEVERE){
-    cls = 'strong'; badge = 'FORTE INDICAÇÃO';
-    txt = 'ΔP de ' + fmt(adp) + ' hPa (faixa 5-8 do manual): forte indicação de turbulência de ' +
-      sense.toLowerCase() + ' no sotavento.';
+    cls = 'strong'; badge = 'STRONG INDICATION';
+    txt = 'ΔP de ' + fmt(adp) + ' hPa (the manual\'s 5-8 band): strong indication of ' +
+      sense.toLowerCase() + ' turbulence on the lee side.';
   } else {
-    cls = 'severe'; badge = 'INDICAÇÃO SEVERA';
+    cls = 'severe'; badge = 'SEVERE INDICATION';
     txt = 'ΔP de ' + fmt(adp) + ' hPa (> 8): ' + sense.toLowerCase() +
-      ' intenso - turbulência moderada a severa provável no sotavento, com onda de montanha e rotores.';
+      ' intense - moderate to severe turbulence likely on the lee side, with mountain wave and rotors.';
   }
 
   // coerência vento × gradiente
@@ -215,27 +213,27 @@ function assess(qn, qm, wdir, wspd, staName){
   if (adp >= TH_WEAK && ns >= 10){
     var expectSouthWind = dp < 0;         // Foehn Sul → vento de quadrante sul
     if (expectSouthWind !== windFromSouth){
-      coh = 'Atenção: a direção do vento em altitude não é coerente com o sentido do gradiente ' +
-        'de pressão - situação de transição ou dado desatualizado; reavaliar com METAR/vento recentes.';
+      coh = 'Caution: the wind-aloft direction is not consistent with the pressure gradient ' +
+        '- transition situation or stale data; reassess with recent METAR/wind.';
     }
   }
-  var windTxt = ns < 10 ? 'Componente N-S fraca (' + fmt(ns, 0) + ' kt): pouco suporte de vento ao Foehn.'
-    : ns < 30 ? 'Componente N-S de ' + fmt(ns, 0) + ' kt: suporte moderado ao Foehn.'
-    : 'Componente N-S de ' + fmt(ns, 0) + ' kt: suporte forte - onda de montanha provável no sotavento.';
+  var windTxt = ns < 10 ? 'Weak N-S component (' + fmt(ns, 0) + ' kt): little wind support for Foehn.'
+    : ns < 30 ? 'N-S component of ' + fmt(ns, 0) + ' kt: moderate support for Foehn.'
+    : 'N-S component of ' + fmt(ns, 0) + ' kt: strong support - mountain wave likely on the lee side.';
 
   var recs = [];
   if (adp >= TH_STRONG){
-    recs.push('Voar 5.000-8.000 ft acima do ponto mais elevado da cordilheira (Mont Blanc 15.781 ft / Monte Rosa 15.203 ft).');
-    recs.push('Esperar turbulência, onda de montanha e rotores no lado ' +
-      (dp < 0 ? 'norte (chegadas/saídas ' + staName + ', vales do Valais e do Reno)' :
-                'sul (chegadas/saídas LIMC, região de Lugano/Como)') + '.');
-    recs.push('Atenção a nuvens lenticulares e a variações rápidas de vento na aproximação do lado sotavento.');
+    recs.push('Fly 5,000-8,000 ft above the highest point of the range (Mont Blanc 15,781 ft / Monte Rosa 15,203 ft).');
+    recs.push('Expect turbulence, mountain wave and rotors on the ' +
+      (dp < 0 ? 'north side (arrivals/departures ' + staName + ', Valais and Rhine valleys)' :
+                'south side (arrivals/departures LIMC, Lugano/Como area)') + '.');
+    recs.push('Watch for lenticular clouds and rapid wind changes on the lee-side approach.');
   } else if (adp >= TH_WEAK){
-    recs.push('Monitorar a evolução do ΔP e os reportes de tripulações na região antes do cruzamento.');
+    recs.push('Monitor the ΔP trend and crew reports in the area before the crossing.');
   } else {
-    recs.push('Condição de gradiente fraco - cruzamento dos Alpes sem indicação de Foehn pelos critérios de pressão.');
+    recs.push('Weak-gradient condition - Alps crossing with no Foehn indication by the pressure criteria.');
   }
-  recs.push('Confirmar com o briefing oficial: SIGMET, GAFOR suíço e cartas SIGWX da região.');
+  recs.push('Confirm with the official briefing: SIGMET, Swiss GAFOR and regional SIGWX charts.');
 
   return {dp: dp, adp: adp, ns: ns, sense: sense, lee: lee, cls: cls,
           badge: badge, txt: txt, windTxt: windTxt, coh: coh, recs: recs};
@@ -248,7 +246,7 @@ function loadHist(){
   document.getElementById('hist-body').innerHTML = h.slice(0, 25).map(function(r){
     return '<tr><td>' + r.ts + '</td><td>' + r.dp + ' hPa</td><td>' + r.sense +
       '</td><td>' + r.w + '</td><td class="' + (cls[r.cls] || '') + '">' + r.badge + '</td></tr>';
-  }).join('') || '<tr><td colspan="5" style="color:var(--gray)">Nenhuma avaliação ainda</td></tr>';
+  }).join('') || '<tr><td colspan="5" style="color:var(--gray)">No assessments yet</td></tr>';
 }
 
 function saveHist(entry){
