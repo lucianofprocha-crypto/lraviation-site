@@ -57,7 +57,19 @@ label{display:block; font-size:.82rem; font-weight:600; margin:.7rem 0 .25rem; c
 .toolbar{display:flex; flex-wrap:wrap; gap:.5rem; margin:.8rem 0;}
 /* form */
 .leg-row{background:var(--card); border:1px solid var(--border); border-radius:10px; padding:.8rem 1rem 1rem; margin-top:.8rem;}
-.leg-fields{display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:0 .8rem;}
+.leg-fields{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:0 .9rem;}
+.leg-fields > div{min-width:0;}
+.ft{display:flex; align-items:center; gap:.3rem;}
+.ft select{flex:1 1 0; min-width:0; padding:.6rem .4rem;}
+.ft-sep{color:var(--muted); font-weight:700;}
+@media (max-width:600px){ .leg-fields{grid-template-columns:repeat(2,minmax(0,1fr));} }
+/* iOS: campos de data/hora têm largura/altura próprias e estouravam a grade */
+input,select{height:46px; min-width:0; max-width:100%; display:block; line-height:1.2;}
+input[type=date],input[type=time]{-webkit-appearance:none; appearance:none; text-align:left;}
+input::-webkit-date-and-time-value{text-align:left; margin:0;}
+input[type=file]{height:auto;}
+.notes{height:40px;}
+.status-select{height:40px;}
 .leg-row-head{display:flex; justify-content:space-between; align-items:center; font-weight:700;}
 .form-actions{display:flex; gap:.8rem; align-items:center; margin-top:1.2rem;}
 /* checklist */
@@ -211,12 +223,20 @@ function legFieldsHTML(l, n){
     '<div><label>Type</label><select name="type"><option value="INTL"' + (l.type === "INTL" ? " selected" : "") + '>International</option><option value="NAC"' + (l.type !== "INTL" ? " selected" : "") + '>Domestic</option></select></div>' +
     '<div><label>Flight date</label><input type="date" name="date" value="' + esc(l.date) + '"></div>' +
     '<div><label>Dep. (ZULU)</label><input type="time" name="dep" value="' + esc(l.dep) + '"></div>' +
-    '<div><label>Flight time (HH:MM)</label><input name="ftime" placeholder="05:30" inputmode="numeric" value="' + esc(l.ftime) + '"></div>' +
+    '<div><label>Flight time (h : min)</label>' + ftimeHTML(l.ftime) + '</div>' +
     '</div></div>';
+}
+function ftimeHTML(v){
+  var m = /^(\d{1,2}):(\d{2})$/.exec((v || "").trim()), H = m ? +m[1] : null, M = m ? +m[2] : null;
+  var h = '<select name="fth" aria-label="hours"><option value="">h</option>', i;
+  for (i = 0; i <= 20; i++) h += '<option value="' + i + '"' + (H === i ? " selected" : "") + '>' + pad(i) + ' h</option>';
+  h += '</select><span class="ft-sep">:</span><select name="ftm" aria-label="minutes"><option value="">min</option>';
+  for (i = 0; i < 60; i++) h += '<option value="' + i + '"' + (M === i ? " selected" : "") + '>' + pad(i) + ' min</option>';
+  return '<div class="ft">' + h + '</select></div>';
 }
 function readLeg(el){
   var g = function(n){ return el.querySelector('[name="' + n + '"]').value; };
-  return {origin: g("origin"), destination: g("destination"), type: g("type"), date: g("date"), dep: g("dep"), ftime: g("ftime").trim()};
+  return {origin: g("origin"), destination: g("destination"), type: g("type"), date: g("date"), dep: g("dep"), ftime: (g("fth") === "" && g("ftm") === "") ? "" : pad(+(g("fth") || 0)) + ":" + pad(+(g("ftm") || 0))};
 }
 function validLeg(d){ return /^[A-Z0-9]{3,4}$/.test(up(d.origin)) && /^[A-Z0-9]{3,4}$/.test(up(d.destination)) && (!d.ftime || /^\d{1,2}:\d{2}$/.test(d.ftime)); }
 
