@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>G550 - Calculadora de Fuel Tankering</title>
+<title>G550 - Fuel Tankering Calculator</title>
 <style>
   :root{
     --navy:#1B2A4A; --accent:#0B5A8A; --gray:#5b5f66; --line:#e2e5ea; --bg:#f5f7fa; --card:#fff;
@@ -62,42 +62,42 @@
 <div class="wrap">
 
   <div class="header">
-    <h1>Calculadora de Fuel Tankering - G550</h1>
-    <p>Decisão de abastecer combustível extra com base no fator de custo de transporte</p>
+    <h1>Fuel Tankering Calculator - G550</h1>
+    <p>Deciding whether to uplift extra fuel based on the carriage cost factor</p>
   </div>
 
   <details class="card concept">
-    <summary>O que é fuel tankering?</summary>
-    <p><strong>Fuel tankering</strong> é a decisão de embarcar mais combustível do que o necessário para o voo, aproveitando um preço mais baixo no aeroporto de partida, para evitar (ou reduzir) o abastecimento no destino, onde o combustível é mais caro.</p>
-    <p>A pegadinha é que combustível extra pesa, e carregar esse peso a mais faz o avião queimar mais combustível durante o voo - então parte da economia de preço é consumida só para "carregar" o combustível extra. Quanto mais longo o voo e quanto mais rápido (Mach mais alto) o cruzeiro, maior essa penalidade, porque o excedente fica mais tempo sendo carregado a um consumo mais alto.</p>
-    <div class="formula">economia por galão = preço no destino - (preço na origem x fator de tankering)</div>
-    <p>O <strong>fator de tankering</strong> representa quanto combustível é queimado para transportar cada galão extra ao longo daquele voo específico - ele é sempre maior que 1, e cresce com o tempo de voo e com o Mach de cruzeiro.</p>
+    <summary>What is fuel tankering?</summary>
+    <p><strong>Fuel tankering</strong> is the decision to uplift more fuel than the flight requires, taking advantage of a lower price at the departure airport to avoid (or reduce) refueling at the destination, where fuel is more expensive.</p>
+    <p>The catch is that extra fuel is weight, and carrying that weight makes the aircraft burn more fuel en route - so part of the price advantage is consumed just "carrying" the extra fuel. The longer the flight and the faster the cruise (higher Mach), the bigger this penalty, because the surplus is carried for longer at a higher burn.</p>
+    <div class="formula">savings per gallon = destination price - (origin price x tankering factor)</div>
+    <p>The <strong>tankering factor</strong> represents how much fuel is burned to carry each extra gallon over that specific flight - it is always greater than 1, and grows with flight time and cruise Mach.</p>
     <div class="example">
-      <strong>Exemplo prático</strong> (Mach 0,85, voo de 6 horas):<br>
-      Preço em DEP: US$ 4,00/gal &nbsp;|&nbsp; Preço em ARR: US$ 4,90/gal &nbsp;|&nbsp; Fator de tankering: 1,251<br><br>
-      Economia por galão = 4,90 - (4,00 x 1,251) = 4,90 - 5,004 = <strong>-US$ 0,10 por galão</strong><br><br>
-      Mesmo com o combustível US$ 0,90 mais barato na origem, nesse voo de 6 horas em Mach 0,85 <strong>não compensa</strong> fazer tankering - a penalidade de carregar o peso extra (25,1% de sobrecusto de queima) supera a vantagem de preço. Se o mesmo voo fosse de apenas 3 horas (fator 1,090), a conta mudaria para 4,90 - (4,00x1,090) = <strong>+US$ 0,54/galão</strong> - aí sim valeria a pena abastecer o máximo possível.
+      <strong>Worked example</strong> (Mach 0.85, 6-hour flight):<br>
+      Price at DEP: US$ 4.00/gal &nbsp;|&nbsp; Price at ARR: US$ 4.90/gal &nbsp;|&nbsp; Tankering factor: 1.251<br><br>
+      Savings per gallon = 4.90 - (4.00 x 1.251) = 4.90 - 5.004 = <strong>-US$ 0.10 per gallon</strong><br><br>
+      Even with fuel US$ 0.90 cheaper at origin, on this 6-hour flight at Mach 0.85 tankering <strong>does not pay off</strong> - the penalty of carrying the extra weight (25.1% burn surcharge) beats the price advantage. If the same flight took only 3 hours (factor 1.090), the math would change to 4.90 - (4.00x1.090) = <strong>+US$ 0.54/gallon</strong> - then it would pay to uplift as much as possible.
     </div>
   </details>
 
   <div class="card">
-    <h2>Preços de combustível</h2>
+    <h2>Fuel prices</h2>
     <div class="row">
-      <div class="field"><label for="depPrice">Preço no DEP (US$/gal)</label><input type="number" id="depPrice" value="4.00" step="0.01"></div>
-      <div class="field"><label for="arrPrice">Preço no ARR (US$/gal)</label><input type="number" id="arrPrice" value="4.90" step="0.01"></div>
+      <div class="field"><label for="depPrice">Price at DEP (US$/gal)</label><input type="number" id="depPrice" value="4.00" step="0.01"></div>
+      <div class="field"><label for="arrPrice">Price at ARR (US$/gal)</label><input type="number" id="arrPrice" value="4.90" step="0.01"></div>
       <div class="field"><label for="uplift">Fuel uplift (gal)</label><input type="number" id="uplift" value="3500" step="50"></div>
     </div>
   </div>
 
   <div class="card">
-    <h2>Perfil de voo</h2>
+    <h2>Flight profile</h2>
     <div class="row">
       <div class="field">
-        <label for="mach">Mach de cruzeiro <span class="slider-val" id="mach-val">0.85</span></label>
+        <label for="mach">Cruise Mach <span class="slider-val" id="mach-val">0.85</span></label>
         <input type="range" id="mach" min="0.80" max="0.87" step="0.01" value="0.85">
       </div>
       <div class="field">
-        <label for="time">Tempo de voo (h) <span class="slider-val" id="time-val">6.0</span></label>
+        <label for="time">Flight time (h) <span class="slider-val" id="time-val">6.0</span></label>
         <input type="range" id="time" min="3" max="10" step="0.1" value="6">
       </div>
     </div>
@@ -109,20 +109,20 @@
   </div>
 
   <div class="card">
-    <h2>Detalhe do cálculo</h2>
+    <h2>Calculation detail</h2>
     <div class="stat-grid">
-      <div class="stat"><div class="label">Fator de tankering (interpolado)</div><div class="value" id="factor-out">-</div></div>
+      <div class="stat"><div class="label">Tankering factor (interpolated)</div><div class="value" id="factor-out">-</div></div>
       <div class="stat"><div class="label">Ratio ARR / DEP</div><div class="value" id="ratio-out">-</div></div>
-      <div class="stat"><div class="label">Economia por galão</div><div class="value" id="savings-gal">-</div></div>
-      <div class="stat"><div class="label">Economia total</div><div class="value" id="savings-total">-</div></div>
+      <div class="stat"><div class="label">Savings per gallon</div><div class="value" id="savings-gal">-</div></div>
+      <div class="stat"><div class="label">Total savings</div><div class="value" id="savings-total">-</div></div>
     </div>
-    <div class="note">Fórmula: economia/galão = Preço ARR - Preço DEP x Fator(mach, tempo). Tanker compensa quando Ratio (ARR/DEP) &gt; Fator - o fator cresce com o tempo de voo e com o Mach de cruzeiro, pois mais combustível é queimado para carregar o peso extra.</div>
+    <div class="note">Formula: savings/gal = ARR price - DEP price x Factor(mach, time). Tankering pays off when the ARR/DEP ratio &gt; Factor - the factor grows with flight time and cruise Mach, since more fuel is burned carrying the extra weight.</div>
     <div class="note" id="extrap-note"></div>
   </div>
 
   <div class="footer">
-    Fator de tankering derivado da planilha "tankering.numbers" (grade Mach 0.80-0.87 x tempo 3-10h), reconciliado com a fórmula economia = PreçoARR - PreçoDEP x Fator.<br>
-    Ferramenta de apoio ao estudo/planejamento pessoal - sempre confirme com o despacho operacional antes de decidir o abastecimento.
+    Tankering factor derived from the "tankering.numbers" spreadsheet (Mach 0.80-0.87 x 3-10h grid), reconciled with the formula savings = ARRprice - DEPprice x Factor.<br>
+    Personal study/planning aid - always confirm with operational dispatch before the fuel decision.<br><br>Independent tool — not affiliated with, endorsed or approved by Gulfstream Aerospace. Performance data derived from operator documentation, for reference and training only; always use the current official AFM/Performance Handbook. G550 is a trademark of its respective owner.
   </div>
 
 </div>
@@ -175,7 +175,7 @@ function factorAt(mach, time){
   return {value: result, extrapolated: extrapolated};
 }
 
-function fmt(n,d){ d=d===undefined?2:d; return Number(n).toLocaleString('pt-BR',{minimumFractionDigits:d, maximumFractionDigits:d}); }
+function fmt(n,d){ d=d===undefined?2:d; return Number(n).toLocaleString('en-US',{minimumFractionDigits:d, maximumFractionDigits:d}); }
 
 function recompute(){
   var dep = parseFloat(document.getElementById('depPrice').value)||0;
@@ -199,7 +199,7 @@ function recompute(){
   document.getElementById('savings-total').textContent = 'US$ ' + fmt(savingsTotal,2);
 
   document.getElementById('extrap-note').textContent = f.extrapolated ?
-    'Combinação próxima do limite da grade original (Mach 0.87 / 10h não tabulado) - valor extrapolado do último ponto disponível, confirmar com o despacho.' : '';
+    'Combination near the edge of the original grid (Mach 0.87 / 10h not tabulated) - value extrapolated from the last available point, confirm with dispatch.' : '';
 
   var banner = document.getElementById('banner');
   var badge = document.getElementById('badge-text');
@@ -208,11 +208,11 @@ function recompute(){
   if (savingsGal > 0){
     banner.className = 'result-banner go';
     badge.textContent = 'TANKER';
-    text.textContent = 'Vale a pena abastecer combustível extra: economia estimada de US$ ' + fmt(savingsGal,3) + ' por galão (US$ ' + fmt(savingsTotal,2) + ' no total para ' + fmt(uplift,0) + ' gal).';
+    text.textContent = 'Uplifting extra fuel pays off: estimated savings of US$ ' + fmt(savingsGal,3) + ' per gallon (US$ ' + fmt(savingsTotal,2) + ' total for ' + fmt(uplift,0) + ' gal).';
   } else {
     banner.className = 'result-banner nogo';
-    badge.textContent = 'NÃO TANKER';
-    text.textContent = 'Não compensa abastecer combustível extra: o custo de carregá-lo supera a economia de preço (US$ ' + fmt(savingsGal,3) + ' por galão).';
+    badge.textContent = 'DO NOT TANKER';
+    text.textContent = 'Uplifting extra fuel does not pay off: the cost of carrying it exceeds the price advantage (US$ ' + fmt(savingsGal,3) + ' per gallon).';
   }
 }
 
