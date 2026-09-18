@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guia de Regulação ATFM (CTOT) — EUROCONTROL · LR Aviation</title>
+<meta name="description" content="Guia operacional de CTOT/ATFM do EUROCONTROL: como o slot é calculado, mensagens SAM/SRM/SIP, procedimento do plano de voo à decolagem e particularidades de aeroportos.">
+<style>
+  :root{
+    --navy:#1B2A4A; --accent:#0B5A8A; --gray:#5b5f66; --line:#e2e5ea;
+    --bg:#f5f7fa; --card:#ffffff; --amber:#a15c00; --amber-bg:#fdf1e0; --amber-line:#f2d4a3;
+    --red:#b71c1c; --red-bg:#fdeceb;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth; scroll-padding-top:16px;}
+  body{margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    background:var(--bg); color:#1c1f24; line-height:1.65; font-size:15px;}
+  .layout{max-width:1160px; margin:0 auto; padding:26px 16px 70px; display:grid; gap:26px;}
+  @media (min-width:960px){ .layout{grid-template-columns:260px 1fr;} }
+  header.top{grid-column:1 / -1;}
+  header.top h1{font-size:clamp(21px,3.4vw,28px); color:var(--navy); margin:0 0 4px; font-weight:800;}
+  header.top .sub{color:var(--gray); font-size:13.5px; margin:0;}
+  .badge-row{display:flex; gap:8px; flex-wrap:wrap; margin-top:12px;}
+  .badge{font-size:11.5px; font-weight:700; padding:4px 12px; border-radius:20px;
+    background:#eaf1f7; color:var(--accent); border:1px solid #d3e2ee;}
+  .badge.live{background:var(--amber-bg); color:var(--amber); border-color:var(--amber-line);}
+  nav.toc{position:sticky; top:14px; align-self:start; background:var(--card);
+    border:1px solid var(--line); border-radius:12px; padding:16px 18px; font-size:13px;
+    max-height:calc(100vh - 30px); overflow:auto;}
+  nav.toc h2{font-size:11.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--gray); margin:0 0 10px;}
+  nav.toc a{display:block; color:#2b3442; text-decoration:none; padding:3px 0;}
+  nav.toc a:hover{color:var(--accent);}
+  nav.toc .p{font-weight:800; color:var(--navy); margin-top:10px;}
+  nav.toc .s{padding-left:12px;}
+  @media (max-width:959px){ nav.toc{position:static; max-height:none;} }
+  main{min-width:0;}
+  section.card{background:var(--card); border:1px solid var(--line); border-radius:12px;
+    padding:24px 26px; margin-bottom:20px;}
+  h2.part{font-size:12.5px; text-transform:uppercase; letter-spacing:.08em; color:var(--amber);
+    margin:0 0 4px; font-weight:800;}
+  h3{font-size:19px; color:var(--navy); margin:0 0 12px; font-weight:800;}
+  h4{font-size:15.5px; color:var(--accent); margin:22px 0 8px; font-weight:750;}
+  p{margin:0 0 12px;}
+  ul{margin:0 0 12px; padding-left:20px;}
+  li{margin-bottom:7px;}
+  b, strong{color:var(--navy);}
+  .tablewrap{overflow-x:auto; margin:0 0 14px;}
+  table{width:100%; border-collapse:collapse; font-size:13.5px; min-width:520px;}
+  th, td{text-align:left; padding:8px 10px; border-bottom:1px solid var(--line); vertical-align:top;}
+  th{background:#f0f3f8; color:var(--navy); font-weight:700;}
+  tr:nth-child(even) td{background:#fafbfd;}
+  td code, p code, li code{background:#eef2f7; border-radius:4px; padding:1px 6px; font-size:12.5px;}
+  pre{background:#101828; color:#d7dde6; border-radius:10px; padding:14px 16px; overflow-x:auto;
+    font-size:12.5px; line-height:1.5;}
+  .callout{border-left:4px solid var(--accent); background:#f2f7fb; border-radius:0 8px 8px 0;
+    padding:12px 16px; margin:0 0 14px; font-size:14px;}
+  .callout.warn{border-color:var(--amber); background:var(--amber-bg);}
+  .callout.stop{border-color:var(--red); background:var(--red-bg);}
+  details.abbr{margin:0 0 14px;}
+  details.abbr summary{cursor:pointer; font-weight:700; color:var(--accent); font-size:14px;}
+  footer{grid-column:1 / -1; text-align:center; color:var(--gray); font-size:12px; line-height:1.7; margin-top:8px;}
+  a{color:var(--accent);}
+  @media print{ nav.toc{display:none;} section.card{border:none; padding:0 0 10px;} body{background:#fff;} }
+</style>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1B2A4A">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Guia CTOT">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+</head>
+<body>
+<div class="layout">
+
+<header class="top">
+  <h1>Guia de Regulação ATFM (CTOT) — EUROCONTROL</h1>
+  <p class="sub">Fundamentos, procedimento operacional e particularidades por aeroporto · LR Aviation / FlightOps Companion</p>
+  <div class="badge-row">
+    <span class="badge live">Documento vivo — revisão de 11 set 2026</span>
+    <span class="badge">Uso livre da comunidade</span>
+  </div>
+</header>
+
+<nav class="toc" aria-label="Sumário">
+  <h2>Sumário</h2>
+  <a class="p" href="#parte1">Parte I — Fundamentos</a>
+  <a class="s" href="#s1">1. O que é o CTOT</a>
+  <a class="s" href="#s2">2. Como o slot é calculado (CASA)</a>
+  <a class="s" href="#s3">3. Tolerância do slot</a>
+  <a class="s" href="#s4">4. Mensagens ATFM</a>
+  <a class="s" href="#s5">5. Obrigações</a>
+  <a class="s" href="#s6">6. Ferramentas legítimas</a>
+  <a class="s" href="#s7">7. Onde acompanhar</a>
+  <a class="s" href="#s71">7.1 O ANM</a>
+  <a class="s" href="#s72">7.2 ANM no NOP público</a>
+  <a class="s" href="#s73">7.3 Como ler uma regulação</a>
+  <a class="s" href="#s74">7.4 Identificadores e setores</a>
+  <a class="s" href="#s75">7.5 Códigos de atraso</a>
+  <a class="s" href="#s76">7.6 Como ler um SAM/SRM</a>
+  <a class="p" href="#parte2">Parte II — Procedimento</a>
+  <a class="s" href="#s8">8. Princípios</a>
+  <a class="s" href="#s9">9. Linha do tempo</a>
+  <a class="s" href="#s10">10. O que nunca fazer</a>
+  <a class="s" href="#s11">11. Melhorar um CTOT ruim</a>
+  <a class="p" href="#parte3">Parte III — Aeroportos</a>
+  <a class="s" href="#modelo">Modelo de ficha</a>
+  <a class="s" href="#lfmn">Anexo A — LFMN Nice</a>
+  <a class="s" href="#licoes">Lições Operacionais</a>
+</nav>
+
+<main>
+
+<section class="card" id="intro">
+  <p>Este guia reúne o funcionamento do CTOT do EUROCONTROL, o procedimento operacional para voos
+  sujeitos a regulação ATFM e as particularidades dos aeroportos, do ponto de vista da aviação executiva.
+  Nasceu da operação real e é atualizado conforme a experiência acumula.</p>
+  <div class="callout warn"><b>Aviso:</b> janelas, parâmetros, telefones e regras locais mudam. Confirme
+  sempre no ATFCM Operations Manual vigente, na AIP do país e com o handler. Este guia é apoio à
+  decisão — não substitui o slot oficial nem a documentação oficial.</div>
+  <details class="abbr">
+    <summary>Abreviações usadas neste guia</summary>
+    <div class="tablewrap"><table>
+      <tr><th>Sigla</th><th>Significado</th></tr>
+      <tr><td>A-CDM</td><td>Airport Collaborative Decision Making</td></tr>
+      <tr><td>ACC / ANSP</td><td>Area Control Centre / Air Navigation Service Provider</td></tr>
+      <tr><td>ANM</td><td>ATFCM Notification Message</td></tr>
+      <tr><td>ATC / ATFM / ATFCM</td><td>Air Traffic Control / Air Traffic Flow (and Capacity) Management</td></tr>
+      <tr><td>CASA</td><td>Computer Assisted Slot Allocation</td></tr>
+      <tr><td>CHG / DLA / CNL / REA</td><td>Change / Delay / Cancel / Ready</td></tr>
+      <tr><td>COBT / CTOT</td><td>Calculated Off-Block Time / Calculated Take-Off Time</td></tr>
+      <tr><td>EOBT / ETOT / ETO</td><td>Estimated Off-Block Time / Estimated Take-Off Time / Estimated Time Over</td></tr>
+      <tr><td>FLS / DES</td><td>Flight Suspension / De-suspension</td></tr>
+      <tr><td>RFI / SWM / SMM</td><td>Ready For Improvement / SIP Wanted Message / Slot Missed Message</td></tr>
+      <tr><td>FMP / AOLO</td><td>Flow Management Position / Aircraft Operator Liaison Officer</td></tr>
+      <tr><td>AOWIR / FAM</td><td>Aircraft Operator What-If Reroute / Flight Activation Monitoring</td></tr>
+      <tr><td>IFPS / IFPUV</td><td>Integrated Initial Flight Plan Processing System / IFPS Flight Plan Validation</td></tr>
+      <tr><td>NMP / NM / NMOC</td><td>Network Manager Portal / Network Manager / NM Operations Centre</td></tr>
+      <tr><td>NOP / CHMI</td><td>Network Operations Portal / Collaboration Human Machine Interface</td></tr>
+      <tr><td>PPR / RFL / RRP</td><td>Prior Permission Required / Requested Flight Level / Rerouting Proposal</td></tr>
+      <tr><td>SAM / SRM / SLC</td><td>Slot Allocation / Revision / Cancellation Message</td></tr>
+      <tr><td>SIP / SPA / SRJ</td><td>Slot Improvement Proposal / Proposal Acceptance / Proposal Rejection</td></tr>
+      <tr><td>SOBT / STS/</td><td>Scheduled Off-Block Time / Special Status</td></tr>
+      <tr><td>TOBT / TSAT / TTOT</td><td>Target Off-Block / Start-up Approval / Take-Off Time</td></tr>
+      <tr><td>TMA / TRS</td><td>Terminal Manoeuvring Area / Time to Remove from Sequence</td></tr>
+      <tr><td>WEF / UNT</td><td>With Effect From / Until</td></tr>
+      <tr><td>FPL / IFR / VFR</td><td>Flight Plan / Instrument / Visual Flight Rules</td></tr>
+    </table></div>
+  </details>
+</section>
+
+<section class="card" id="parte1">
+  <h2 class="part">Parte I — Fundamentos</h2>
+  <h3>Como funciona o CTOT do EUROCONTROL</h3>
+
+  <h4 id="s1">1. O que é o CTOT e por que existe</h4>
+  <p><b>CTOT (Calculated Take-Off Time)</b> é a hora atribuída pelo Network Manager Operations Centre
+  (NMOC) do EUROCONTROL a um voo sujeito a medidas de ATFM na Europa. Na prática, é o "slot" que toda
+  a operação cita.</p>
+  <p>Quando a demanda em um setor de controle, aeroporto ou ponto de rota supera a capacidade declarada
+  (mau tempo, greve, falta de controladores, obras), o NMOC aplica uma <b>regulação</b>. Os voos que passam
+  por aquela área recebem um CTOT que espalha o tráfego ao longo do tempo. O objetivo é evitar holding em
+  voo e sobrecarga nos setores.</p>
+  <p>Não existe distinção entre voo comercial e voo privado: todo voo IFR cujo plano cruze um setor regulado
+  recebe CTOT. A torre do aeródromo de partida não autoriza decolagem fora da janela do slot.</p>
+
+  <h4 id="s2">2. Como o slot é calculado (CASA)</h4>
+  <ul>
+    <li>Parte-se do EOBT do plano de voo mais o taxi time padrão do aeroporto, gerando o ETOT.</li>
+    <li>O sistema CASA calcula, para cada voo, a ETO no ponto regulado e ordena os voos por essa hora —
+    <b>"first planned, first served"</b>.</li>
+    <li>A regulação define um período e uma taxa de capacidade (ex.: 30 voos/hora), que gera uma lista de
+    vagas. Cada voo recebe a primeira vaga livre igual ou posterior ao seu ETO.</li>
+    <li>O resultado é o CTOT, comunicado por mensagem SAM normalmente cerca de 2 horas antes do EOBT.
+    <b>CTOT − taxi time = hora de off-block</b> que despacho e tripulação usam para planejar o push.</li>
+  </ul>
+  <div class="callout"><b>Consequência prática:</b> o atraso acumula ao longo do período da regulação. Os
+  primeiros voos da janela recebem vaga próxima do seu ETO (atraso zero ou poucos minutos); os do meio e
+  do fim pagam as sobras das horas anteriores. Apresentar o plano com antecedência garante que o voo está
+  na lista quando ela é montada, mas não dá prioridade sobre quem tem ETO anterior. Quem apresenta depois
+  de a lista existir recebe a primeira vaga livre após o seu ETO, que pode estar longe.</div>
+
+  <h4 id="s3">3. Tolerância do slot</h4>
+  <p>A janela padrão é <b>−5 / +10 minutos</b> em torno do CTOT. A decolagem tem que ocorrer dentro dela;
+  o ATC do aeroporto (torre/ground) é responsável por garantir isso e pode negar a autorização de decolagem
+  fora da janela. Se o voo perde o slot, entra na fila de novo e geralmente recebe um CTOT bem pior.</p>
+
+  <h4 id="s4">4. Mensagens ATFM</h4>
+  <div class="tablewrap"><table>
+    <tr><th>Mensagem</th><th>Significado</th></tr>
+    <tr><td><code>SAM</code> Slot Allocation Message</td><td>Atribui o slot inicial (CTOT).</td></tr>
+    <tr><td><code>SRM</code> Slot Revision Message</td><td>Slot revisado — melhora ou piora.</td></tr>
+    <tr><td><code>SLC</code> Slot Cancellation</td><td>Regulação cancelada; voo liberado.</td></tr>
+    <tr><td><code>SIP</code> Slot Improvement Proposal</td><td>Proposta de slot melhor. O operador aceita com <code>SPA</code> ou recusa com <code>SRJ</code>.</td></tr>
+    <tr><td><code>FLS</code> Flight Suspension</td><td>Voo suspenso (ex.: EOBT vencido sem atualização). Precisa de DLA/CHG ou REA para voltar.</td></tr>
+    <tr><td><code>DES</code> De-suspension</td><td>Voo reativado.</td></tr>
+    <tr><td><code>CNL</code> Cancel</td><td>Cancelamento do plano de voo pelo operador.</td></tr>
+    <tr><td><code>DLA</code> Delay</td><td>Enviada pelo operador para atrasar o EOBT. Só atrasa; não antecipa.</td></tr>
+    <tr><td><code>CHG</code> Change</td><td>Enviada pelo operador para alterar rota, nível ou outros campos do plano.</td></tr>
+    <tr><td><code>REA</code> Ready</td><td>Enviada pelo operador: aeronave pronta para sair antes do CTOT. Habilita SIP.</td></tr>
+    <tr><td><code>SWM</code> SIP Wanted Message</td><td>Enviada pelo operador: o voo não está pronto para melhorias automáticas; qualquer antecipação deve vir como SIP, para aceitar ou recusar. REA volta o voo ao estado RFI.</td></tr>
+    <tr><td><code>SMM</code> Slot Missed Message</td><td>Enviada pela torre ao NM quando o voo não vai cumprir a janela do CTOT. Leva a FLS até o operador enviar DLA com novo EOBT.</td></tr>
+    <tr><td><code>ERR</code> Error</td><td>Mensagem rejeitada pelo Network Manager.</td></tr>
+  </table></div>
+
+  <h4 id="s5">5. Obrigações</h4>
+  <ul>
+    <li><b>Manter o EOBT atualizado.</b> Se o voo não vai sair até 15 minutos após o EOBT (parâmetro FAM)
+    por motivo do operador, enviar DLA. Não fazer isso leva a FLS. Atraso ATFM (CTOT) não exige DLA.</li>
+    <li><b>Enviar REA quando realmente pronto.</b> Permite receber SIP. Se vier SIP e o voo não conseguir
+    cumprir, perde o slot melhorado e volta para a fila.</li>
+    <li><b>EOBT reflete a realidade.</b> Colocar EOBT otimista para entrar na fila antes produz FLS e
+    reinserção na fila com horário real, atrás de todos.</li>
+    <li><b>Plano de voo reflete o voo pretendido.</b> Rota ou nível de fachada para escapar de regulação, com
+    intenção de pedir direto ao ATC depois, é violação e é detectado nos relatórios do NM.</li>
+    <li><b>Nunca dois planos para o mesmo voo.</b> Violação explícita; o sistema detecta duplicidade e pode
+    rejeitar ambos.</li>
+    <li><b>Perfil vertical e rota realistas.</b> O NM rejeita FPL com perfil ioiô (variação de 4000/5000 ft ou
+    mais em distâncias de até 300 NM) e FPL com curva superior a 120° acima de FL200 — típicos de tentativa
+    de contornar regulação. Um perfil baixo contínuo é aceito; subir, descer para passar por baixo do setor e
+    subir de novo, não.</li>
+    <li><b>Apresentar o FPL até 4 h antes do EOBT.</b> Recomendação do NM para aviação geral e executiva;
+    garante que o voo esteja na lista quando a regulação é montada.</li>
+    <li><b>ETA coerente com o slot aeroportuário de destino.</b> Em aeroporto coordenado (Nice, por exemplo)
+    o plano não pode prever chegada fora do slot de chegada atribuído; o coordenador verifica a coerência e
+    pode pedir ao NM a suspensão do plano. Ao apresentar o FPL, conferir slot de partida, slot de chegada,
+    RFL e taxi times.</li>
+  </ul>
+</section>
+
+<section class="card">
+  <h4 id="s6">6. Ferramentas legítimas</h4>
+  <p>Ferramentas legítimas para reduzir ou evitar CTOT:</p>
+  <ul>
+    <li><b>Replanejamento:</b> o NM oferece Rerouting Proposals (RRP) com rotas que evitam a regulação.
+    Aceita-se via CHG. Se a nova rota sai do setor regulado, o CTOT cai (SLC). Só vale quando o setor mais
+    penalizante é en-route e contornável.</li>
+    <li><b>Mudança de nível:</b> CHG com RFL que atravessa o setor numa faixa não regulada. O ANM publica o
+    piso e o teto de cada regulação: a faixa livre pode estar acima (o caso comum, jato executivo em FL410+)
+    ou <b>abaixo</b> (ex.: regulação de FL245 ao teto — trecho curto voado em FL230/240 escapa). Inútil quando
+    a regulação vai do solo ao teto ou cobre a subida inicial do aeródromo de partida.</li>
+    <li><b>Slot swapping:</b> troca de CTOT entre dois voos do mesmo operador sujeitos à mesma regulação, via
+    NMP Flight, NOP Portal (Swap investigator), B2B ou telefone. Até 3 trocas por voo; o pedido é rejeitado
+    automaticamente após CTOT − taxi − TRS − 3 min; sempre sujeito à avaliação do NMOC.</li>
+    <li><b>Escolha do horário:</b> EOBT antes do início da regulação ou nos primeiros minutos dela. É a
+    ferramenta mais eficaz e a menos usada.</li>
+    <li><b>Aeródromo alternativo de partida:</b> só quando a aeronave já está fora do setor regulado ou quando
+    o CTOT é muito longo (ver anexo do aeroporto na Parte III).</li>
+    <li><b>e-HelpDesk:</b> canal padrão do operador com o NMOC (via NMP Flight, NOP Portal ou B2B) para
+    melhoria de slot, extensão, replanejamento e swap — não telefone. Um único pedido por voo; pedidos
+    enviados antes de EOBT − 2 h não são considerados. Ao receber um slot pior (SRM), o NM recomenda esperar
+    cerca de 10 minutos para o slot assentar antes de abrir o pedido — as regulações são revisadas em ondas e
+    o CTOT costuma mudar de novo. O NMOC trata cada pedido em cerca de 90 segundos. O piloto não aciona o
+    e-HelpDesk do cockpit, salvo quando acumula a função de despacho.</li>
+    <li><b>Voo crítico:</b> ao receber um CTOT ruim, o operador pode marcar o voo como <i>critical</i> no
+    e-HelpDesk / NMP Flight, somente junto com um pedido de melhoria de slot. Na aviação executiva, quando
+    piloto e despacho são a mesma pessoa, isso é feito diretamente. O voo fica destacado na fila do NMOC,
+    que usa todos os meios para reduzir o atraso, sem garantia. Limite de 5% dos voos regulados e 20 voos por
+    operador; uma vez marcado, não pode ser alterado no mesmo dia.</li>
+    <li><b>AOLO hotline:</b> +32 496 560 300 (consultas gerais +32 2 745 1992). Só para assistência especial:
+    risco de cancelamento por tempo de serviço da tripulação, voos médicos, curfew noturno, reposicionamento
+    após desvio, e voos severamente atrasados por medidas ATFM causadas por meteorologia.</li>
+    <li><b>Telefones de urgência do NMOC</b> (página de contatos EUROCONTROL, set/2026): Central Flow
+    Helpdesk +32 2 745 19 01 — problemas ATFCM em tempo real que exigem ação imediata, somente quando o
+    e-HelpDesk do NOP Portal não estiver acessível. IFPS +32 2 745 19 50 — dúvidas operacionais em tempo real
+    sobre mensagens de plano de voo enviadas ao IFPS.</li>
+    <li><b>Flight Efficiency Task Force e AOWIR:</b> dois papéis diferentes. A Flight Efficiency Task Force é
+    <b>estratégica</b>: equipe do NM que analisa os planos apresentados pelo operador, devolve rotas mais
+    eficientes e RAD-compliant, atualiza as rotas-padrão da companhia e do CFSP e propõe ao NM relaxar
+    restrições do RAD — serviço gratuito, útil para os pares de cidade recorrentes, uma vez por temporada
+    (nm.fetaskforce@eurocontrol.int; IFPS H24 +32 2 745 1950). O <b>AOWIR</b> é <b>tático</b>: no NOP Portal
+    protegido ou no NMP Flight, o operador seleciona o voo regulado, propõe rota (e nível) alternativa e o
+    ETFMS calcula o CTOT resultante sem tocar no plano real; se for melhor, aplica-se e o sistema gera o CHG;
+    se não, descarta-se sem perder o slot. É a única forma de testar uma alteração sem risco de piorar o CTOT,
+    e a resposta objetiva para a análise de alternativas do marco EOBT − 2 h. Não existe no NOP público.
+    Diferente do RRP, em que a proposta parte do NM.</li>
+    <li><b>Extensão de CTOT:</b> pedido feito pela torre (não pelo operador) ao FMP/NMOC, via NOP Portal, B2B
+    ou e-HelpDesk, quando a decolagem vai estourar a janela −5/+10 por atraso pequeno de última hora (fila de
+    taxi, troca de pista, push demorado). A extensão é, em regra, de até 10 minutos além da janela — decolagem
+    até cerca de CTOT +20 — e o NMOC pode negá-la em regulação saturada; confirmar o valor no ATFCM
+    Operations Manual vigente e a prática local com o handler. Acima disso não há extensão: é novo CTOT por
+    DLA. O pedido tem de ser feito com a janela ainda aberta: avisar a torre na frequência de Solo assim que
+    perceber que não chega à cabeceira até CTOT +10, nunca depois. Atraso antes do push (passageiro, reboque)
+    não é caso de extensão, e sim de DLA cedo com o EOBT real.</li>
+    <li><b>CTOT antecipado (SRM) que não dá para cumprir:</b> por padrão o voo está em RFI e o NM pode
+    antecipar o CTOT por SRM sem perguntar. Se a aeronave não consegue cumprir, o operador envia DLA imediato
+    com o EOBT real e avisa a torre; o CASA atribui a primeira vaga livre igual ou posterior ao novo ETOT —
+    não é "fim da fila", mas em regulação saturada a primeira vaga pode estar horas adiante, e o CTOT antigo
+    não é devolvido. Nunca esperar o SMM da torre, que suspende o voo (FLS). Para evitar a surpresa: enquanto
+    a aeronave não puder sair (posição remota, passageiro), enviar SWM — as melhorias passam a vir como SIP,
+    sem penalidade ao recusar — e enviar REA quando estiver pronta. Em aeroporto A-CDM, a TOBT realista também
+    protege: o NM não antecipa o CTOT para antes da TTOT informada pela torre.</li>
+  </ul>
+</section>
+
+<section class="card">
+  <h4 id="s7">7. Onde acompanhar</h4>
+  <ul>
+    <li><b>NOP Portal</b> do EUROCONTROL. Público, sem login: ANM (lista de regulações do dia com setor,
+    faixa de FL, início/fim e motivo), Network Daily Plan da véspera, AIM, situação da rede e causas de
+    atraso, com histórico em Post-Operations (mudar a Target Date). Protegido, sob acordo com o NM: consulta
+    por indicativo (Flight List, detalhe do voo, histórico SAM/SRM/SIP), taxas e atraso por regulação,
+    RRP/AOWIR.</li>
+    <li><b>NMP Flight</b> (Network Manager Portal — Flight): a nova interface do NM para operadores, que
+    substituirá progressivamente o CHMI e o NOP Portal. Oferece alertas configuráveis por voo, consultas
+    salvas, propostas de rota alternativa, validação de FPL contra o AIRAC seguinte ou ad hoc, histórico IFPS
+    com recriação de plano rejeitado em um clique e catálogo de rotas do NM. É o produto a solicitar ao pedir
+    acesso ao NM, não o NOP protegido.</li>
+    <li><b>CHMI</b> e os sistemas de handler/despacho (redes AFTN e SITA) recebem as mensagens ATFM.</li>
+    <li><b>Aplicativos de slot</b> (usados pela operação): CTOT/TSAT em tempo real, regulações que afetam o
+    voo, mapa, histórico de mensagens.</li>
+    <li><b>A-CDM do aeroporto:</b> TOBT, TSAT, sequenciamento de saída.</li>
+    <li><b>Headline News do NOP Portal:</b> onde o NMOC publica o plano diário de mitigação e, no verão
+    (maio–setembro), o procedimento de meteorologia cross-border: previsão EUMETNET às 09:00 UTC de D-1,
+    decisão do NMOC às 09:15, coordenação com os FMPs até 12:30 e plano publicado entre 16:00 e 17:00 UTC;
+    no dia D, atualizações às 07:00 e 11:00 UTC. Em dia de CB, a véspera já sinaliza onde vão cair regulações
+    meteorológicas.</li>
+  </ul>
+
+  <h4 id="s71">7.1 O ANM: a lista oficial das regulações</h4>
+  <p><b>ANM (ATFCM Notification Message)</b> é a mensagem com que o Network Manager notifica todas as
+  regulações de fluxo em vigor. Os ANMs do plano diário são publicados na véspera do dia de operação, por
+  volta de 16:00/17:00 UTC (verão/inverno), e reemitidos ao longo do dia conforme as regulações mudam —
+  cada versão tem o seu carimbo de liberação. Na prática: o ANM é a lista do que está regulado; o CTOT é a
+  consequência disso no voo específico.</p>
+
+  <h4 id="s72">7.2 Como abrir a lista ANM no NOP público</h4>
+  <p>Portal: <a href="https://www.public.nm.eurocontrol.int/PUBPORTAL/gateway/spec/index.html"
+  target="_blank" rel="noopener">public.nm.eurocontrol.int</a> — sem login.</p>
+  <ul>
+    <li>No topo à direita, ajustar a <b>TARGET DATE</b> para a data do voo (D-1 para planejar, D para
+    acompanhar, D+1 ou anterior para post-ops). Todo o portal passa a mostrar aquele dia.</li>
+    <li>Ficar na aba <b>Tactical</b> (padrão) ou <b>Post-Operations</b> para datas passadas.</li>
+    <li>Na coluna da esquerda, localizar a caixa <b>ANM</b> — pequena, entre "Contingency" e "AIM", com só
+    duas linhas: "Valid On &lt;data&gt;" e "Last Released &lt;data hora&gt;".</li>
+    <li>Clicar no horário ao lado de <b>"Last Released"</b> — só o carimbo de hora é clicável, não o título
+    nem o "Valid On". Quando há versão mais nova que a última vista, o link aparece com fundo colorido.</li>
+    <li>Abre a janela <b>ANM List</b> com todas as regulações do dia. Se nada abrir, liberar pop-ups para
+    public.nm.eurocontrol.int.</li>
+    <li>Filtros da janela: Type (All / Active), FMP (nome exato, sem coringa), Sort by (FMP + nº, nº,
+    identificador ou hora de liberação).</li>
+    <li>Ctrl/Cmd+A e Ctrl/Cmd+C copiam a lista inteira.</li>
+  </ul>
+
+  <h4 id="s73">7.3 Como ler um bloco de regulação</h4>
+  <div class="tablewrap"><table>
+    <tr><th>Campo</th><th>Exemplo</th><th>Significado</th></tr>
+    <tr><td>Seq no</td><td>170</td><td>Número sequencial no ANM do dia</td></tr>
+    <tr><td>State</td><td>CHANGE</td><td>NEW (nova), CHANGE (alterada), CANCEL (cancelada)</td></tr>
+    <tr><td>FMP</td><td>LFMMFMPE</td><td>Posição de gerenciamento de fluxo responsável (Marseille Leste)</td></tr>
+    <tr><td>Published</td><td>10/09 11:04</td><td>Hora de publicação desta versão da regulação</td></tr>
+    <tr><td>Regulations Id</td><td>MEK110</td><td>Identificador da regulação</td></tr>
+    <tr><td>WEF</td><td>10/09 08:20</td><td>With Effect From — início</td></tr>
+    <tr><td>Flight Level</td><td>245 - 305</td><td>Faixa de níveis afetada. Formatos: ALL (todos), 245+ (de FL245 para cima), 245- (até FL245), 245 - 305 (faixa fechada)</td></tr>
+    <tr><td>UNT</td><td>10/09 15:30</td><td>Until — fim</td></tr>
+    <tr><td>Reason / RMK</td><td>Weather / CB</td><td>Motivo oficial e observação. Em CANCEL, WEF e UNT vêm como CNL</td></tr>
+    <tr><td>Descrição</td><td>LFMM - EK1 SECTOR</td><td>Setor ou aeródromo regulado</td></tr>
+  </table></div>
+  <div class="callout"><b>Ler a faixa nas duas direções.</b> Regulação não é teto — é faixa, com piso e teto.
+  Com várias empilhadas, o instinto de "subir para escapar" pode estar olhando para o lado errado. Listar as
+  faixas reguladas de cada ACC e calcular o complemento na coluna de ar inteira, do solo ao teto da aeronave.
+  Em subida e descida o voo atravessa todos os níveis até o RFL: uma regulação de faixa baixa atinge o voo
+  mesmo com cruzeiro alto.</div>
+  <p><b>Ressalvas.</b> O ANM é um retrato do momento e muda ao longo do dia — reconferir antes de enviar
+  CHG. Rota alternativa pode cair em outra regulação não avaliada. O ANM público não permite consulta por
+  indicativo: é a lista do dia inteiro, por FMP/regulação; o CTOT real vem pelo SAM. Nada disso substitui o
+  slot oficial — é apoio à decisão.</p>
+
+  <h4 id="s74">7.4 Como ler identificadores de regulação e setores</h4>
+  <p>Os identificadores que aparecem no ANM e no app de slot (MEK110, LIRNW10M, LFMNA10E) não são
+  abreviações a decorar: seguem uma hierarquia fixa, e só o último nível muda de nome conforme o provedor
+  de navegação aérea.</p>
+  <div class="tablewrap"><table>
+    <tr><th>Nível</th><th>O que é</th></tr>
+    <tr><td>FIR / UIR</td><td>Flight Information Region / Upper Information Region — a região ICAO (ex.: LFMM Marseille, LIRR Roma).</td></tr>
+    <tr><td>ACC</td><td>Area Control Centre — o centro que opera a FIR; na prática usa o mesmo código.</td></tr>
+    <tr><td>FMP</td><td>Flow Management Position — posição do ACC que coordena com o NMOC. Nome padronizado &lt;ICAO do ACC&gt;FMP, com sufixo quando o ACC é dividido: LFMMFMPE (Marseille Leste), LFMMFMPW (Oeste), LFEEFMP (Reims), LIRRFMP (Roma), LIMMFMP (Milão), LIPPFMP (Pádua), LIBBFMP (Brindisi), LSAGFMP (Genebra), LSAZFMP (Zurique), EDUUFMP (Karlsruhe UAC), EDYYFMP (Maastricht UAC).</td></tr>
+    <tr><td>Setor</td><td>A fatia real que os controladores operam, definida por cada ANSP: horizontal (EK = Marseille Leste) e vertical por faixa de FL (EK1, EK2, EK3). Setores se agrupam e dividem ao longo do dia conforme a escala. Limites laterais e verticais estão na AIP ENR 2.1 de cada país.</td></tr>
+    <tr><td>Traffic Volume (TV)</td><td>O objeto sobre o qual o NM aplica a regulação: um setor, um grupo de setores, um ponto de rota ou um aeródromo com filtro (chegadas, partidas, trânsitos). O nome do TV é livre, definido pelo FMP — por isso a aparente falta de padrão.</td></tr>
+  </table></div>
+  <p><b>Identificador de regulação = nome do Traffic Volume + dia do mês + letra</b> (quando há mais de uma
+  regulação no mesmo TV no mesmo dia). Exemplos: MEK110 = TV MEK1, dia 10; LIRNW10M = TV LIRNW, dia 10, 13ª
+  regulação daquele TV no dia (A, B, C… M); LFMNA10E = chegadas de Nice, dia 10, quinta regulação. No dia 11
+  a regulação do mesmo setor seria MEK111.</p>
+  <div class="tablewrap"><table>
+    <tr><th>ANSP / ACC (FMP)</th><th>Padrão típico dos nomes de Traffic Volume</th></tr>
+    <tr><td>França — Marseille (LFMMFMPE / W)</td><td>Letra do ACC + setor: MEK1, MEK2, MEK3 (Leste, por faixa vertical); setores oeste com outras letras.</td></tr>
+    <tr><td>França — Reims, Paris, Brest, Bordeaux</td><td>Prefixo próprio de cada ACC + nome do setor; não segue o ICAO.</td></tr>
+    <tr><td>Itália — Roma, Milão, Pádua, Brindisi</td><td>ICAO do ACC + setor: LIRNW, LIRNE, LIMM…, LIPC…, LIBB….</td></tr>
+    <tr><td>Suíça (LSAGFMP, LSAZFMP)</td><td>LSAG…, LSAZ….</td></tr>
+    <tr><td>Alemanha e Maastricht UAC</td><td>EDUU…, EDMM…, EDGG…, EDWW…, EDYY….</td></tr>
+    <tr><td>Aeródromos (qualquer país)</td><td>ICAO + sufixo: LFMNA (chegadas), LFMND (partidas), LFMNTM (trânsitos).</td></tr>
+  </table></div>
+  <div class="callout"><b>Regra prática: nunca adivinhar pelo nome.</b> O ANM traz sempre o campo FMP e a
+  descrição em texto ("LFMM - EK1 SECTOR"); esses dois resolvem qualquer identificador. A lista completa de
+  Traffic Volumes, com geometria e limites verticais, só existe no NOP protegido (Environment); no público,
+  cada ANM lido ensina mais alguns.</div>
+
+  <h4 id="s75">7.5 Códigos IATA de atraso e motivos do NM</h4>
+  <p>Apps de slot e sistemas de companhias classificam o atraso pelo código IATA. O NM, no ANM, usa o
+  próprio campo Reason. São classificações diferentes e nem sempre coincidem — para relatórios e consultas
+  ao NM, vale o motivo do ANM. No próprio SAM/SRM o campo REGCAUSE traz as duas informações lado a lado
+  (ex.: <code>WE 81</code> = Weather, código en-route 81): <b>ler as letras, não o número</b>.</p>
+  <div class="tablewrap"><table>
+    <tr><th>Código IATA</th><th>Significado</th></tr>
+    <tr><td>81</td><td>ATFM — capacidade/demanda ATC en-route</td></tr>
+    <tr><td>82</td><td>ATFM — pessoal ou equipamento ATC en-route</td></tr>
+    <tr><td>83</td><td>ATFM — restrição no aeródromo de destino</td></tr>
+    <tr><td>84</td><td>ATFM — meteorologia en-route</td></tr>
+    <tr><td>89</td><td>Restrições no aeródromo de partida</td></tr>
+  </table></div>
+  <div class="tablewrap"><table>
+    <tr><th>Motivo do NM (Reason)</th><th>Significado</th></tr>
+    <tr><td>ATC Capacity / Staffing / Equipment</td><td>Capacidade, pessoal ou equipamento do controle</td></tr>
+    <tr><td>Weather</td><td>Meteorologia (o RMK detalha: CB, LVP, vento…)</td></tr>
+    <tr><td>Aerodrome Capacity / Services</td><td>Capacidade ou serviços do aeródromo</td></tr>
+    <tr><td>Industrial Action (ATC / non-ATC)</td><td>Greve</td></tr>
+    <tr><td>Airspace Management / ATC Routeings</td><td>Gestão de espaço aéreo, rotas</td></tr>
+    <tr><td>Special Event / Accident-Incident / Environmental / Other</td><td>Evento especial, acidente/incidente, ambiental, outros</td></tr>
+  </table></div>
+
+  <h4 id="s76">7.6 Como ler um SAM / SRM</h4>
+  <p>O SAM e os SRM chegam ao operador em formato ADEXP, repassados pelo sistema de planejamento (ForeFlight,
+  app de slot, AFTN). Exemplo real, anonimizado:</p>
+  <pre>-TITLE SRM
+-ARCID ABC123
+-IFPLID AA00000000
+-ADEP LFMN
+-ADES LSGG
+-EOBD DDMMYY
+-EOBT 1315
+-IOBT 1300
+-NEWCTOT 1324
+-REGUL OMMNSxxM
+-TTO -PTID NIZ -TO 1330 -FL F100
+-TAXITIME 0009
+-REGCAUSE WE 81</pre>
+  <div class="tablewrap"><table>
+    <tr><th>Campo</th><th>Exemplo</th><th>Significado</th></tr>
+    <tr><td>TITLE</td><td>SAM / SRM</td><td>Tipo de mensagem: alocação inicial ou revisão</td></tr>
+    <tr><td>IFPLID</td><td>AA00000000</td><td>Identificador único do plano no IFPS — o mesmo em todas as mensagens do voo</td></tr>
+    <tr><td>EOBT / IOBT</td><td>1315 / 1300</td><td>EOBT vigente e, se houve DLA, o EOBT inicial (Initial Off-Block Time)</td></tr>
+    <tr><td>CTOT / NEWCTOT</td><td>1324</td><td>CTOT atribuído (SAM) ou revisado (SRM)</td></tr>
+    <tr><td>REGUL</td><td>OMMNSxxM</td><td>Identificador da regulação mais penalizante: TV OMMNS, dia xx, letra M</td></tr>
+    <tr><td>TTO</td><td>PTID NIZ, TO 1330, FL F100</td><td>Target Time Over: o ponto regulado, a hora-alvo de passagem e o nível — aqui, o VOR NIZ a FL100 na subida, ou seja, uma regulação de setor baixo de Marseille sobre a saída de Nice</td></tr>
+    <tr><td>TAXITIME</td><td>0009</td><td>Taxi time usado pelo NM (em Nice, variável, vindo do A-CDM). CTOT − TAXITIME = off-block</td></tr>
+    <tr><td>REGCAUSE</td><td>WE 81</td><td>Motivo do NM (WE = Weather; AT = ATC capacity, AS = staffing, AE = equipment, AD = aerodrome…) seguido do código IATA. O 81 é o mesmo para qualquer regulação en-route; o que importa são as duas letras</td></tr>
+  </table></div>
+  <p><b>Sequência real desse voo</b> (EOBT 13:00, taxi 8 min, ETOT 13:08): SAM 13:47 (atraso ATFM 39 min);
+  SRM 13:39; SRM 13:22; SRM 13:11 (atraso 3 min) — melhorias automáticas por o voo estar em RFI. Como a
+  aeronave não conseguia sair para o CTOT 13:11 (off-block 13:03), foi enviado DLA com EOBT 13:15 (novo ETOT
+  13:24). O recálculo produziu, em 28 segundos, 13:42 → 13:34 → 13:24. O valor final, 13:24, é igual ao novo
+  ETOT: <b>atraso ATFM zero</b>. Lições: medir o atraso como CTOT − ETOT, não CTOT − plano original; a melhoria
+  automática pode ser inconveniente (SWM enquanto a aeronave não está pronta); um DLA recalcula a posição, e o
+  resultado depende da folga da regulação naquele momento — aqui havia folga, num dia saturado viria a primeira
+  vaga livre adiante; e esperar a lista assentar evita agir sobre um valor intermediário.</p>
+</section>
+
+<section class="card" id="parte2">
+  <h2 class="part">Parte II — Procedimento operacional</h2>
+  <h3>Voo sujeito a regulação, do plano à decolagem</h3>
+
+  <h4 id="s8">8. Princípios</h4>
+  <ul>
+    <li>O CTOT segue o princípio "first planned, first served": quem entra na lista primeiro, com ETO mais
+    cedo, sofre menos.</li>
+    <li>A ferramenta mais barata é a antecedência: FPL cedo e EOBT posicionado antes ou no início da
+    regulação.</li>
+    <li>DLA nunca melhora um CTOT — só o desloca. Melhoria vem por REA + SIP, e-HelpDesk, AOWIR, swap ou
+    saída da regulação (rota/nível).</li>
+    <li>Toda mensagem ao NM tem custo: DLA e CHG recalculam o slot e o resultado pode piorar. Testar antes
+    (AOWIR) quando possível.</li>
+  </ul>
+
+  <h4 id="s9">9. Linha do tempo de um voo regulado</h4>
+  <div class="tablewrap"><table>
+    <tr><th>Marco</th><th>Ação</th></tr>
+    <tr><td><b>EOBT − 20 h</b> (véspera, ~17:00 UTC)</td><td>Ler o Network Daily Plan e a lista ANM de D+1 no
+    NOP público. Verão: conferir o plano de meteorologia cross-border nas Headline News. Já se sabe onde vão
+    cair regulações.</td></tr>
+    <tr><td><b>EOBT − 4 h ou antes</b></td><td>Apresentar o FPL (mínimo recomendado pelo NM). Rota validada
+    no IFPUV; RFL escolhido olhando as faixas do ANM. Em aeroporto coordenado, ETA coerente com o slot de
+    chegada.</td></tr>
+    <tr><td><b>EOBT − 3 h</b></td><td>Reconferir o ANM (Last Released muda ao longo do dia). Se surgiu
+    regulação na rota: avaliar nível/rota alternativa antes de o CASA montar a lista.</td></tr>
+    <tr><td><b>≈ EOBT − 2 h</b></td><td>Chega o SAM. Medir o atraso real: CTOT − ETOT. Aceitável: seguir.
+    Ruim: esperar ~10 min o slot assentar, então uma ação — e-HelpDesk (um pedido só, com critical se
+    couber), AOWIR, ou CHG de nível/rota que sai da regulação.</td></tr>
+    <tr><td><b>EOBT − 1 h</b></td><td>Decisão de passageiro/embarque baseada no off-block = CTOT − taxi.
+    Aeronave em posição remota ou passageiro incerto: SWM (melhorias só por SIP). Aeronave pronta antes da
+    hora: REA.</td></tr>
+    <tr><td><b>Off-block − 15 min</b></td><td>Conferir o último SRM. A-CDM: TOBT realista. Qualquer atraso
+    do operador além de EOBT + 15: DLA imediato com EOBT real (nunca esperar FLS/SMM).</td></tr>
+    <tr><td><b>Push e taxi</b></td><td>Janela −5/+10. Se a fila de taxi ameaça estourar a janela: avisar a
+    torre ainda dentro dela — extensão (~+10) é pedido da torre, não do operador.</td></tr>
+    <tr><td><b>Após pouso</b></td><td>Registrar no histórico: regulação, atraso, ações e resultado.
+    Alimenta a Parte III.</td></tr>
+  </table></div>
+
+  <h4 id="s10">10. O que nunca fazer</h4>
+  <div class="callout stop">
+  <ul style="margin-bottom:0">
+    <li><b>EOBT de fachada</b> (mais cedo que a realidade) — termina em FLS e reinserção atrás de todos.</li>
+    <li><b>Rota ou nível de fachada</b> com intenção de pedir direto ao ATC em voo — violação detectada nos
+    relatórios do NM.</li>
+    <li><b>Dois planos para o mesmo voo</b> — rejeição de ambos.</li>
+    <li><b>Perfil ioiô ou curva &gt; 120° acima de FL200</b> — FPL rejeitado pelo IFPS.</li>
+    <li><b>Ignorar SRM antecipado</b> que não dá para cumprir — DLA imediato, nunca esperar o SMM.</li>
+    <li><b>Decolar fora da janela</b> — a torre não autoriza; insistir queima a relação com o ATC local.</li>
+    <li><b>Vários pedidos no e-HelpDesk</b> para o mesmo voo — um pedido, bem fundamentado.</li>
+  </ul>
+  </div>
+
+  <h4 id="s11">11. Escada de ações para melhorar um CTOT ruim</h4>
+  <p>Na ordem, do menor para o maior custo/risco:</p>
+  <ul>
+    <li><b>1. Esperar ~10 min</b> — as regulações são revisadas em ondas; o slot pode melhorar sozinho (RFI).</li>
+    <li><b>2. REA</b> se a aeronave estiver pronta — habilita SIP.</li>
+    <li><b>3. AOWIR</b> (NOP protegido / NMP Flight) — testar rota/nível sem risco; aplicar só se melhorar.</li>
+    <li><b>4. CHG de nível</b> para faixa não regulada (acima ou abaixo — ver 7.3), quando não há AOWIR.</li>
+    <li><b>5. e-HelpDesk</b> — um pedido, a partir de EOBT − 2 h, com marcação critical se os critérios
+    couberem.</li>
+    <li><b>6. Slot swap</b> — quando houver dois voos próprios na mesma regulação.</li>
+    <li><b>7. AOLO hotline</b> — somente nos casos listados (tripulação no limite, médico, curfew,
+    reposicionamento, atraso severo por meteorologia).</li>
+    <li><b>8. Replanejamento maior</b> (rota alternativa longa, outro aeródromo de partida) — última
+    instância, com os custos avaliados.</li>
+  </ul>
+</section>
+
+<section class="card" id="parte3">
+  <h2 class="part">Parte III — Aeroportos</h2>
+  <h3 id="modelo">Modelo de ficha por aeroporto</h3>
+  <p>Cada aeroporto relevante para a operação ganha um anexo com esta estrutura:</p>
+  <ul>
+    <li><b>Identificação:</b> ICAO/IATA, TMA e ACC/FMP responsáveis (quem regula as chegadas/partidas).</li>
+    <li><b>Regime:</b> coordenado (slot aeroportuário) ou não; A-CDM ou não; PPR; curfew.</li>
+    <li><b>Particularidades ATFM:</b> Traffic Volumes típicos do aeródromo (chegadas/partidas), regulações
+    recorrentes e sazonais, taxi times, comportamento do A-CDM.</li>
+    <li><b>Contatos:</b> handler, TWR/Delivery quando publicado, coordenador de slots.</li>
+    <li><b>Regras locais</b> informadas pelo administrador/coordenador, com data.</li>
+    <li><b>Lições operacionais:</b> o que a experiência ali ensinou.</li>
+  </ul>
+
+  <h3 id="lfmn" style="margin-top:26px">Anexo A — LFMN · Nice Côte d'Azur</h3>
+  <div class="tablewrap"><table>
+    <tr><th>Item</th><th>Informação</th></tr>
+    <tr><td>TMA / ACC</td><td>TMA Nice, ACC Marseille (LFMM) — FMP Leste (LFMMFMPE) para os setores da
+    saída (NIZ, OMMNS, EK…)</td></tr>
+    <tr><td>Regime</td><td>Aeroporto <b>coordenado</b> (slot aeroportuário de chegada e partida obrigatório)
+    e <b>A-CDM</b> pleno (TOBT/TSAT; taxi time variável informado ao NM)</td></tr>
+    <tr><td>Regulações típicas</td><td>Verão: chegadas (LFMNA…) por capacidade; setores baixos de Marseille
+    sobre a saída (regulação no VOR NIZ em FL100 é o padrão da partida para a Suíça/norte); meteorologia
+    (CB) nas ondas da tarde</td></tr>
+    <tr><td>Slot aeroportuário × CTOT</td><td>São coisas distintas e ambas obrigatórias: o coordenador
+    confere a coerência do FPL com o slot de chegada/partida e pode pedir suspensão ao NM em caso de
+    incoerência</td></tr>
+    <tr><td>CASH</td><td>Sistema local de PPR/pátio da aviação geral — a posição remota influencia o reboque
+    e o tempo até o push</td></tr>
+  </table></div>
+
+  <h4 id="licoes">Lições Operacionais</h4>
+  <ul>
+    <li><b>Medir o atraso como CTOT − ETOT.</b> Num voo com EOBT no meio da tarde de verão, o SAM veio com
+    39 minutos de atraso e, em três SRMs sucessivos, caiu a 3 — sem nenhuma ação do operador, só por o voo
+    estar em RFI. Agir sobre o primeiro valor teria sido pior que esperar.</li>
+    <li><b>Melhoria automática pode ser inconveniente.</b> O mesmo voo não conseguia cumprir o CTOT
+    antecipado (aeronave em posição remota, dependendo de reboque). A resposta certa foi DLA imediato com o
+    EOBT real — o recálculo devolveu, em menos de meio minuto, um CTOT igual ao novo ETOT: atraso zero.
+    Naquele momento a regulação tinha folga; num dia saturado, a primeira vaga livre poderia estar horas
+    adiante. Prevenção: SWM enquanto a aeronave não pode sair, REA quando pronta.</li>
+    <li><b>Em Nice, o off-block começa no reboque.</b> Posição remota do pátio da aviação geral significa
+    que a conta CTOT − taxi precisa incluir a janela do reboque; o A-CDM ajuda porque o taxi time informado
+    ao NM é o real, mas a TOBT tem que ser honesta.</li>
+    <li><b>A regulação da partida costuma estar em FL100, não no cruzeiro.</b> O TTO do SAM mostrando o VOR
+    NIZ a F100 ensina onde olhar no ANM: setores baixos de Marseille, não o setor do cruzeiro. Subir o RFL
+    não resolve regulação de subida.</li>
+    <li><b>Regra local (informada pelo coordenador em set/2026):</b> confirmar sempre com o handler a regra
+    vigente de PPR/CASH e as janelas de reboque antes de fixar o EOBT do plano.</li>
+  </ul>
+</section>
+
+<footer>
+  Guia de Regulação ATFM (CTOT) — LR Aviation / FlightOps Companion · Documento vivo, revisão de 11 set 2026.<br>
+  Conteúdo educacional livre para a comunidade. Fontes: ATFCM Users Manual e ATFCM Operations Manual
+  (EUROCONTROL), NOP Portal, AIP França; experiência operacional própria, anonimizada.<br>
+  Parâmetros, janelas, telefones e regras locais mudam — confirme sempre na documentação oficial vigente.
+  Este guia não substitui o slot oficial nem o julgamento do despacho e do comandante.
+</footer>
+</main>
+</div>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function(){ navigator.serviceWorker.register('sw.js'); });
+}
+</script>
+</body>
+</html>
