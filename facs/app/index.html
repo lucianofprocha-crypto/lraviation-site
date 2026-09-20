@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FACS Interativa — Avaliação da Consciência Situacional</title>
+<style>
+  :root{
+    --navy:#1B2A4A; --accent:#0B5A8A; --gray:#5b5f66; --line:#e2e5ea;
+    --bg:#f5f7fa; --card:#ffffff;
+    --ok:#1b7a3d; --ok-bg:#e7f5ec; --tol:#8a7a00; --tol-bg:#faf6dd;
+    --ger:#a15c00; --ger-bg:#fdf1e0; --int:#b71c1c; --int-bg:#fdeceb;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    background:var(--bg); color:#1c1f24; padding:0 16px 60px; font-size:15px; line-height:1.55;}
+  .wrap{max-width:780px; margin:0 auto;}
+  .header{text-align:center; padding:26px 0 8px;}
+  .header h1{font-size:21px; margin:0 0 4px; color:var(--navy); font-weight:800;}
+  .header p{font-size:12.5px; color:var(--gray); margin:0;}
+  .scorebar{position:sticky; top:0; z-index:5; margin:12px -16px 16px; padding:12px 16px;
+    display:flex; align-items:center; gap:14px; border-bottom:2px solid;
+    backdrop-filter:blur(4px);}
+  .scorebar.ok{background:var(--ok-bg); border-color:var(--ok);}
+  .scorebar.tol{background:var(--tol-bg); border-color:var(--tol);}
+  .scorebar.ger{background:var(--ger-bg); border-color:var(--ger);}
+  .scorebar.int{background:var(--int-bg); border-color:var(--int);}
+  .score{font-size:30px; font-weight:800; min-width:56px; text-align:center;}
+  .ok .score{color:var(--ok);} .tol .score{color:var(--tol);}
+  .ger .score{color:var(--ger);} .int .score{color:var(--int);}
+  .score-info b{display:block; font-size:15px;}
+  .score-info span{font-size:12.5px; color:#444;}
+  .card{background:var(--card); border:1px solid var(--line); border-radius:12px;
+    padding:18px 20px; margin-bottom:16px;}
+  .card h2{font-size:13px; text-transform:uppercase; letter-spacing:.04em;
+    color:var(--accent); margin:0 0 12px; font-weight:750;}
+  .hrow{display:flex; gap:12px; flex-wrap:wrap;}
+  .hrow .field{flex:1 1 160px;}
+  .field label{display:block; font-size:12px; color:var(--gray); margin-bottom:4px; font-weight:600;}
+  input[type=text], input[type=date]{width:100%; padding:8px 10px; font-size:14px;
+    border:1px solid var(--line); border-radius:8px; background:#fff;}
+  .item{border-top:1px solid var(--line); padding:12px 0 6px;}
+  .item:first-of-type{border-top:none; padding-top:2px;}
+  .item .iname{font-size:13.5px; font-weight:700; color:var(--navy); margin-bottom:6px;}
+  .item .iname small{color:var(--gray); font-weight:600;}
+  .opt{display:flex; align-items:flex-start; gap:10px; padding:6px 8px; border-radius:8px; cursor:pointer;}
+  .opt:hover{background:#f2f5f9;}
+  .opt input{margin-top:3px; width:18px; height:18px; accent-color:var(--accent); flex:none;}
+  .opt .txt{flex:1; font-size:13.5px;}
+  .opt .vr{font-size:12px; font-weight:800; color:var(--accent); background:#eaf1f7;
+    border-radius:12px; padding:1px 9px; flex:none;}
+  .inote{font-size:11.5px; color:var(--gray); margin:4px 0 0 8px; line-height:1.45;}
+  .btnrow{display:flex; gap:10px; flex-wrap:wrap;}
+  button{flex:1 1 160px; padding:12px; border:none; border-radius:8px; font-size:14.5px;
+    font-weight:750; cursor:pointer;}
+  #savebtn{background:var(--accent); color:#fff;}
+  #resetbtn{background:#e6eaf0; color:var(--navy);}
+  table.hist{width:100%; border-collapse:collapse; font-size:12.5px;}
+  table.hist th, table.hist td{text-align:left; padding:6px 8px; border-bottom:1px solid var(--line);}
+  table.hist th{color:var(--gray); font-weight:600;}
+  td.b-ok{color:var(--ok); font-weight:700;} td.b-tol{color:var(--tol); font-weight:700;}
+  td.b-ger{color:var(--ger); font-weight:700;} td.b-int{color:var(--int); font-weight:700;}
+  .bands{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:8px; font-size:12px;}
+  .band{border-radius:8px; padding:8px 10px; border:1px solid;}
+  .band.ok{background:var(--ok-bg); border-color:#bfe3cc;} .band.tol{background:var(--tol-bg); border-color:#e8dfa0;}
+  .band.ger{background:var(--ger-bg); border-color:#f2d4a3;} .band.int{background:var(--int-bg); border-color:#f3c3c1;}
+  .band b{display:block;}
+  .footer{text-align:center; font-size:11.5px; color:var(--gray); margin-top:22px; line-height:1.7;}
+  .footer a{color:var(--accent);}
+</style>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1B2A4A">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="FACS">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+</head>
+<body>
+<div class="wrap">
+
+  <div class="header">
+    <h1>FACS Interativa</h1>
+    <p>Ferramenta de Avaliação da Consciência Situacional · preencher antes de cada voo</p>
+  </div>
+
+  <div id="scorebar" class="scorebar ok">
+    <div class="score" id="score">0</div>
+    <div class="score-info">
+      <b id="level">Aceitável — Monitoramento</b>
+      <span id="leveldesc">Nível de risco leve — requer apenas monitoramento.</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Identificação do voo</h2>
+    <div class="hrow">
+      <div class="field"><label for="fdate">Data</label><input type="date" id="fdate"></div>
+      <div class="field"><label for="froute">Voo / Trecho</label><input type="text" id="froute" placeholder="ex.: SBSP → SBRJ"></div>
+      <div class="field"><label for="fcrew">Preenchido por</label><input type="text" id="fcrew" placeholder="PIC / SIC"></div>
+    </div>
+  </div>
+
+  <div id="form"></div>
+
+  <div class="card">
+    <h2>Matriz de tolerabilidade (Tabelas 5 e 6 do estudo)</h2>
+    <div class="bands">
+      <div class="band ok"><b>1–3 · Aceitável</b>Monitoramento</div>
+      <div class="band tol"><b>4–8 · Tolerável</b>Atenção — controle em longo prazo</div>
+      <div class="band ger"><b>9–14 · Gerenciável</b>Correção — controle em curto prazo</div>
+      <div class="band int"><b>15+ · Intolerável</b>Paralisação — resposta imediata</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="btnrow">
+      <button id="savebtn" onclick="saveAssessment()">Registrar avaliação</button>
+      <button id="resetbtn" onclick="resetForm()">Limpar formulário</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Histórico de avaliações</h2>
+    <table class="hist">
+      <thead><tr><th>Data</th><th>Trecho</th><th>Vr</th><th>Fatores</th><th>Nível</th></tr></thead>
+      <tbody id="histbody"></tbody>
+    </table>
+  </div>
+
+  <div class="footer">
+    Fatores, valores de risco e matriz de tolerabilidade conforme "Ferramenta de Avaliação da
+    Consciência Situacional" (L. F. P. Rocha, Anhembi Morumbi, 2016) —
+    <a href="../">ver a publicação completa</a>.<br>
+    Valores de risco a exibir e a tolerabilidade devem refletir as políticas de segurança operacional
+    de cada operador. Ferramenta de apoio ao SGSO — os registros com Vr que exija mitigação devem ser
+    analisados pelo gestor de segurança operacional.
+  </div>
+
+</div>
+<script src="facs_data.js"></script>
+<script>
+function build(){
+  var html = '';
+  FACS.forEach(function(g, gi){
+    html += '<div class="card"><h2>' + g.group + '</h2>';
+    g.items.forEach(function(it){
+      html += '<div class="item"><div class="iname"><small>' + it.n + '.</small> ' + it.name + '</div>';
+      if (it.type === 'radio'){
+        html += '<label class="opt"><input type="radio" name="i' + it.n + '" value="0" checked ' +
+          'onchange="recompute()"><span class="txt">Não se aplica / condição normal</span>' +
+          '<span class="vr">0</span></label>';
+      }
+      it.opts.forEach(function(o, oi){
+        var t = it.type === 'radio' ? 'radio' : 'checkbox';
+        html += '<label class="opt"><input type="' + t + '" name="i' + it.n + '" value="' + o[1] +
+          '" data-label="' + o[0].replace(/"/g, '&quot;') + '" onchange="recompute()">' +
+          '<span class="txt">' + o[0] + '</span><span class="vr">' + o[1] + '</span></label>';
+      });
+      if (it.note) html += '<div class="inote">' + it.note + '</div>';
+      html += '</div>';
+    });
+    html += '</div>';
+  });
+  document.getElementById('form').innerHTML = html;
+}
+
+function currentBand(v){
+  for (var i = 0; i < BANDS.length; i++) if (v <= BANDS[i].max) return BANDS[i];
+  return BANDS[BANDS.length - 1];
+}
+
+function collect(){
+  var total = 0, count = 0, sel = [];
+  document.querySelectorAll('#form input:checked').forEach(function(inp){
+    var v = parseInt(inp.value, 10) || 0;
+    if (v > 0){ total += v; count++; sel.push(inp.dataset.label + ' (' + v + ')'); }
+  });
+  return {total: total, count: count, sel: sel};
+}
+
+function recompute(){
+  var c = collect();
+  var b = currentBand(c.total);
+  document.getElementById('score').textContent = c.total;
+  document.getElementById('level').textContent = b.level + ' — ' + b.action;
+  document.getElementById('leveldesc').textContent = b.desc;
+  document.getElementById('scorebar').className = 'scorebar ' + b.cls;
+}
+
+function loadHist(){
+  var h = [];
+  try { h = JSON.parse(localStorage.getItem('facs_hist') || '[]'); } catch(e){ h = []; }
+  document.getElementById('histbody').innerHTML = h.slice(0, 30).map(function(r){
+    return '<tr><td>' + r.d + '</td><td>' + (r.route || '—') + '</td><td><b>' + r.vr + '</b></td>' +
+      '<td>' + r.n + '</td><td class="b-' + r.cls + '">' + r.level + '</td></tr>';
+  }).join('') || '<tr><td colspan="5" style="color:var(--gray)">Nenhuma avaliação registrada</td></tr>';
+}
+
+function saveAssessment(){
+  var c = collect();
+  var b = currentBand(c.total);
+  var entry = {
+    d: document.getElementById('fdate').value || new Date().toISOString().slice(0, 10),
+    route: document.getElementById('froute').value.trim(),
+    crew: document.getElementById('fcrew').value.trim(),
+    vr: c.total, n: c.count, level: b.level, cls: b.cls,
+    factors: c.sel, ts: new Date().toISOString()
+  };
+  try {
+    var h = JSON.parse(localStorage.getItem('facs_hist') || '[]');
+    h.unshift(entry);
+    localStorage.setItem('facs_hist', JSON.stringify(h.slice(0, 100)));
+  } catch(e){}
+  loadHist();
+  window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'});
+}
+
+function resetForm(){
+  document.querySelectorAll('#form input[type=checkbox]').forEach(function(i){ i.checked = false; });
+  document.querySelectorAll('#form input[type=radio][value="0"]').forEach(function(i){ i.checked = true; });
+  ['froute'].forEach(function(id){ document.getElementById(id).value = ''; });
+  recompute();
+}
+
+build();
+document.getElementById('fdate').value = new Date().toISOString().slice(0, 10);
+recompute();
+loadHist();
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function(){ navigator.serviceWorker.register('sw.js'); });
+}
+</script>
+</body>
+</html>
