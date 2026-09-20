@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flying into Sion (LSGS) — LR Aviation</title>
+<meta name="description" content="A destination briefing for business jet operators: the 6° IGS approach at Sion, the airport qualification, the military airspace, valley weather and winter planning.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..900&display=swap">
+<style>
+:root{
+  --ink:#0E1526; --chart:#16203A; --panel:#1B2745; --paper:#F4F6FB;
+  --amber:#E8A33D; --blue:#6FB3E0; --text:#E8ECF5; --dim:#96A2BC;
+  --hair:rgba(150,170,210,.16);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0; background:var(--ink); color:var(--text);
+  font-family:"Archivo",-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;
+  font-variation-settings:"wdth" 100; line-height:1.6;
+  background-image:
+    linear-gradient(var(--hair) 1px, transparent 1px),
+    linear-gradient(90deg, var(--hair) 1px, transparent 1px);
+  background-size:96px 96px;
+}
+.wrap{max-width:1020px; margin:0 auto; padding-inline:22px; padding-block:0 0}
+a{color:var(--blue)}
+button:focus-visible, a:focus-visible{outline:2px solid var(--amber); outline-offset:2px}
+
+header{display:flex; align-items:center; justify-content:space-between; gap:16px; padding:26px 0 0; flex-wrap:wrap}
+.back{
+  text-decoration:none; color:var(--dim); font-size:13px; letter-spacing:.12em;
+  font-weight:800; text-transform:uppercase;
+}
+.back:hover{color:var(--amber)}
+.pdf{
+  display:inline-block; background:var(--amber); color:var(--ink); text-decoration:none;
+  font-weight:750; font-size:13px; padding:7px 16px; border-radius:8px;
+}
+.pdf:hover{filter:brightness(1.08)}
+
+.hero{padding:52px 0 10px}
+.eyebrow{font-size:11.5px; letter-spacing:.14em; color:var(--amber); font-weight:800; margin:0 0 10px; text-transform:uppercase}
+.hero h1{
+  margin:0; font-weight:850; font-variation-settings:"wdth" 122;
+  font-size:clamp(34px,6vw,60px); line-height:1.04; color:var(--paper);
+  max-width:16ch; text-wrap:balance;
+}
+.hero .lead{max-width:56ch; color:var(--dim); font-size:16.5px; margin:20px 0 0}
+.hero .lead b{color:var(--text); font-weight:650}
+
+.specs{
+  display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:18px;
+  margin:38px 0 8px; padding:0; list-style:none;
+}
+.specs li{border-top:2px solid var(--amber); padding-top:12px}
+.specs dt{font-size:11.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--dim); font-weight:800}
+.specs dd{
+  margin:6px 0 0; font-weight:850; font-variation-settings:"wdth" 116; font-size:24px;
+  color:var(--paper); font-variant-numeric:tabular-nums; line-height:1.15;
+}
+.specs dd small{display:block; font-weight:400; font-size:13px; color:var(--dim); margin-top:4px; font-variation-settings:"wdth" 100}
+
+section.block{border-top:1px solid var(--hair); padding:40px 0 4px; margin-top:34px}
+section.block h2{
+  margin:0 0 14px; font-weight:800; font-variation-settings:"wdth" 116;
+  color:var(--paper); font-size:clamp(23px,3.4vw,30px); text-wrap:balance;
+}
+h3{margin:28px 0 8px; font-weight:750; font-size:18px; color:var(--paper)}
+p{margin:0 0 14px; max-width:68ch; color:var(--dim)}
+p b, li b{color:var(--text); font-weight:700}
+ul.body{margin:0 0 16px; padding-left:20px; max-width:68ch; color:var(--dim)}
+ul.body li{margin-bottom:8px}
+
+.callout{
+  background:var(--chart); border:1px solid var(--hair); border-left:6px solid var(--amber);
+  border-radius:14px; padding:18px 20px; margin:22px 0;
+}
+.callout .tag{font-size:11.5px; letter-spacing:.14em; color:var(--amber); font-weight:800; text-transform:uppercase; display:block; margin-bottom:6px}
+.callout p{margin:0; max-width:none; font-size:14.5px}
+
+.tablewrap{overflow-x:auto; margin:20px 0}
+table{border-collapse:collapse; width:100%; font-size:14.5px; min-width:480px}
+th,td{text-align:left; padding:10px 14px 10px 0; border-bottom:1px solid var(--hair); vertical-align:top; color:var(--dim)}
+thead th{color:var(--amber); font-size:11.5px; letter-spacing:.12em; text-transform:uppercase; font-weight:800; border-bottom:1px solid var(--amber)}
+tbody th{color:var(--text); font-weight:700; font-size:14.5px; letter-spacing:0; text-transform:none}
+
+figure{margin:26px 0}
+figure svg{display:block; width:100%; height:auto; max-width:100%; background:var(--chart); border:1px solid var(--hair); border-radius:14px}
+figcaption{font-size:12.5px; color:var(--dim); margin-top:10px}
+
+.checklist{list-style:none; padding:0; margin:6px 0 0; max-width:68ch}
+.checklist li{display:flex; gap:12px; align-items:flex-start; padding:11px 0; border-bottom:1px solid var(--hair); color:var(--dim); font-size:15px}
+.checklist li::before{content:""; flex:0 0 14px; height:14px; margin-top:5px; border:2px solid var(--amber); border-radius:3px}
+
+.links{display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:16px; margin-top:18px}
+.links a{
+  display:block; text-decoration:none; background:var(--chart); border:1px solid var(--hair);
+  border-radius:14px; padding:16px 18px; color:var(--dim);
+}
+.links a:hover{border-color:var(--amber)}
+.links b{display:block; color:var(--paper); font-weight:800; font-size:16.5px; margin-bottom:4px}
+.links span{font-size:13.5px}
+
+footer{padding:36px 0 44px; color:var(--dim); font-size:12.5px; border-top:1px solid var(--hair); margin-top:44px}
+footer p{max-width:74ch; color:var(--dim); font-size:12.5px}
+.rev{letter-spacing:.1em; text-transform:uppercase; font-weight:800; color:var(--dim)}
+.rev a{color:var(--amber); text-decoration:none; font-weight:800}
+
+@media print{
+  body{background:#fff; color:#121725; background-image:none; font-size:10.5pt}
+  header, .pdf{display:none}
+  .wrap{max-width:none; padding:0}
+  h1,h2,h3,.specs dd,.links b,tbody th{color:#0E1526}
+  p,li,td,figcaption,.specs dd small,footer,.specs dt{color:#31405c}
+  .callout,.links a,figure svg{background:#f3f5f9; border-color:#c9d2e2}
+  .eyebrow,.callout .tag,thead th,.rev a{color:#9a6a14}
+  section.block{break-inside:auto; border-color:#c9d2e2}
+  h2{break-after:avoid}
+  table, figure{break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <a class="back" href="../">← LR Aviation</a>
+  <a class="pdf" href="flying-into-sion.pdf" target="_blank" rel="noopener">PDF version</a>
+</header>
+
+<section class="hero">
+  <p class="eyebrow">Library · Destination briefing · Sion (LSGS), Valais, Switzerland</p>
+  <h1>Flying into Sion</h1>
+  <p class="lead">A 6° glide path that ends in a visual turn between mountains, an approach that is closed to crews without a specific qualification, a military training area that can reject the flight plan before it is filed, and 2,000 m of runway at the bottom of a valley. <b>What a business jet operator needs to know before committing to LSGS.</b> Written in English.</p>
+
+  <ul class="specs">
+    <li><dt>Aerodrome elevation</dt><dd>1,582 ft<small>THR 25; THR 07 at 1,575 ft</small></dd></li>
+    <li><dt>Runway 07/25</dt><dd>2,000 × 40 m<small>Asphalt · LDA 1,935–1,940 m</small></dd></li>
+    <li><dt>IGS RWY 25</dt><dd>6.0° / 4.0°<small>Instrument, then visual segment</small></dd></li>
+    <li><dt>Approach categories</dt><dd>A / B / C<small>Crew, operator and aircraft authorisation required</small></dd></li>
+  </ul>
+</section>
+
+<section class="block">
+  <p class="eyebrow">Orientation</p>
+  <h2>Why Sion is not a normal alpine airport</h2>
+  <p>Plenty of European airports sit in valleys. Sion is unusual because the terrain does not just raise the minima — it changes the shape of the procedure. The instrument approach to RWY 25 is flown on a <b>6.0° glide path</b>, roughly double the standard, and it does not continue to the runway: it ends at D7.0 ISI, after which the pilot flies <b>visually at 4.0°</b>, offset from the runway axis, turning final over the town.</p>
+  <p>On top of that geometry, three things decide whether a flight to Sion happens at all: the <b>qualification</b> held by the crew and the operator, the <b>military activity</b> above the valley, and the <b>weather</b>, which here changes faster than a nine-hour TAF suggests.</p>
+  <p>This briefing is written for operators and crews planning a first visit with a mid-size or large business jet. It summarises how the operation works. It does not replace the AIP, the NOTAMs, the airport's own qualification material or the aircraft manuals — every figure below must be verified against the current publications.</p>
+</section>
+
+<section class="block">
+  <p class="eyebrow">Access</p>
+  <h2>You cannot simply file and go</h2>
+  <p>IFR approaches and departures at Sion are restricted to <b>pilots, operators and aircraft holding the Sion airport qualification</b> (AIP LSGS AD 2.22). The level held by the pilot in command decides which procedures and which minima are available.</p>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>Level</th><th>How it is obtained</th><th>What it allows, in broad terms</th></tr></thead>
+      <tbody>
+        <tr><th>Type A</th><td>Online exam</td><td>Day only, and only with substantially higher decision altitude, visibility and ceiling requirements</td></tr>
+        <tr><th>Type B</th><td>Ground briefing plus a check flight in the aircraft type, with a qualified instructor</td><td>Decision altitude driven by aircraft performance, lower visibility, and — with the high-performance departure and RWY 25 in use — night operations</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>Recency matters: the qualification is tied to the operator and to the aircraft type, and it lapses if the airport is not flown for an extended period. Plan the qualification process weeks ahead of the trip, not days. Simulator credit is accepted for some renewals; the current rules are published by the airport.</p>
+  <div class="callout">
+    <span class="tag">Practical consequence</span>
+    <p>A short-notice charter request for Sion, from an operator without the qualification, is not a scheduling problem — it is a no. The realistic alternatives are Geneva, Bern or Milan, with surface transport into the Valais.</p>
+  </div>
+</section>
+
+<section class="block">
+  <p class="eyebrow">Arrival</p>
+  <h2>The IGS RWY 25 and its visual segment</h2>
+  <p>The approach is an IGS: an ILS-like installation whose localiser is deliberately <b>offset 6.5° from the runway centreline</b>, because the valley does not allow a straight-in path. The arrival is flown via the RNAV STAR to GRANA, then the procedure descends on the 6.0° glide path to <b>D7.0 ISI</b>, about 5.9 NM from the threshold.</p>
+
+  <figure>
+    <svg viewBox="0 0 720 250" role="img" aria-label="Vertical profile of the Sion IGS RWY 25: a 6.0 degree instrument glide path down to D7.0 ISI, then a 4.0 degree visual segment to the runway.">
+      <polygon points="0,206 70,178 130,192 190,160 250,188 330,168 410,190 470,174 560,196 640,170 720,188 720,234 0,234" fill="#6FB3E0" opacity="0.12"></polygon>
+      <line x1="56" y1="206" x2="688" y2="206" stroke="#96A2BC" stroke-width="1" opacity="0.45"></line>
+      <rect x="556" y="202" width="124" height="7" fill="#96A2BC" opacity="0.85"></rect>
+      <text x="618" y="226" text-anchor="middle" font-family="Archivo, sans-serif" font-size="12" font-weight="700" fill="#96A2BC">RWY 25</text>
+      <line x1="72" y1="40" x2="448" y2="152" stroke="#E8A33D" stroke-width="2.6" fill="none"></line>
+      <line x1="448" y1="152" x2="598" y2="201" stroke="#6FB3E0" stroke-width="2.6" stroke-dasharray="7 5" fill="none"></line>
+      <circle cx="448" cy="152" r="5" fill="#E8A33D"></circle>
+      <text x="700" y="58" text-anchor="end" font-family="Archivo, sans-serif" font-size="18" font-weight="800" fill="#E8A33D">6.0° glide path — instrument</text>
+      <text x="700" y="78" text-anchor="end" font-family="Archivo, sans-serif" font-size="12.5" fill="#96A2BC">ALETO (FAF) 15,970 ft · published altitudes at D22, D19, D14.2, D11.8 ISI</text>
+      <text x="470" y="132" font-family="Archivo, sans-serif" font-size="17" font-weight="800" fill="#6FB3E0">4.0° visual</text>
+      <text x="448" y="174" text-anchor="middle" font-family="Archivo, sans-serif" font-size="12" font-weight="700" fill="#E8ECF5">D7.0 ISI</text>
+      <text x="448" y="190" text-anchor="middle" font-family="Archivo, sans-serif" font-size="12" fill="#96A2BC">end of instrument segment</text>
+      <text x="66" y="34" font-family="Archivo, sans-serif" font-size="12" fill="#96A2BC">from GRANA</text>
+    </svg>
+    <figcaption>Schematic only — not to scale and not for navigation. The published profile, altitudes and decision altitudes are in AIP Switzerland, LSGS AD 2.24.10-1.</figcaption>
+  </figure>
+
+  <p>From D7.0 ISI the flight continues visually on the offset track, passes abeam St-Léonard about 3.9 NM from the runway, and turns left onto the extended centreline just south of the Sion hospital, following <b>PAPI 25 at 4.0°</b> to landing. The PAPI beam is itself aimed 5° north of the runway axis, towards that offset path, so it is not seen from a conventional straight-in position.</p>
+  <ul class="body">
+    <li><b>GNSS is required</b> for the initial and intermediate segments (RNAV 5), and the approach is prohibited if the glide path is unserviceable.</li>
+    <li>The published altitudes on the glide path are <b>hard constraints</b>, not advisory steps.</li>
+    <li>The runway is frequently <b>not in sight</b> at the end of the instrument segment. The visual segment is flown on terrain features and carries no terrain clearance guidance of its own.</li>
+    <li>Part of the procedure runs through <b>Class E airspace</b>: VFR traffic without radio and without transponder must be expected.</li>
+  </ul>
+  <div class="callout">
+    <span class="tag">Aircraft capability</span>
+    <p>Most transport-category jets have a maximum autopilot- or flight-director-coupled glide path well below 6°, and an approach-angle limit around 4.5° for the certified landing technique. In practice the steep segment is hand-flown, with a plan for the configuration, the rate of descent (roughly 1,300–1,700 ft/min at typical approach speeds) and the stabilisation gate. Check the figures in your own AFM and operations manual before accepting the approach.</p>
+  </div>
+
+  <h3>Circling and RWY 07</h3>
+  <p>Circling to RWY 07 exists, but it is limited to <b>categories A and B</b>, with a speed limit, special training and no night circling. A category C jet therefore plans on RWY 25 or diverts. Landing on RWY 07 is possible when the conditions allow it, but the runway is short for a heavy jet and there is no separate published missed approach — the low-performance departure profile serves as the visual reference.</p>
+</section>
+
+<section class="block">
+  <p class="eyebrow">Departure</p>
+  <h2>High performance, low performance, and what the aircraft can actually do</h2>
+  <p>At Sion, "performance" is not a certification class. It describes whether the aircraft can meet the climb gradient of the steep departure out of the valley, all engines operating.</p>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>&nbsp;</th><th>High performance (HP)</th><th>Low performance (LP)</th></tr></thead>
+      <tbody>
+        <tr><th>Climb requirement</th><td>About 13.3% to 10,100 ft, all engines</td><td>About 3.7% to 12,500 ft, after a visual segment</td></tr>
+        <tr><th>Runway</th><td>RWY 25 only</td><td>RWY 07 and 25 — from RWY 25 restricted to CAT A/B</td></tr>
+        <tr><th>Day / night</th><td>Day and night</td><td>Day only</td></tr>
+        <tr><th>Character</th><td>Instrument departure, no visual segment</td><td>Initial visual segment in the valley before joining the SID</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>For a category C jet this usually resolves to the <b>HP departure from RWY 25</b>, or the LP departure from RWY 07 — which in turn is the limiting case for take-off weight, because the usable length and the terrain ahead are far less forgiving in that direction.</p>
+  <ul class="body">
+    <li>Engine-out procedures at Sion are <b>special, not straight-out</b> on RWY 25: they follow an escape route along the valley. Run a proper runway analysis for the specific aircraft instead of relying on generic AFM data.</li>
+    <li>Maximum take-off weight is often set by the engine-out escape route, not by the runway length.</li>
+    <li>On a contaminated runway, count on <b>no flex thrust and no clearway credit</b>, and recompute — RWY 07 becomes limiting first.</li>
+    <li>Contact ground before start-up; initial climb clearance comes from ATC, and maximum altitudes apply when the military areas are active.</li>
+  </ul>
+</section>
+
+<section class="block">
+  <p class="eyebrow">Airspace</p>
+  <h2>The military area can reject the flight plan</h2>
+  <p>The IFR procedures cross Swiss Air Force training areas. When those areas are active, the restriction is applied at flight-plan level through the non-standard planning zone <b>LSNPZ1</b>: IFR flight plans to Sion are rejected for that period, with a message pointing at a forbidden route — not merely delayed by a slot.</p>
+  <ul class="body">
+    <li>Activity is typically on <b>weekday mornings and afternoons</b>, and is published the day before from 16:00 UTC (15:00 UTC in summer) in the Airspace Use Plan. Updates arrive through the UUP.</li>
+    <li>ATFM slots, by contrast, appear about two hours before departure — far too late to rebuild a long-haul plan.</li>
+    <li>Two ways around a rejection: <b>move the arrival time</b> outside the active window, or, in suitable weather, <b>plan to cancel IFR</b> at one of the entry fixes and continue VFR below the areas. An aircraft that cannot cancel IFR must divert or hold.</li>
+  </ul>
+  <p>Check the AUP the evening before every flight, and the UUP again before departure. On a long sector, this is the single item most likely to change while the aircraft is airborne.</p>
+</section>
+
+<section class="block">
+  <p class="eyebrow">Weather</p>
+  <h2>Valley weather, and the winter picture</h2>
+  <ul class="body">
+    <li>The Sion TAF is valid for <b>nine hours</b> only. It will not cover a long inbound sector: plan a self-briefing update en route.</li>
+    <li>The <b>foehn</b> brings strong, gusty, turbulent southerly flow. With it, the wind aloft and the surface wind can point in different directions, and the approach can become unflyable while the reported surface wind still looks acceptable.</li>
+    <li>Summer <b>thunderstorms</b> and winter inversions both matter more here than the raw minima suggest, because the visual segment needs the terrain in sight.</li>
+    <li>In winter the runway can be contaminated. Take-off and landing performance must be recomputed with the actual runway condition code and contaminant depth.</li>
+  </ul>
+  <div class="callout">
+    <span class="tag">Winter planning</span>
+    <p>Runway de-icing at Sion is carried out by the military base rather than by the airport administration. Expect delays and build them into the slot and crew duty planning. For the aircraft itself, a heated hangar is available and is often the better option: it removes contamination without fluid and keeps the departure independent of the de-icing queue — subject to hangar availability, so it must be requested early.</p>
+  </div>
+</section>
+
+<section class="block">
+  <p class="eyebrow">On the ground</p>
+  <h2>Handling, customs and parking</h2>
+  <p>Sion has a business-aviation FBO with a private terminal, customs and immigration on site, crew and passenger facilities, and hangarage large enough for heavy business jets. Outside parking and heated hangar space are both available, as are the usual ramp services, lavatory and water servicing, GPU, cleaning and catering coordination.</p>
+  <ul class="body">
+    <li>Opening hours are limited (HX) and operations outside them need prior permission — in winter, with a deadline the preceding day.</li>
+    <li>The rescue and fire fighting category available is limited and can require advance coordination for a large jet. Confirm the category for the planned time.</li>
+    <li>Outside parking is charged per night after a short free period; hangar space is charged from the first minute and carries cancellation fees. Current tariffs are published by the handling agent and quoted on request.</li>
+  </ul>
+</section>
+
+<section class="block">
+  <p class="eyebrow">Before every flight</p>
+  <h2>Planning checklist</h2>
+  <ul class="checklist">
+    <li>Qualification valid for the pilot in command, the operator and the aircraft type, with recency confirmed.</li>
+    <li>AUP checked the evening before for LSNPZ1; UUP re-checked before departure.</li>
+    <li>NOTAMs read for the approach — procedure altitudes and decision altitudes at Sion have been amended by NOTAM in the past.</li>
+    <li>TAF and TREND checked late, with the nine-hour validity in mind, plus an en-route update plan.</li>
+    <li>Runway analysis and take-off data computed for the actual runway, escape route, temperature and runway condition.</li>
+    <li>Landing distance checked against the available landing distance, with the correct factor and the expected runway state.</li>
+    <li>Alternate selected that is reachable with the fuel on board, with its handling and hours confirmed.</li>
+    <li>Approach briefing covering the steep segment, the offset, the visual turn, the go-around and the terrain escape.</li>
+    <li>Handling, customs, hangar and de-icing arranged, with winter delays built into the schedule.</li>
+  </ul>
+</section>
+
+<section class="block">
+  <p class="eyebrow">Sources</p>
+  <h2>Where the official information lives</h2>
+  <p>Everything here is a summary. The authoritative documents are free of charge and should be consulted directly for every operation.</p>
+  <div class="links">
+    <a href="https://www.skybriefing.com/" target="_blank" rel="noopener"><b>AIP Switzerland</b><span>skyguide's aeronautical information service: LSGS AD 2, the aerodrome, SID, STAR and approach charts, and the NOTAMs.</span></a>
+    <a href="https://www.sion-qualification.ch/airport-briefing/" target="_blank" rel="noopener"><b>Sion airport briefing</b><span>The qualification scheme, the training material and the airport's own operational briefing.</span></a>
+    <a href="https://www.nm.eurocontrol.int/" target="_blank" rel="noopener"><b>EUROCONTROL Network Manager</b><span>Airspace Use Plan and updates, route availability, flight-plan validation and ATFM messages.</span></a>
+    <a href="https://www.skyguide.ch/en/services/aim-services/" target="_blank" rel="noopener"><b>skyguide AIM services</b><span>Special flights, coordination requirements and contact with the Swiss aeronautical information management service.</span></a>
+  </div>
+</section>
+
+<footer>
+  <p>LR Aviation Ltda — São José dos Campos, SP, Brazil. This destination briefing is general information. It is not an operational document, it does not replace the AIP, the NOTAMs, the airport qualification material or any aircraft flight manual, and it must not be used for navigation. Procedures, minima and tariffs change; verify every item against the current official publications before flight. Charts and manual extracts are not reproduced here — use the official sources linked above.</p>
+  <p class="rev">Revision 1 · September 2026 · <a href="mailto:ops@lraviation.com.br">ops@lraviation.com.br</a></p>
+</footer>
+
+</div>
+</body>
+</html>
