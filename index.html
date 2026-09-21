@@ -134,6 +134,10 @@ header{display:flex; align-items:center; justify-content:space-between; padding:
 .ops{border-top:1px solid var(--hair); padding:44px 0 10px}
 .ops h2{font-weight:800; font-variation-settings:"wdth" 116; color:var(--paper); font-size:26px; margin:0 0 8px}
 .ops .sub{color:var(--dim); max-width:62ch; margin:0 0 26px}
+.empresa{display:grid; grid-template-columns:max-content 1fr; gap:6px 24px; margin:0; max-width:72ch}
+.empresa dt{color:var(--dim); font-size:14px}
+.empresa dd{margin:0}
+@media (max-width:560px){.empresa{grid-template-columns:1fr; gap:2px} .empresa dt{margin-top:10px}}
 .svc{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:26px}
 .svc div{border-left:2px solid var(--blue); padding-left:14px}
 .svc b{color:var(--paper); font-size:15px}
@@ -359,10 +363,33 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--amber); outline-of
   <h2 lang-en>About LR Aviation</h2>
   <p class="sub" lang-pt>Tornamos o planejamento aeronáutico mais simples. As calculadoras do FlightOps Companion nascem do dia a dia da aviação executiva e são publicadas aqui para uso livre da comunidade.</p>
   <p class="sub" lang-en>We make aviation planning easier. The FlightOps Companion calculators come from the day-to-day of business aviation and are published here for the community to use freely.</p>
-  <p class="sub" lang-pt>Serviços de apoio de despacho em breve.</p>
-  <p class="sub" lang-en>Dispatch support services coming soon.</p>
+  <p class="sub" lang-pt>Apoio de despacho e coordenação ATFM para operadores de aviação executiva no Brasil e na Europa — planejamento, slots, permissões e handling.</p>
+  <p class="sub" lang-en>Dispatch support and ATFM coordination for business aviation operators in Brazil and Europe — planning, slots, permits and handling.</p>
   <p class="contact" lang-pt>Sugestões e contato: <a href="mailto:ops@lraviation.com.br">ops@lraviation.com.br</a></p>
   <p class="contact" lang-en>Suggestions and contact: <a href="mailto:ops@lraviation.com.br">ops@lraviation.com.br</a></p>
+</section>
+
+<section class="ops" id="company">
+  <h2 lang-pt>Empresa</h2>
+  <h2 lang-en>Company</h2>
+  <dl class="empresa" lang-pt>
+    <dt>Razão social</dt><dd>LR AVIATION LTDA</dd>
+    <dt>CNPJ</dt><dd>54.037.757/0001-89</dd>
+    <dt>Atividade registrada</dt><dd>Atividades auxiliares dos transportes aéreos (CNAE 52.40-1-99)</dd>
+    <dt>Fundação</dt><dd>Fevereiro de 2024</dd>
+    <dt>Endereço</dt><dd>Rua José Alves dos Santos, 391 — Floradas de São José<br>São José dos Campos, SP, 12230-081, Brasil</dd>
+    <dt>Aeroporto de referência</dt><dd>SBSJ / SJK</dd>
+    <dt>Contato</dt><dd><a href="mailto:ops@lraviation.com.br">ops@lraviation.com.br</a> · <a href="mailto:luciano@lraviation.com.br">luciano@lraviation.com.br</a> · +55 11 98445-3130</dd>
+  </dl>
+  <dl class="empresa" lang-en>
+    <dt>Legal name</dt><dd>LR AVIATION LTDA</dd>
+    <dt>Company registration (CNPJ)</dt><dd>54.037.757/0001-89</dd>
+    <dt>Registered activity</dt><dd>Auxiliary activities for air transport (CNAE 52.40-1-99)</dd>
+    <dt>Established</dt><dd>February 2024</dd>
+    <dt>Address</dt><dd>Rua José Alves dos Santos, 391 — Floradas de São José<br>São José dos Campos, SP, 12230-081, Brazil</dd>
+    <dt>Reference airport</dt><dd>SBSJ / SJK</dd>
+    <dt>Contact</dt><dd><a href="mailto:ops@lraviation.com.br">ops@lraviation.com.br</a> · <a href="mailto:luciano@lraviation.com.br">luciano@lraviation.com.br</a> · +55 11 98445-3130</dd>
+  </dl>
 </section>
 
 <footer>
