@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ramp Inspection Checklist — Emergency Equipment</title>
+<style>
+  :root{
+    --navy:#1B2A4A; --accent:#0B5A8A; --gray:#5b5f66; --line:#e2e5ea;
+    --bg:#f5f7fa; --card:#ffffff;
+    --ok:#1b7a3d; --ok-bg:#e7f5ec; --nc:#b71c1c; --nc-bg:#fdeceb;
+    --pend:#8a7a00; --pend-bg:#faf6dd; --amber:#a15c00; --amber-bg:#fdf1e0;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    background:var(--bg); color:#1c1f24; padding:0 14px 60px; font-size:14.5px; line-height:1.5;}
+  .wrap{max-width:860px; margin:0 auto;}
+  .header{text-align:center; padding:24px 0 6px;}
+  .header h1{font-size:20px; margin:0 0 3px; color:var(--navy); font-weight:800;}
+  .header p{font-size:12px; color:var(--gray); margin:0;}
+  .progress{position:sticky; top:0; z-index:5; margin:12px -14px 14px; padding:10px 14px;
+    background:#ffffffee; border-bottom:2px solid var(--accent); backdrop-filter:blur(4px);
+    display:flex; gap:14px; align-items:center; flex-wrap:wrap; font-size:13px;}
+  .progress b{font-size:16px;}
+  .pill{border-radius:20px; padding:2px 12px; font-weight:700; font-size:12px;}
+  .pill.ok{background:var(--ok-bg); color:var(--ok);}
+  .pill.nc{background:var(--nc-bg); color:var(--nc);}
+  .pill.pend{background:var(--pend-bg); color:var(--pend);}
+  .card{background:var(--card); border:1px solid var(--line); border-radius:12px;
+    padding:16px 18px; margin-bottom:14px;}
+  .card h2{font-size:12.5px; text-transform:uppercase; letter-spacing:.04em;
+    color:var(--accent); margin:0 0 10px; font-weight:750;}
+  .hrow{display:flex; gap:10px; flex-wrap:wrap;}
+  .hrow .field{flex:1 1 150px;}
+  .field label{display:block; font-size:11.5px; color:var(--gray); margin-bottom:3px; font-weight:600;}
+  input, textarea{width:100%; padding:7px 9px; font-size:13.5px; border:1px solid var(--line);
+    border-radius:7px; background:#fff; font-family:inherit;}
+  textarea{resize:vertical; min-height:34px;}
+  details.sec{background:var(--card); border:1px solid var(--line); border-radius:12px;
+    margin-bottom:12px; overflow:hidden;}
+  details.sec summary{cursor:pointer; padding:13px 18px; font-weight:800; color:var(--navy);
+    font-size:13.5px; display:flex; align-items:center; gap:10px; list-style:none;}
+  details.sec summary::-webkit-details-marker{display:none;}
+  details.sec summary .count{margin-left:auto; font-weight:700; font-size:12px; color:var(--gray);}
+  details.sec summary .count.done{color:var(--ok);}
+  .secbody{padding:2px 18px 14px;}
+  .verifyall{font-size:12px; font-weight:700; color:var(--accent); background:#eaf1f7;
+    border:none; border-radius:7px; padding:6px 12px; cursor:pointer; margin-bottom:8px;}
+  .item{border-top:1px solid var(--line); padding:11px 0;}
+  .item:first-of-type{border-top:none;}
+  .irow{display:flex; gap:10px; align-items:flex-start; flex-wrap:wrap;}
+  .imain{flex:1 1 260px; min-width:220px;}
+  .iname{font-weight:700; font-size:13.5px; color:var(--navy);}
+  .iloc{font-size:12px; color:var(--gray);}
+  .chips{margin-top:3px;}
+  .chip{display:inline-block; font-size:10.5px; font-weight:700; border-radius:10px;
+    padding:1px 8px; margin-right:5px; background:#eef2f7; color:var(--accent);}
+  .chip.applies{background:var(--amber-bg); color:var(--amber);}
+  .chip.due-green{background:var(--ok-bg); color:var(--ok);}
+  .chip.due-amber{background:var(--amber-bg); color:var(--amber);}
+  .chip.due-red{background:var(--nc-bg); color:var(--nc);}
+  .status{display:flex; border:1px solid var(--line); border-radius:8px; overflow:hidden; flex:none;}
+  .status button{border:none; background:#fff; font-size:11.5px; font-weight:700; padding:7px 10px;
+    cursor:pointer; color:var(--gray);}
+  .status button.v.on{background:var(--ok); color:#fff;}
+  .status button.n.on{background:var(--nc); color:#fff;}
+  .status button.p.on{background:var(--pend); color:#fff;}
+  .idates{display:flex; gap:8px; flex:none; flex-wrap:wrap;}
+  .idates .field{width:128px;}
+  .iremarks{margin-top:7px;}
+  .iremarks textarea{font-size:12px; color:#333;}
+  .btnrow{display:flex; gap:10px; flex-wrap:wrap;}
+  .btnrow button{flex:1 1 150px; padding:12px; border:none; border-radius:8px; font-size:14px;
+    font-weight:750; cursor:pointer;}
+  #savebtn{background:var(--accent); color:#fff;}
+  #newbtn{background:var(--ok); color:#fff;}
+  #exportbtn{background:#e6eaf0; color:var(--navy);}
+  table.hist{width:100%; border-collapse:collapse; font-size:12.5px;}
+  table.hist th, table.hist td{text-align:left; padding:6px 8px; border-bottom:1px solid var(--line);}
+  table.hist th{color:var(--gray); font-weight:600;}
+  .footer{text-align:center; font-size:11px; color:var(--gray); margin-top:20px; line-height:1.7;}
+  .footer a{color:var(--accent);}
+</style>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1B2A4A">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Ramp Check">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+</head>
+<body>
+<div class="wrap">
+
+  <div class="header">
+    <h1>Ramp Inspection Checklist</h1>
+    <p>Emergency equipment & documentation · single-user · works offline</p>
+  </div>
+
+  <div class="progress">
+    <b id="pct">0%</b>
+    <span class="pill ok" id="c-ok">0 verified</span>
+    <span class="pill nc" id="c-nc">0 NC</span>
+    <span class="pill pend" id="c-pend">0 pending</span>
+    <span style="margin-left:auto; font-size:11.5px; color:var(--gray)" id="autosave"></span>
+  </div>
+
+  <div class="card">
+    <h2>Inspection header</h2>
+    <div class="hrow">
+      <div class="field"><label>Inspection date</label><input type="date" id="h_date"></div>
+      <div class="field"><label>Aircraft</label><input type="text" id="h_aircraft"></div>
+      <div class="field"><label>Serial number</label><input type="text" id="h_serial"></div>
+      <div class="field"><label>Inspector</label><input type="text" id="h_inspector"></div>
+      <div class="field"><label>Location</label><input type="text" id="h_location"></div>
+      <div class="field" style="flex:2 1 100%"><label>Notes</label><input type="text" id="h_notes"></div>
+    </div>
+  </div>
+
+  <div id="sections"></div>
+
+  <div class="card">
+    <div class="btnrow">
+      <button id="savebtn" onclick="saveInspection()">Save inspection</button>
+      <button id="newbtn" onclick="newInspection(true)">New inspection (inherit dates)</button>
+      <button id="exportbtn" onclick="exportJSON()">Export JSON</button>
+    </div>
+    <p style="font-size:11.5px; color:var(--gray); margin:10px 0 0">
+      "New inspection" resets every status to Pending and keeps due dates, last-inspected dates and
+      remarks from the most recent saved inspection — daily items get today's date when you verify them.
+    </p>
+  </div>
+
+  <div class="card">
+    <h2>Saved inspections (this device)</h2>
+    <table class="hist">
+      <thead><tr><th>Date</th><th>Aircraft</th><th>Verified</th><th>NC</th><th>Inspector</th></tr></thead>
+      <tbody id="histbody"></tbody>
+    </table>
+  </div>
+
+  <div class="footer">
+    Template exported from the FlightOps Companion checklist system · references: ANAC IS 00-009D,
+    RBAC 45/67/91, SAFA ramp inspection items (EASA).<br>
+    Support tool for the operator's own ramp checks — it does not replace the approved maintenance
+    programme, the MEL or the official documentation.
+  </div>
+
+</div>
+
+<script src="ramp_data.js"></script>
+<script>
+var state = null;
+var todayISO = function(){ return new Date().toISOString().slice(0, 10); };
+
+function blankFromTemplate(inherit){
+  var last = null;
+  if (inherit){
+    try { last = JSON.parse(localStorage.getItem('ramp_last') || 'null'); } catch(e){}
+  }
+  var s = { header: { date: todayISO(), aircraft: SEED_HEADER.aircraft, serial: SEED_HEADER.serial_number,
+            inspector: '', location: '', notes: '' }, sections: [] };
+  if (last && last.header){
+    s.header.aircraft = last.header.aircraft || s.header.aircraft;
+    s.header.serial = last.header.serial || s.header.serial;
+    s.header.inspector = last.header.inspector || '';
+  }
+  TEMPLATE.forEach(function(sec, si){
+    var items = sec.items.map(function(it, ii){
+      var seed = SEED[si + ':' + ii] || [null, null, null, null];
+      var o = { name: it[0], loc: it[1], cond: it[2], remarks: it[3] || '', applies: it[4],
+                status: 'Pending', insp: seed[0] || '', due: seed[1] || '' };
+      if (seed[2]) o.remarks = (o.remarks ? o.remarks + ' · ' : '') + seed[2];
+      if (last && last.sections && last.sections[si] && last.sections[si].items[ii]){
+        var p = last.sections[si].items[ii];
+        o.insp = p.insp || o.insp;
+        o.due = p.due || o.due;
+        o.remarks = (p.remarks !== undefined && p.remarks !== null) ? p.remarks : o.remarks;
+      }
+      return o;
+    });
+    s.sections.push({ name: sec.name, items: items });
+  });
+  return s;
+}
+
+function dueClass(due){
+  if (!due) return null;
+  var days = Math.floor((new Date(due + 'T12:00') - new Date(todayISO() + 'T12:00')) / 86400000);
+  if (days <= 0) return ['due-red', 'DUE ' + due];
+  if (days <= 30) return ['due-amber', 'due ' + due + ' (' + days + 'd)'];
+  return ['due-green', 'due ' + due];
+}
+
+function render(){
+  var host = document.getElementById('sections');
+  host.innerHTML = state.sections.map(function(sec, si){
+    var rows = sec.items.map(function(o, ii){
+      var id = si + '_' + ii;
+      var chips = '';
+      if (o.cond) chips += '<span class="chip">' + o.cond + '</span>';
+      if (o.applies) chips += '<span class="chip applies">' + o.applies + '</span>';
+      var dc = dueClass(o.due);
+      if (dc) chips += '<span class="chip ' + dc[0] + '">' + dc[1] + '</span>';
+      return '<div class="item"><div class="irow">' +
+        '<div class="imain"><div class="iname">' + o.name + '</div>' +
+        (o.loc ? '<div class="iloc">' + o.loc + '</div>' : '') +
+        '<div class="chips">' + chips + '</div></div>' +
+        '<div class="status">' +
+        '<button class="v' + (o.status === 'Verified' ? ' on' : '') + '" onclick="setStatus(' + si + ',' + ii + ',\'Verified\')">Verified</button>' +
+        '<button class="n' + (o.status === 'NC' ? ' on' : '') + '" onclick="setStatus(' + si + ',' + ii + ',\'NC\')">NC</button>' +
+        '<button class="p' + (o.status === 'Pending' ? ' on' : '') + '" onclick="setStatus(' + si + ',' + ii + ',\'Pending\')">Pending</button>' +
+        '</div>' +
+        '<div class="idates">' +
+        '<div class="field"><label>Inspected on</label><input type="date" value="' + o.insp + '" onchange="setField(' + si + ',' + ii + ',\'insp\',this.value)"></div>' +
+        '<div class="field"><label>Due date</label><input type="date" value="' + o.due + '" onchange="setField(' + si + ',' + ii + ',\'due\',this.value)"></div>' +
+        '</div></div>' +
+        '<div class="iremarks"><textarea rows="1" placeholder="Remarks" onchange="setField(' + si + ',' + ii + ',\'remarks\',this.value)">' + (o.remarks || '') + '</textarea></div>' +
+        '</div>';
+    }).join('');
+    var done = sec.items.filter(function(o){ return o.status !== 'Pending'; }).length;
+    return '<details class="sec"' + (si === 0 ? ' open' : '') + '><summary>' + sec.name +
+      '<span class="count' + (done === sec.items.length ? ' done' : '') + '" id="cnt_' + si + '">' + done + '/' + sec.items.length + '</span></summary>' +
+      '<div class="secbody"><button class="verifyall" onclick="verifySection(' + si + ')">✓ Verify all in this section (today)</button>' +
+      rows + '</div></details>';
+  }).join('');
+  ['date','aircraft','serial','inspector','location','notes'].forEach(function(k){
+    document.getElementById('h_' + k).value = state.header[k] || '';
+  });
+  refreshCounters();
+}
+
+function refreshCounters(){
+  var ok = 0, nc = 0, pend = 0, total = 0;
+  state.sections.forEach(function(sec, si){
+    var done = 0;
+    sec.items.forEach(function(o){
+      total++;
+      if (o.status === 'Verified'){ ok++; done++; }
+      else if (o.status === 'NC'){ nc++; done++; }
+      else pend++;
+    });
+    var el = document.getElementById('cnt_' + si);
+    if (el){ el.textContent = done + '/' + sec.items.length;
+      el.className = 'count' + (done === sec.items.length ? ' done' : ''); }
+  });
+  document.getElementById('pct').textContent = total ? Math.round((ok + nc) / total * 100) + '%' : '0%';
+  document.getElementById('c-ok').textContent = ok + ' verified';
+  document.getElementById('c-nc').textContent = nc + ' NC';
+  document.getElementById('c-pend').textContent = pend + ' pending';
+}
+
+function setStatus(si, ii, st){
+  var o = state.sections[si].items[ii];
+  o.status = st;
+  if (st === 'Verified' && !o.dueLocked) o.insp = o.insp && o.due ? o.insp : todayISO();
+  if (st === 'Verified' && !o.due) o.insp = todayISO();
+  autosave();
+  render();
+}
+
+function setField(si, ii, k, v){
+  state.sections[si].items[ii][k] = v;
+  autosave();
+  if (k === 'due') render();
+}
+
+function verifySection(si){
+  state.sections[si].items.forEach(function(o){
+    o.status = 'Verified';
+    if (!o.due) o.insp = todayISO();
+  });
+  autosave();
+  render();
+}
+
+function headerChanged(){
+  ['date','aircraft','serial','inspector','location','notes'].forEach(function(k){
+    state.header[k] = document.getElementById('h_' + k).value;
+  });
+  autosave();
+}
+
+var saveTimer = null;
+function autosave(){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(function(){
+    try {
+      localStorage.setItem('ramp_draft', JSON.stringify(state));
+      document.getElementById('autosave').textContent = 'draft saved ' + new Date().toTimeString().slice(0, 5);
+    } catch(e){}
+  }, 400);
+}
+
+function saveInspection(){
+  headerChanged();
+  try {
+    var hist = JSON.parse(localStorage.getItem('ramp_hist') || '[]');
+    var ok = 0, nc = 0;
+    state.sections.forEach(function(s){ s.items.forEach(function(o){
+      if (o.status === 'Verified') ok++; if (o.status === 'NC') nc++; }); });
+    hist.unshift({ ts: new Date().toISOString(), header: state.header, ok: ok, nc: nc });
+    localStorage.setItem('ramp_hist', JSON.stringify(hist.slice(0, 20)));
+    localStorage.setItem('ramp_last', JSON.stringify(state));
+    localStorage.removeItem('ramp_draft');
+  } catch(e){}
+  loadHist();
+  alert('Inspection saved on this device.');
+}
+
+function newInspection(confirmFirst){
+  if (confirmFirst && !confirm('Start a new inspection? Statuses reset to Pending; dates and remarks are inherited from the last saved inspection.')) return;
+  state = blankFromTemplate(true);
+  try { localStorage.removeItem('ramp_draft'); } catch(e){}
+  render();
+  window.scrollTo({top: 0});
+}
+
+function exportJSON(){
+  headerChanged();
+  var blob = new Blob([JSON.stringify(state, null, 2)], {type: 'application/json'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'ramp_inspection_' + (state.header.date || todayISO()) + '.json';
+  a.click();
+}
+
+function loadHist(){
+  var h = [];
+  try { h = JSON.parse(localStorage.getItem('ramp_hist') || '[]'); } catch(e){}
+  document.getElementById('histbody').innerHTML = h.map(function(r){
+    return '<tr><td>' + (r.header.date || r.ts.slice(0, 10)) + '</td><td>' + (r.header.aircraft || '—') +
+      '</td><td style="color:var(--ok); font-weight:700">' + r.ok + '</td>' +
+      '<td style="color:var(--nc); font-weight:700">' + r.nc + '</td><td>' + (r.header.inspector || '—') + '</td></tr>';
+  }).join('') || '<tr><td colspan="5" style="color:var(--gray)">No saved inspections yet</td></tr>';
+}
+
+['h_date','h_aircraft','h_serial','h_inspector','h_location','h_notes'].forEach(function(id){
+  document.addEventListener('change', function(e){ if (e.target.id === id) headerChanged(); });
+});
+
+try {
+  var draft = JSON.parse(localStorage.getItem('ramp_draft') || 'null');
+  state = draft || blankFromTemplate(true);
+} catch(e){ state = blankFromTemplate(true); }
+render();
+loadHist();
+</script>
+
+<div style="text-align:center; font-size:11px; margin:16px 0 0; opacity:.75">
+<a href="../legal/" style="color:inherit">Operational disclaimer · Privacy · Terms of use</a></div>
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function(){ navigator.serviceWorker.register('sw.js'); });
+}
+</script>
+</body>
+</html>
