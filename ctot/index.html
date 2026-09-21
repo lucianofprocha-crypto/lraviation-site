@@ -273,8 +273,12 @@
     protegido ou no NMP Flight, o operador seleciona o voo regulado, propõe rota (e nível) alternativa e o
     ETFMS calcula o CTOT resultante sem tocar no plano real; se for melhor, aplica-se e o sistema gera o CHG;
     se não, descarta-se sem perder o slot. É a única forma de testar uma alteração sem risco de piorar o CTOT,
-    e a resposta objetiva para a análise de alternativas do marco EOBT − 2 h. Não existe no NOP público.
-    Diferente do RRP, em que a proposta parte do NM.</li>
+    e a resposta objetiva para a análise de alternativas do marco EOBT − 2 h. <b>Onde fica:</b> no NOP
+    protegido, aba Tactical → portlet Flights → Flight List → detalhe do voo → botão Reroute (abre o AOWIR:
+    propor rota/nível ou pedir sugestões RAD-compliant; cada candidata mostra CTOT, atraso, distância e
+    regulações; Apply envia o CHG ao IFPS). No NMP Flight: Flights → voo → seção Rerouting, mesma função em
+    cartões comparativos. Via B2B, no pacote Flight Services. Não existe no NOP público nem nos apps de slot,
+    que apenas exibem as regulações. Diferente do RRP, em que a proposta parte do NM.</li>
     <li><b>Extensão de CTOT:</b> pedido feito pela torre (não pelo operador) ao FMP/NMOC, via NOP Portal, B2B
     ou e-HelpDesk, quando a decolagem vai estourar a janela −5/+10 por atraso pequeno de última hora (fila de
     taxi, troca de pista, push demorado). A extensão é, em regra, de até 10 minutos além da janela — decolagem
@@ -527,7 +531,7 @@
     <li><b>2. Escapar da regulação: nível e rota</b> — a única ação que pode zerar o atraso. Verificar faixa
     livre acima e abaixo do que está regulado e rota alternativa que não atravesse o setor mais penalizante.
     Com acesso ao NM, testar no AOWIR: o ETFMS calcula o CTOT resultante sem tocar no plano; só aplicar o CHG
-    se o resultado for melhor. Sem AOWIR, usar o what-if do app e, na dúvida, não enviar CHG. Uma tentativa;
+    se o resultado for melhor. Sem AOWIR, fazer a verificação manual no ANM (regulações e faixas de FL que a rota ou nível alternativo atravessaria, cruzando com o EET/ do plano) e não enviar CHG sem certeza — o app de slot mostra as regulações, mas só o ETFMS calcula o CTOT de uma alternativa. Uma tentativa;
     se não remove o setor mais penalizante, encerrar.</li>
     <li><b>3. Escapar da regulação: horário</b> — se o passageiro pode sair antes do início da regulação:
     CNL + novo FPL. Se pode sair depois do fim: DLA. Se não pode nenhum dos dois, seguir.</li>
