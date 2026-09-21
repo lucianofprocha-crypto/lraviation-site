@@ -1,4 +1,4 @@
-const CACHE = 'g550-acn-pcn-v4';
+const CACHE = 'g550-acn-pcn-v5';
 const FILES = ['./', './index.html', './manifest.json', './icon-180.png', './icon-192.png', './icon-512.png'];
 self.addEventListener('install', function(e){
   e.waitUntil(caches.open(CACHE).then(function(c){ return c.addAll(FILES); }));
