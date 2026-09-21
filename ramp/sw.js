@@ -1,5 +1,5 @@
-const CACHE = 'ramp-check-v2';
-const FILES = ['./', './index.html', './ramp_data.js', './manifest.json',
+const CACHE = 'ramp-check-v3';
+const FILES = ['./', './index.html', './ramp_data.js', './jspdf.umd.min.js', './jspdf.plugin.autotable.min.js', './manifest.json',
   './icon-180.png', './icon-192.png', './icon-512.png'];
 self.addEventListener('install', function(e){
   e.waitUntil(caches.open(CACHE).then(function(c){ return c.addAll(FILES); }));
