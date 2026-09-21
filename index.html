@@ -52,7 +52,7 @@ header{display:flex; align-items:center; justify-content:space-between; padding:
   content:""; position:absolute; top:0; bottom:0; left:12px; width:38px;
   background:
     repeating-linear-gradient(to bottom, rgba(232,237,245,.92) 0 26px, transparent 26px 54px)
-      center top / 3px 100% no-repeat,
+      center 64px / 3px calc(100% - 128px) no-repeat,
     #161f33;
   background-repeat:no-repeat;
   border-left:2px dotted rgba(232,163,61,.55);
@@ -66,6 +66,7 @@ header{display:flex; align-items:center; justify-content:space-between; padding:
 }
 .rwy-end svg{display:block; margin:0 auto 6px}
 .rwy-end.b svg{margin:6px auto 0}
+.rwy-end .flip{display:inline-block; transform:rotate(180deg)}
 .rwy-end.t{top:10px}
 .rwy-end.b{bottom:10px}
 @media (min-width:760px){ .route-rail::before, .rwy-end{left:calc(50% - 21px)} }
@@ -222,7 +223,7 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--amber); outline-of
   <p class="sub" lang-pt>As ferramentas de bordo da LR Aviation: sete calculadoras e um checklist de voo que funcionam offline depois do primeiro acesso — cada uma é um fixo desta rota. Toque em abrir e depois instale no iPad (instruções abaixo).</p>
   <p class="sub" lang-en>LR Aviation’s flight-deck tools: seven calculators and a flight checklist that work offline after the first visit — each one a fix on this route. Open, then install on your iPad (instructions below).</p>
   <div class="route-rail">
-  <div class="rwy-end t" aria-hidden="true"><svg width="30" height="16" viewBox="0 0 30 16"><g fill="#e8edf5" opacity=".92"><rect x="1" y="0" width="4" height="16"/><rect x="9" y="0" width="4" height="16"/><rect x="17" y="0" width="4" height="16"/><rect x="25" y="0" width="4" height="16"/></g></svg>09</div>
+  <div class="rwy-end t" aria-hidden="true"><svg width="30" height="16" viewBox="0 0 30 16"><g fill="#e8edf5" opacity=".92"><rect x="1" y="0" width="4" height="16"/><rect x="9" y="0" width="4" height="16"/><rect x="17" y="0" width="4" height="16"/><rect x="25" y="0" width="4" height="16"/></g></svg><span class="flip">09</span></div>
   <div class="rwy-end b" aria-hidden="true">27<svg width="30" height="16" viewBox="0 0 30 16"><g fill="#e8edf5" opacity=".92"><rect x="1" y="0" width="4" height="16"/><rect x="9" y="0" width="4" height="16"/><rect x="17" y="0" width="4" height="16"/><rect x="25" y="0" width="4" height="16"/></g></svg></div>
 
   <div class="fix">
