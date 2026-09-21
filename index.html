@@ -84,26 +84,27 @@ header{display:flex; align-items:center; justify-content:space-between; padding:
   padding:20px; margin:0 0 34px 64px; max-width:560px;
 }
 .fix .marker{
-  position:absolute; left:-64px; top:26px; width:64px; text-align:center;
+  position:absolute; top:26px; display:flex; align-items:center; gap:9px; width:max-content;
 }
-.fix .marker svg{display:block; margin:0 auto}
+.fix .marker svg{display:block; flex:none}
 .fix .marker code{
   display:block; font-size:11px; letter-spacing:.14em; color:var(--amber);
-  font-weight:700; margin-top:4px;
+  font-weight:700; margin:0; line-height:16px;
 }
 @media (min-width:760px){
-  .fix .marker code{position:relative; left:-52px; width:max-content; margin-left:auto; margin-right:auto;}
-  .fix:nth-of-type(even) .marker code{left:52px;}
+  .fix .marker{flex-direction:row-reverse; right:calc(100% + 74px); left:auto;}
+  .fix:nth-of-type(even) .marker{flex-direction:row; left:calc(100% + 74px); right:auto;}
 }
 @media (max-width:759px){
-  .fix .marker code{background:rgba(14,21,38,.92); border:1px solid var(--hair);
-    border-radius:6px; padding:1px 6px; width:max-content; margin:4px auto 0;}
+  .fix{margin-left:122px}
+  .fix .marker{flex-direction:column; gap:3px; left:-64px; right:auto; width:58px;
+    top:20px; align-items:center;}
 }
 @media (min-width:760px){
   .fix{margin-left:calc(50% + 44px); margin-right:0}
   .fix:nth-of-type(even){margin-left:auto; margin-right:calc(50% + 44px)}
-  .fix .marker{left:-76px}
-  .fix:nth-of-type(even) .marker{left:auto; right:-76px}
+  
+  
 }
 @media (max-width:759px){ .route-rail::before, .rwy-end{left:12px} .fix{margin-left:64px} }
 .fix img{width:56px; height:56px; border-radius:13px; flex:none; box-shadow:0 3px 14px rgba(0,0,0,.45)}
@@ -246,7 +247,7 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--amber); outline-of
   </div>
 
   <div class="fix">
-    <span class="marker"><svg width="18" height="16" viewBox="0 0 18 16"><path d="M9 0 L18 16 L0 16 Z" fill="none" stroke="#E8A33D" stroke-width="2"/></svg><code>FLEXX</code></span>
+    <span class="marker"><svg width="18" height="16" viewBox="0 0 18 16"><path d="M9 0 L18 16 L0 16 Z" fill="none" stroke="#E8A33D" stroke-width="2"/></svg><code>FLEX</code></span>
     <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAIAAADdvvtQAAAGR0lEQVR4nO3dMXLcRhBG4aFLmRQ4ZMDYDn0C8QLKpFghT8Uz6BKq8gEc2jEDHsAHUAAVBGFXWAD/THfP9PsiVVkisZjnHmBXAu/evv9YgLN+8z4A9I2AICEgSAgIEgKChIAgISBICAgSAoKEgCAhIEgICBICgoSAICEgSAgIEgKChIAgISBICAgSAoKEgCAhIEgICBICgoSAICEgSAgIEgKC5I33AUTx8vR66Pc/PN83OpK+JA3oaC57vkLOpLIEpBdz9Fsk6WnwgAy6ufmtxy5pzIAcu7k0dkmjBRQqnZXp2AbLaJyAIqezNFhG3QfUSzcrw+xrfQdUsZ6jC1nrW788vXbd0F2nj/kV16/FmgU8JAP9BXR6nSxXqIuDrKKzgE4sjO+SdHfAR3UTUNcr0fXBb+sjoEMLEPnUD/NCZtEDGu+Ml7FeVOiA9p/o4Gf5qjFeXdyAdp7fyCd3j95fZtC/kdj7ad1v50sI+4Z7xAm052QNkM5Kp6863ATq9Dzq9ryogHMo1gS6eYKGTGelr5MQaAL1deLaufkyQ82hKAFRz1JHDYUIiHou9dKQf0DU8ys3X/hff/5hcyQbnC+it+tJm87K1bP04evj9It//v3P9nB+4hkQ9ey3PFdzOjPHhty2sCBbeHcu6ymue5n/NdBVjJ+V6YRcrceXT0BsXidsnxavIeQQUF/1/P/1i/ch/LB9rePSkHVA1evJdi0VraFA10Cn62nX0DR+Qg2h4n3fvmIaUN2VXn61bHNog/EQijKBToyf1R+p3lC0wbMUZwjZBbSxwKcvnFs3NAsY00ZDlkPIKKB2Sxvtri0Is4b8tzC9gOVXqFVqwJFzKcJGZhFQi83r3LdTxEzKfSPzn0BV1L0YitlKTM0DMhs/ZhfU0fgOoUEm0CTzjb0Xt4Aa3T3pDfVYybB/H8hlH0m7l13VehfzmUCt37w53dDN8RN2PnkNoYYB+f6vzxuMs6ZDyGECmS3t0TcYd04XhtDSUHdh27YbOpRF2IbstQooyKXrzouhE0H01VC7Xcx6Atlfmtxs6HQKARuy38VSbGEbDYkRBGzIWJOAguxfS1cbqrL8vTTUaBcznUC+t9ar715x4UM1ZLyLpdjCZnNDv3/+u+5XDtWQpVwBlVIenu+r1zPJ2VD9gAJeAC01XebgDbW4DLKbQHy2YMbyMijXFmYwIYIPoeoSBWS2tKkayhKQ8aLmaShFQC7LmaShygEFvAVzXMiADVW/ETOaQF63YO5L6HUAZjdiI29h7vVMghxGI8MGFGrZQh1MXWMGFHDBAh5SFQMGFHapwh6YYsCATnj3+Ond46d2v39gb7wPwJnSwfRnh5wr+yUNqOL8mL9UzpJyBdR038lZUoqAjK9XUpU0eEC+l7oZLpLGDCjULdLYA2nA2/hQ9SyFPTDFgAHBEgF9x8MVzun+QeNVjPdwhV4fNN7jP70Y6eEKN1X/e0LZtzAeriBKHVCqhys0kjegUR+uYCxpQNWXPG1Ddu9Evzy9dnSJffmmX0eJWP68sPoBPTzfB79p37DxZvHyP3UU01KLf6ox5mdhh5z4hGHsj7cOyRtQlU+mKKnjn9qsqP65ZpwPSkf4qc0dXSzn0ejfqia9jUct1gHF2cWGZLx/lXYBsYuF0u5ZC2xhkDgExC7WiP3+VZoGxC4WRNNnBflsYQyh6lzGT2kdEEPIXetHlbldRDOEKvIaP4W7MIiaB7SxizGEqtgYPwaP2mQCQWIREEOoHd/xUyJMIBo6zfHaeTb4g8bTGvBB42xkdblvXhP/LWxCQ4dE2LwmiX5qcxJ5f2ozQ2inOOOn2Ae0PYRo6KbteozHT3GZQDR0WrR6itcWRkMnBKynhLoGWqKhlVDXPUtuAXFHVpHX+Cm+E4iNbKeYm9fEeQvbaIgRNdtIxLee4h5Q+UUo1LNyNRT3ekqEgMpFLtRz1SqXCPWUIAGVRTTUs2GOJkg9pZS7t+8/eh8DOhZlAqFTBAQJAUFCQJAQECQEBAkBQUJAkBAQJAQECQFBQkCQEBAkBAQJAUFCQJAQECQEBAkBQUJAkBAQJAQECQFBQkCQEBAkBAQJAUFCQJAQECQEBAkBQUJAkBAQJAQECQFBQkCQEBAkBAQJAUFCQJAQECQEBAkBQfINp4eNrYS30e4AAAAASUVORK5CYII=" alt="" width="56" height="56">
     <div>
       <h3>FLEX Takeoff Calculator</h3>
