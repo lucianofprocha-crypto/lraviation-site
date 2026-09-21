@@ -115,9 +115,14 @@ header{display:flex; align-items:center; justify-content:space-between; padding:
   font-weight:750; font-size:13.5px; padding:7px 16px; border-radius:8px;
 }
 .fix .open:hover{filter:brightness(1.08)}
-
-/* destino / fim da rota */
-.dest{position:relative; text-align:center; padding:0 0 46px}
+/* ------- o cartão inteiro é o botão ------- */
+.fix{cursor:pointer; transition:transform .12s ease, border-color .12s ease, box-shadow .12s ease;}
+.fix:hover{border-color:var(--amber); transform:translateY(-2px);
+  box-shadow:0 10px 26px rgba(0,0,0,.5);}
+.fix:active{transform:translateY(0); box-shadow:0 4px 12px rgba(0,0,0,.45);}
+.fix .open{position:static; display:block; font-size:0; line-height:0; color:transparent;
+  background:none; border:none; box-shadow:none; padding:0; margin:0; text-shadow:none;}
+.fix .open::after{content:""; position:absolute; inset:0; border-radius:14px;}
 .dest .rwy{display:inline-block}
 
 /* ------- biblioteca (guia CTOT) ------- */
@@ -369,6 +374,7 @@ button:focus-visible, a:focus-visible{outline:2px solid var(--amber); outline-of
 </section>
 
 <section class="library" id="sion">
+  <img src="data:image/png;base64,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" alt="">
   <div class="lib-body">
     <p class="eyebrow"><span lang-pt>BIBLIOTECA · DESTINO</span><span lang-en>LIBRARY · DESTINATION</span></p>
     <h2 lang-pt>Flying into Sion (LSGS) — briefing de destino</h2>
