@@ -1,4 +1,4 @@
-const CACHE = 'facs-biblioteca-v2';
+const CACHE = 'facs-biblioteca-v3';
 const FILES = ['./', './index.html', './manifest.json', './FACS_TCC_Luciano_Rocha_2016.pdf',
   './icon-180.png', './icon-192.png', './icon-512.png'];
 self.addEventListener('install', function(e){

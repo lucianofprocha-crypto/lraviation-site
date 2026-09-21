@@ -78,7 +78,7 @@
   <h1>Guia de Regulação ATFM (CTOT) — EUROCONTROL</h1>
   <p class="sub">Fundamentos, procedimento operacional e particularidades por aeroporto · LR Aviation / FlightOps Companion</p>
   <div class="badge-row">
-    <span class="badge live">Documento vivo — revisão de 21 set 2026</span>
+    <span class="badge live">Documento vivo — revisão de 11 set 2026</span>
     <span class="badge">Uso livre da comunidade</span>
   </div>
 </header>
@@ -90,7 +90,7 @@
   <a class="s" href="#s2">2. Como o slot é calculado (CASA)</a>
   <a class="s" href="#s3">3. Tolerância do slot</a>
   <a class="s" href="#s4">4. Mensagens ATFM</a>
-  <a class="s" href="#s5">5. Regras do jogo</a>
+  <a class="s" href="#s5">5. Obrigações</a>
   <a class="s" href="#s6">6. Ferramentas legítimas</a>
   <a class="s" href="#s7">7. Onde acompanhar</a>
   <a class="s" href="#s71">7.1 O ANM</a>
@@ -204,7 +204,7 @@
     <tr><td><code>ERR</code> Error</td><td>Mensagem rejeitada pelo Network Manager.</td></tr>
   </table></div>
 
-  <h4 id="s5">5. Regras do jogo</h4>
+  <h4 id="s5">5. Obrigações</h4>
   <ul>
     <li><b>Manter o EOBT atualizado.</b> Se o voo não vai sair até 15 minutos após o EOBT (parâmetro FAM)
     por motivo do operador, enviar DLA. Não fazer isso leva a FLS. Atraso ATFM (CTOT) não exige DLA.</li>
@@ -273,12 +273,8 @@
     protegido ou no NMP Flight, o operador seleciona o voo regulado, propõe rota (e nível) alternativa e o
     ETFMS calcula o CTOT resultante sem tocar no plano real; se for melhor, aplica-se e o sistema gera o CHG;
     se não, descarta-se sem perder o slot. É a única forma de testar uma alteração sem risco de piorar o CTOT,
-    e a resposta objetiva para a análise de alternativas do marco EOBT − 2 h. <b>Onde fica:</b> no NOP
-    protegido, aba Tactical → portlet Flights → Flight List → detalhe do voo → botão Reroute (abre o AOWIR:
-    propor rota/nível ou pedir sugestões RAD-compliant; cada candidata mostra CTOT, atraso, distância e
-    regulações; Apply envia o CHG ao IFPS). No NMP Flight: Flights → voo → seção Rerouting, mesma função em
-    cartões comparativos. Via B2B, no pacote Flight Services. Não existe no NOP público nem nos apps de slot,
-    que apenas exibem as regulações. Diferente do RRP, em que a proposta parte do NM.</li>
+    e a resposta objetiva para a análise de alternativas do marco EOBT − 2 h. Não existe no NOP público.
+    Diferente do RRP, em que a proposta parte do NM.</li>
     <li><b>Extensão de CTOT:</b> pedido feito pela torre (não pelo operador) ao FMP/NMOC, via NOP Portal, B2B
     ou e-HelpDesk, quando a decolagem vai estourar a janela −5/+10 por atraso pequeno de última hora (fila de
     taxi, troca de pista, push demorado). A extensão é, em regra, de até 10 minutos além da janela — decolagem
@@ -516,45 +512,21 @@
   </ul>
   </div>
 
-  <h4 id="s11">11. Passo a passo para melhorar um CTOT ruim</h4>
-  <p>Sequência a partir do SAM, em ordem de prioridade. A lógica: primeiro o que pode eliminar o atraso
-  (mudar o que o voo atravessa), depois o que pede ao NM uma melhoria, depois o que aproveita a dinâmica da
-  lista, e por último o que muda o voo inteiro. Cada passo só se justifica se o anterior não resolveu.
-  Tempo total de análise antes de decidir: 30 minutos.</p>
+  <h4 id="s11">11. Escada de ações para melhorar um CTOT ruim</h4>
+  <p>Na ordem, do menor para o maior custo/risco:</p>
   <ul>
-    <li><b>0. Antes do SAM (prevenção)</b> — NOP na véspera, EOBT fora do meio da janela, FPL até 4 h
-    antes, slot aeroportuário e regras do aeródromo confirmados. Nenhuma ação após o SAM compensa uma
-    prevenção que não foi feita.</li>
-    <li><b>1. Diagnóstico (5 min)</b> — regulação mais penalizante, piso e teto de cada uma, janela, motivo.
-    Off-block, posicionamento e embarque a partir do CTOT. Avisar handler e passageiro. Se a aeronave não
-    pode sair antes de certa hora, enviar SWM e manter a TOBT realista.</li>
-    <li><b>2. Escapar da regulação: nível e rota</b> — a única ação que pode zerar o atraso. Verificar faixa
-    livre acima e abaixo do que está regulado e rota alternativa que não atravesse o setor mais penalizante.
-    Com acesso ao NM, testar no AOWIR: o ETFMS calcula o CTOT resultante sem tocar no plano; só aplicar o CHG
-    se o resultado for melhor. Sem AOWIR, fazer a verificação manual no ANM (regulações e faixas de FL que a rota ou nível alternativo atravessaria, cruzando com o EET/ do plano) e não enviar CHG sem certeza — o app de slot mostra as regulações, mas só o ETFMS calcula o CTOT de uma alternativa. Uma tentativa;
-    se não remove o setor mais penalizante, encerrar.</li>
-    <li><b>3. Escapar da regulação: horário</b> — se o passageiro pode sair antes do início da regulação:
-    CNL + novo FPL. Se pode sair depois do fim: DLA. Se não pode nenhum dos dois, seguir.</li>
-    <li><b>4. Pedir melhoria ao NM: e-HelpDesk</b> — um único pedido de slot improvement, a partir de
-    EOBT − 2 h, via NMP Flight, NOP Portal ou B2B. Com motivo (curfew, tempo de serviço, conexão crítica),
-    marcar o voo como crítico no mesmo pedido. Não telefonar por melhoria; não repetir o pedido.</li>
-    <li><b>5. Slot swap</b> — só com outro voo próprio na mesma regulação. Até 3 trocas, corte em
-    CTOT − taxi − TRS − 3 min.</li>
-    <li><b>6. AOLO hotline</b> — somente com motivo qualificado: tempo de serviço da tripulação, voo médico,
-    curfew noturno, reposicionamento após desvio, atraso severo por regulação meteorológica.</li>
-    <li><b>7. Aeródromo alternativo de partida</b> — último recurso e só quando a conta fecha: deslocamento
-    do passageiro + reposicionamento + turnaround + rota mais longa menor que o CTOT, e reposicionamento
-    verificado fora da regulação (regra prática no anexo do aeroporto).</li>
-    <li><b>8. Aproveitar a dinâmica da lista</b> — não mexer mais no plano. Monitorar SRM; se piorar,
-    esperar ~10 min antes de agir; se antecipar e não dá, DLA imediato. Aeronave pronta e portas prontas
-    para fechar: REA (volta a RFI). SIP: aceitar em menos de 2 min se cumpre, senão recusar.</li>
-    <li><b>9. Perto do CTOT</b> — se a decolagem vai estourar a janela −5/+10 por poucos minutos, avisar a
-    torre com a janela ainda aberta para que peça extensão ao FMP/NMOC (em regra até +10 além da janela).
-    Além disso, DLA e novo CTOT.</li>
+    <li><b>1. Esperar ~10 min</b> — as regulações são revisadas em ondas; o slot pode melhorar sozinho (RFI).</li>
+    <li><b>2. REA</b> se a aeronave estiver pronta — habilita SIP.</li>
+    <li><b>3. AOWIR</b> (NOP protegido / NMP Flight) — testar rota/nível sem risco; aplicar só se melhorar.</li>
+    <li><b>4. CHG de nível</b> para faixa não regulada (acima ou abaixo — ver 7.3), quando não há AOWIR.</li>
+    <li><b>5. e-HelpDesk</b> — um pedido, a partir de EOBT − 2 h, com marcação critical se os critérios
+    couberem.</li>
+    <li><b>6. Slot swap</b> — quando houver dois voos próprios na mesma regulação.</li>
+    <li><b>7. AOLO hotline</b> — somente nos casos listados (tripulação no limite, médico, curfew,
+    reposicionamento, atraso severo por meteorologia).</li>
+    <li><b>8. Replanejamento maior</b> (rota alternativa longa, outro aeródromo de partida) — última
+    instância, com os custos avaliados.</li>
   </ul>
-  <p><b>Regra de ouro:</b> só uma ação do tipo "mexer no plano" (passo 2 ou 3), tomada uma vez e cedo.
-  Depois disso, tudo o que resta é pedir (4 a 6), decidir sobre o aeródromo (7) e estar pronto no momento
-  certo (8 e 9).</p>
 </section>
 
 <section class="card" id="parte3">
@@ -584,11 +556,8 @@
     <tr><td>Slot aeroportuário × CTOT</td><td>São coisas distintas e ambas obrigatórias: o coordenador
     confere a coerência do FPL com o slot de chegada/partida e pode pedir suspensão ao NM em caso de
     incoerência</td></tr>
-    <tr><td>Posição remota e CASH</td><td>A AIP France (AD 2 LFMN §20.3.3) remete o remote handling
-    ("holding stand") à ficha CASH (Collaborative Aerodrome Safety Highlights, publicada pela DGAC) e às
-    consignas do portal CDM do aeroporto. Regra informada pelo administrador em set/2026: aeronave em posição
-    remota só é rebocada para a posição de saída 1 h antes do EOBT ou do CTOT, o que for mais tarde — o que
-    impede aproveitar melhorias de slot. PPR e slot aeroportuário são obtidos pelo handler (COHOR).</td></tr>
+    <tr><td>CASH</td><td>Sistema local de PPR/pátio da aviação geral — a posição remota influencia o reboque
+    e o tempo até o push</td></tr>
   </table></div>
 
   <h4 id="licoes">Lições Operacionais</h4>
@@ -613,7 +582,7 @@
 </section>
 
 <footer>
-  Guia de Regulação ATFM (CTOT) — LR Aviation / FlightOps Companion · Documento vivo, revisão de 21 set 2026.<br>
+  Guia de Regulação ATFM (CTOT) — LR Aviation / FlightOps Companion · Documento vivo, revisão de 11 set 2026.<br>
   Conteúdo educacional livre para a comunidade. Fontes: ATFCM Users Manual e ATFCM Operations Manual
   (EUROCONTROL), NOP Portal, AIP França; experiência operacional própria, anonimizada.<br>
   Parâmetros, janelas, telefones e regras locais mudam — confirme sempre na documentação oficial vigente.
@@ -626,5 +595,7 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('load', function(){ navigator.serviceWorker.register('sw.js'); });
 }
 </script>
+
+<div style="text-align:center; font-size:11px; margin:16px 0 0; opacity:.75"><a href="../legal/" style="color:inherit">Disclaimer operacional · Privacidade · Termos de uso</a></div>
 </body>
 </html>

@@ -1,4 +1,4 @@
-const CACHE = 'facs-app-v1';
+const CACHE = 'facs-app-v2';
 const FILES = ['./', './index.html', './facs_data.js', './manifest.json',
   './icon-180.png', './icon-192.png', './icon-512.png'];
 self.addEventListener('install', function(e){
