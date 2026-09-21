@@ -65,10 +65,31 @@
   .status button.v.on{background:var(--ok); color:#fff;}
   .status button.n.on{background:var(--nc); color:#fff;}
   .status button.p.on{background:var(--pend); color:#fff;}
-  .idates{display:flex; gap:8px; flex:none; flex-wrap:wrap;}
-  .idates .field{width:128px;}
+  .idates{display:grid; grid-template-columns:132px 132px; gap:8px; flex:none; align-items:end;}
+  .idates .field{width:132px;}
+  .idates input[type=date]{height:34px; padding:6px 8px; -webkit-appearance:none; appearance:none;}
+  .del{border:none; background:transparent; color:var(--gray); font-size:15px; cursor:pointer;
+    padding:4px 6px; border-radius:6px; flex:none; align-self:flex-start;}
+  .del:hover{background:var(--nc-bg); color:var(--nc);}
+  .removedline{font-size:11.5px; color:var(--gray); padding:6px 0 0;}
+  .removedline a{color:var(--accent); cursor:pointer;}
+  #printview{display:none;}
+  @media print{
+    body > .wrap, body > div[style]{display:none !important;}
+    #printview{display:block !important; font-size:11px; color:#000;}
+    #printview h1{font-size:16px; margin:0 0 2px;}
+    #printview .ph{font-size:10.5px; margin:0 0 10px; color:#333;}
+    #printview h2{font-size:12px; margin:12px 0 4px; border-bottom:1px solid #999; padding-bottom:2px;}
+    #printview table{width:100%; border-collapse:collapse;}
+    #printview th, #printview td{border:1px solid #bbb; padding:3px 5px; text-align:left;
+      vertical-align:top; font-size:10px;}
+    #printview th{background:#eee;}
+    #printview .st-V{color:#1b7a3d; font-weight:700;}
+    #printview .st-N{color:#b71c1c; font-weight:700;}
+    #printview tr{page-break-inside:avoid;}
+  }
   .iremarks{margin-top:7px;}
-  .iremarks textarea{font-size:12px; color:#333;}
+  .iremarks textarea{font-size:12px; color:#333; overflow:hidden; min-height:30px;}
   .btnrow{display:flex; gap:10px; flex-wrap:wrap;}
   .btnrow button{flex:1 1 150px; padding:12px; border:none; border-radius:8px; font-size:14px;
     font-weight:750; cursor:pointer;}
@@ -124,6 +145,7 @@
     <div class="btnrow">
       <button id="savebtn" onclick="saveInspection()">Save inspection</button>
       <button id="newbtn" onclick="newInspection(true)">New inspection (inherit dates)</button>
+      <button id="pdfbtn" onclick="exportPDF()" style="background:#e6eaf0; color:var(--navy)">Export PDF</button>
       <button id="exportbtn" onclick="exportJSON()">Export JSON</button>
     </div>
     <p style="font-size:11.5px; color:var(--gray); margin:10px 0 0">
@@ -152,6 +174,7 @@
 <script src="ramp_data.js"></script>
 <script>
 var state = null;
+var openSecs = {0: true};
 var todayISO = function(){ return new Date().toISOString().slice(0, 10); };
 
 function blankFromTemplate(inherit){
@@ -170,13 +193,14 @@ function blankFromTemplate(inherit){
     var items = sec.items.map(function(it, ii){
       var seed = SEED[si + ':' + ii] || [null, null, null, null];
       var o = { name: it[0], loc: it[1], cond: it[2], remarks: it[3] || '', applies: it[4],
-                status: 'Pending', insp: seed[0] || '', due: seed[1] || '' };
+                status: 'Pending', insp: seed[0] || '', due: seed[1] || '', removed: false };
       if (seed[2]) o.remarks = (o.remarks ? o.remarks + ' · ' : '') + seed[2];
       if (last && last.sections && last.sections[si] && last.sections[si].items[ii]){
         var p = last.sections[si].items[ii];
         o.insp = p.insp || o.insp;
         o.due = p.due || o.due;
         o.remarks = (p.remarks !== undefined && p.remarks !== null) ? p.remarks : o.remarks;
+        o.removed = !!p.removed;
       }
       return o;
     });
@@ -193,57 +217,82 @@ function dueClass(due){
   return ['due-green', 'due ' + due];
 }
 
+function esc(t){ return (t || '').replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
+
+function itemHTML(si, ii){
+  var o = state.sections[si].items[ii];
+  var chips = '';
+  if (o.cond) chips += '<span class="chip">' + esc(o.cond) + '</span>';
+  if (o.applies) chips += '<span class="chip applies">' + esc(o.applies) + '</span>';
+  var dc = dueClass(o.due);
+  if (dc) chips += '<span class="chip ' + dc[0] + '">' + dc[1] + '</span>';
+  return '<div class="irow">' +
+    '<div class="imain"><div class="iname">' + esc(o.name) + '</div>' +
+    (o.loc ? '<div class="iloc">' + esc(o.loc) + '</div>' : '') +
+    '<div class="chips">' + chips + '</div></div>' +
+    '<div class="status">' +
+    '<button class="v' + (o.status === 'Verified' ? ' on' : '') + '" onclick="setStatus(' + si + ',' + ii + ',\'Verified\')">Verified</button>' +
+    '<button class="n' + (o.status === 'NC' ? ' on' : '') + '" onclick="setStatus(' + si + ',' + ii + ',\'NC\')">NC</button>' +
+    '<button class="p' + (o.status === 'Pending' ? ' on' : '') + '" onclick="setStatus(' + si + ',' + ii + ',\'Pending\')">Pending</button>' +
+    '</div>' +
+    '<div class="idates">' +
+    '<div class="field"><label>Inspected on</label><input type="date" value="' + o.insp + '" onchange="setField(' + si + ',' + ii + ',\'insp\',this.value)"></div>' +
+    '<div class="field"><label>Due date</label><input type="date" value="' + o.due + '" onchange="setField(' + si + ',' + ii + ',\'due\',this.value)"></div>' +
+    '</div>' +
+    '<button class="del" title="Remove item (not applicable)" onclick="removeItem(' + si + ',' + ii + ')">✕</button>' +
+    '</div>' +
+    '<div class="iremarks"><textarea rows="1" placeholder="Remarks" oninput="autoGrow(this)" onchange="setField(' + si + ',' + ii + ',\'remarks\',this.value)">' + esc(o.remarks) + '</textarea></div>';
+}
+
+function sectionBodyHTML(si){
+  var sec = state.sections[si];
+  var rows = '';
+  var removed = 0;
+  sec.items.forEach(function(o, ii){
+    if (o.removed){ removed++; return; }
+    rows += '<div class="item" id="it_' + si + '_' + ii + '">' + itemHTML(si, ii) + '</div>';
+  });
+  var extra = removed ? '<div class="removedline">' + removed + ' item(s) removed as not applicable — <a onclick="restoreSection(' + si + ')">restore</a></div>' : '';
+  return '<button class="verifyall" onclick="verifySection(' + si + ')">✓ Verify all in this section (today)</button>' + rows + extra;
+}
+
 function render(){
   var host = document.getElementById('sections');
   host.innerHTML = state.sections.map(function(sec, si){
-    var rows = sec.items.map(function(o, ii){
-      var id = si + '_' + ii;
-      var chips = '';
-      if (o.cond) chips += '<span class="chip">' + o.cond + '</span>';
-      if (o.applies) chips += '<span class="chip applies">' + o.applies + '</span>';
-      var dc = dueClass(o.due);
-      if (dc) chips += '<span class="chip ' + dc[0] + '">' + dc[1] + '</span>';
-      return '<div class="item"><div class="irow">' +
-        '<div class="imain"><div class="iname">' + o.name + '</div>' +
-        (o.loc ? '<div class="iloc">' + o.loc + '</div>' : '') +
-        '<div class="chips">' + chips + '</div></div>' +
-        '<div class="status">' +
-        '<button class="v' + (o.status === 'Verified' ? ' on' : '') + '" onclick="setStatus(' + si + ',' + ii + ',\'Verified\')">Verified</button>' +
-        '<button class="n' + (o.status === 'NC' ? ' on' : '') + '" onclick="setStatus(' + si + ',' + ii + ',\'NC\')">NC</button>' +
-        '<button class="p' + (o.status === 'Pending' ? ' on' : '') + '" onclick="setStatus(' + si + ',' + ii + ',\'Pending\')">Pending</button>' +
-        '</div>' +
-        '<div class="idates">' +
-        '<div class="field"><label>Inspected on</label><input type="date" value="' + o.insp + '" onchange="setField(' + si + ',' + ii + ',\'insp\',this.value)"></div>' +
-        '<div class="field"><label>Due date</label><input type="date" value="' + o.due + '" onchange="setField(' + si + ',' + ii + ',\'due\',this.value)"></div>' +
-        '</div></div>' +
-        '<div class="iremarks"><textarea rows="1" placeholder="Remarks" onchange="setField(' + si + ',' + ii + ',\'remarks\',this.value)">' + (o.remarks || '') + '</textarea></div>' +
-        '</div>';
-    }).join('');
-    var done = sec.items.filter(function(o){ return o.status !== 'Pending'; }).length;
-    return '<details class="sec"' + (si === 0 ? ' open' : '') + '><summary>' + sec.name +
-      '<span class="count' + (done === sec.items.length ? ' done' : '') + '" id="cnt_' + si + '">' + done + '/' + sec.items.length + '</span></summary>' +
-      '<div class="secbody"><button class="verifyall" onclick="verifySection(' + si + ')">✓ Verify all in this section (today)</button>' +
-      rows + '</div></details>';
+    return '<details class="sec"' + (openSecs[si] ? ' open' : '') + ' ontoggle="openSecs[' + si + ']=this.open">' +
+      '<summary>' + esc(sec.name) +
+      '<span class="count" id="cnt_' + si + '"></span></summary>' +
+      '<div class="secbody" id="sb_' + si + '">' + sectionBodyHTML(si) + '</div></details>';
   }).join('');
   ['date','aircraft','serial','inspector','location','notes'].forEach(function(k){
     document.getElementById('h_' + k).value = state.header[k] || '';
   });
+  growAll();
   refreshCounters();
+}
+
+function growAll(){
+  document.querySelectorAll('.iremarks textarea').forEach(autoGrow);
+}
+function autoGrow(t){
+  t.style.height = 'auto';
+  t.style.height = Math.min(t.scrollHeight + 2, 300) + 'px';
 }
 
 function refreshCounters(){
   var ok = 0, nc = 0, pend = 0, total = 0;
   state.sections.forEach(function(sec, si){
-    var done = 0;
+    var done = 0, act = 0;
     sec.items.forEach(function(o){
-      total++;
+      if (o.removed) return;
+      act++; total++;
       if (o.status === 'Verified'){ ok++; done++; }
       else if (o.status === 'NC'){ nc++; done++; }
       else pend++;
     });
     var el = document.getElementById('cnt_' + si);
-    if (el){ el.textContent = done + '/' + sec.items.length;
-      el.className = 'count' + (done === sec.items.length ? ' done' : ''); }
+    if (el){ el.textContent = done + '/' + act;
+      el.className = 'count' + (act && done === act ? ' done' : ''); }
   });
   document.getElementById('pct').textContent = total ? Math.round((ok + nc) / total * 100) + '%' : '0%';
   document.getElementById('c-ok').textContent = ok + ' verified';
@@ -251,28 +300,55 @@ function refreshCounters(){
   document.getElementById('c-pend').textContent = pend + ' pending';
 }
 
+function repaintItem(si, ii){
+  var el = document.getElementById('it_' + si + '_' + ii);
+  if (el){ el.innerHTML = itemHTML(si, ii); el.querySelectorAll('textarea').forEach(autoGrow); }
+  refreshCounters();
+}
+
 function setStatus(si, ii, st){
   var o = state.sections[si].items[ii];
   o.status = st;
-  if (st === 'Verified' && !o.dueLocked) o.insp = o.insp && o.due ? o.insp : todayISO();
   if (st === 'Verified' && !o.due) o.insp = todayISO();
   autosave();
-  render();
+  repaintItem(si, ii);
 }
 
 function setField(si, ii, k, v){
   state.sections[si].items[ii][k] = v;
   autosave();
-  if (k === 'due') render();
+  if (k === 'due' || k === 'insp') repaintItem(si, ii);
+}
+
+function removeItem(si, ii){
+  var o = state.sections[si].items[ii];
+  if (!confirm('Remove "' + o.name + '" from this inspection as not applicable?')) return;
+  o.removed = true;
+  o.status = 'Pending';
+  autosave();
+  document.getElementById('sb_' + si).innerHTML = sectionBodyHTML(si);
+  growAll();
+  refreshCounters();
+}
+
+function restoreSection(si){
+  state.sections[si].items.forEach(function(o){ o.removed = false; });
+  autosave();
+  document.getElementById('sb_' + si).innerHTML = sectionBodyHTML(si);
+  growAll();
+  refreshCounters();
 }
 
 function verifySection(si){
   state.sections[si].items.forEach(function(o){
+    if (o.removed) return;
     o.status = 'Verified';
     if (!o.due) o.insp = todayISO();
   });
   autosave();
-  render();
+  document.getElementById('sb_' + si).innerHTML = sectionBodyHTML(si);
+  growAll();
+  refreshCounters();
 }
 
 function headerChanged(){
@@ -299,6 +375,7 @@ function saveInspection(){
     var hist = JSON.parse(localStorage.getItem('ramp_hist') || '[]');
     var ok = 0, nc = 0;
     state.sections.forEach(function(s){ s.items.forEach(function(o){
+      if (o.removed) return;
       if (o.status === 'Verified') ok++; if (o.status === 'NC') nc++; }); });
     hist.unshift({ ts: new Date().toISOString(), header: state.header, ok: ok, nc: nc });
     localStorage.setItem('ramp_hist', JSON.stringify(hist.slice(0, 20)));
@@ -310,7 +387,7 @@ function saveInspection(){
 }
 
 function newInspection(confirmFirst){
-  if (confirmFirst && !confirm('Start a new inspection? Statuses reset to Pending; dates and remarks are inherited from the last saved inspection.')) return;
+  if (confirmFirst && !confirm('Start a new inspection? Statuses reset to Pending; dates, remarks and removed items are inherited from the last saved inspection.')) return;
   state = blankFromTemplate(true);
   try { localStorage.removeItem('ramp_draft'); } catch(e){}
   render();
@@ -326,27 +403,56 @@ function exportJSON(){
   a.click();
 }
 
+function exportPDF(){
+  headerChanged();
+  var h = state.header;
+  var out = '<h1>Ramp Inspection Checklist — Emergency Equipment</h1>' +
+    '<p class="ph">Date: ' + esc(h.date) + ' · Aircraft: ' + esc(h.aircraft) + ' · S/N: ' + esc(h.serial) +
+    ' · Inspector: ' + esc(h.inspector) + ' · Location: ' + esc(h.location) +
+    (h.notes ? ' · Notes: ' + esc(h.notes) : '') + '</p>';
+  state.sections.forEach(function(sec){
+    var rows = '';
+    sec.items.forEach(function(o){
+      if (o.removed) return;
+      var st = o.status === 'Verified' ? '<span class="st-V">Verified</span>' :
+               o.status === 'NC' ? '<span class="st-N">NC</span>' : 'Pending';
+      rows += '<tr><td>' + esc(o.name) + (o.loc ? '<br><i>' + esc(o.loc) + '</i>' : '') + '</td>' +
+        '<td>' + st + '</td><td>' + esc(o.insp) + '</td><td>' + esc(o.due) + '</td>' +
+        '<td>' + esc(o.remarks) + '</td></tr>';
+    });
+    if (rows) out += '<h2>' + esc(sec.name) + '</h2><table><tr><th style="width:30%">Item</th>' +
+      '<th style="width:9%">Status</th><th style="width:11%">Inspected</th><th style="width:11%">Due</th>' +
+      '<th>Remarks</th></tr>' + rows + '</table>';
+  });
+  document.getElementById('printview').innerHTML = out;
+  window.print();
+}
+
 function loadHist(){
   var h = [];
   try { h = JSON.parse(localStorage.getItem('ramp_hist') || '[]'); } catch(e){}
   document.getElementById('histbody').innerHTML = h.map(function(r){
-    return '<tr><td>' + (r.header.date || r.ts.slice(0, 10)) + '</td><td>' + (r.header.aircraft || '—') +
+    return '<tr><td>' + (r.header.date || r.ts.slice(0, 10)) + '</td><td>' + esc(r.header.aircraft || '—') +
       '</td><td style="color:var(--ok); font-weight:700">' + r.ok + '</td>' +
-      '<td style="color:var(--nc); font-weight:700">' + r.nc + '</td><td>' + (r.header.inspector || '—') + '</td></tr>';
+      '<td style="color:var(--nc); font-weight:700">' + r.nc + '</td><td>' + esc(r.header.inspector || '—') + '</td></tr>';
   }).join('') || '<tr><td colspan="5" style="color:var(--gray)">No saved inspections yet</td></tr>';
 }
 
-['h_date','h_aircraft','h_serial','h_inspector','h_location','h_notes'].forEach(function(id){
-  document.addEventListener('change', function(e){ if (e.target.id === id) headerChanged(); });
+document.addEventListener('change', function(e){
+  if (/^h_/.test(e.target.id)) headerChanged();
 });
 
 try {
   var draft = JSON.parse(localStorage.getItem('ramp_draft') || 'null');
   state = draft || blankFromTemplate(true);
+  state.sections.forEach(function(sec){ sec.items.forEach(function(o){
+    if (o.removed === undefined) o.removed = false; }); });
 } catch(e){ state = blankFromTemplate(true); }
 render();
 loadHist();
 </script>
+
+<div id="printview" aria-hidden="true"></div>
 
 <div style="text-align:center; font-size:11px; margin:16px 0 0; opacity:.75">
 <a href="../legal/" style="color:inherit">Operational disclaimer · Privacy · Terms of use</a></div>
