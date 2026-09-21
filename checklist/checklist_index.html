@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Flight Checklist</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0b1320">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Checklist">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+<style>
+:root{
+  --bg:#0b1320; --card:#15202b; --border:#26333f; --text:#e2e8f0; --muted:#93a2b8;
+  --accent:#00a2a9; --accent-dark:#007c82; --green:#22c55e; --amber:#f5a623;
+  --red:#e63946; --blue:#4c8bf5; --purple:#a78bfa;
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+html,body{background:var(--bg);}
+body{margin:0; font-family:-apple-system,BlinkMacSystemFont,"Inter","Segoe UI",Roboto,sans-serif; color:var(--text);
+  padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);}
+.topbar{background:var(--card); border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; padding:.8rem 1.2rem; position:sticky; top:0; z-index:5;}
+.brand{font-weight:700; font-size:1.05rem; color:var(--text); text-decoration:none;}
+.topbar .actions{display:flex; gap:.5rem;}
+.container{max-width:980px; margin:0 auto; padding:1.4rem 1.2rem 5rem;}
+h1{font-size:1.5rem; margin:.4rem 0 .3rem;}
+.muted{color:var(--muted);}
+a{color:var(--accent);}
+.back{display:inline-block; color:var(--accent); text-decoration:none; font-size:.95rem; margin-bottom:.4rem; padding:.3rem 0;}
+button,.btn{cursor:pointer; border:none; border-radius:8px; padding:.6rem 1rem; font-size:.95rem; font-weight:600; font-family:inherit; background:var(--accent); color:#fff; text-decoration:none; display:inline-block;}
+button:active,.btn:active{background:var(--accent-dark);}
+.secondary{background:transparent; color:var(--accent); border:1px solid var(--accent);}
+.danger{background:transparent; color:var(--red); border:1px solid var(--red);}
+.small{padding:.35rem .7rem; font-size:.82rem;}
+input,select,textarea{width:100%; padding:.6rem .7rem; border:1px solid var(--border); border-radius:8px; background:var(--bg); color:var(--text); font-size:16px; font-family:inherit;}
+input:focus,select:focus{outline:none; border-color:var(--accent);}
+label{display:block; font-size:.82rem; font-weight:600; margin:.7rem 0 .25rem; color:var(--muted);}
+.grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:1rem; margin-top:1rem;}
+.card{background:var(--card); border:1px solid var(--border); border-radius:12px; padding:1.1rem;}
+.card.link{cursor:pointer;}
+.card.link:active{border-color:var(--accent);}
+.card h2{margin:.2rem 0; font-size:1.2rem;}
+.tag{font-size:.7rem; font-weight:700; padding:.15rem .5rem; border-radius:999px; vertical-align:middle;}
+.tag.intl{background:rgba(0,162,169,.15); color:var(--accent);}
+.tag.nac{background:rgba(34,197,94,.15); color:var(--green);}
+.row-top{display:flex; align-items:center; gap:.5rem; justify-content:space-between;}
+.bar{height:6px; background:var(--border); border-radius:99px; overflow:hidden; margin-top:.6rem;}
+.fill{height:100%; background:var(--accent);}
+.fill.done{background:var(--green);}
+.plabel{font-size:.8rem; color:var(--muted); margin:.35rem 0 0;}
+.legline{display:flex; justify-content:space-between; font-size:.88rem; padding:.3rem 0; border-top:1px solid var(--border);}
+.legline:first-of-type{border-top:none;}
+.empty{text-align:center; padding:3rem 1rem; color:var(--muted);}
+.toolbar{display:flex; flex-wrap:wrap; gap:.5rem; margin:.8rem 0;}
+/* form */
+.leg-row{background:var(--card); border:1px solid var(--border); border-radius:10px; padding:.8rem 1rem 1rem; margin-top:.8rem;}
+.leg-fields{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:0 .9rem;}
+.leg-fields > div{min-width:0;}
+.ft{display:flex; align-items:center; gap:.3rem;}
+.ft select{flex:1 1 0; min-width:0; padding:.6rem .4rem;}
+.ft-sep{color:var(--muted); font-weight:700;}
+@media (max-width:600px){ .leg-fields{grid-template-columns:repeat(2,minmax(0,1fr));} }
+/* iOS: campos de data/hora têm largura/altura próprias e estouravam a grade */
+input,select{height:46px; min-width:0; max-width:100%; display:block; line-height:1.2;}
+input[type=date],input[type=time]{-webkit-appearance:none; appearance:none; text-align:left;}
+input::-webkit-date-and-time-value{text-align:left; margin:0;}
+input[type=file]{height:auto;}
+.notes{height:40px;}
+.status-select{height:40px;}
+.leg-row-head{display:flex; justify-content:space-between; align-items:center; font-weight:700;}
+.form-actions{display:flex; gap:.8rem; align-items:center; margin-top:1.2rem;}
+/* checklist */
+.section{margin-top:1.4rem;}
+.section h3{font-size:.85rem; letter-spacing:.05em; color:var(--accent); margin:0 0 .5rem; display:flex; justify-content:space-between; align-items:center;}
+.check-row{display:flex; gap:.7rem; align-items:flex-start; background:var(--card); border:1px solid var(--border); border-left:4px solid var(--border); border-radius:8px; padding:.6rem .7rem; margin-bottom:.45rem;}
+.check-row.st-completed{background:rgba(34,197,94,.08); border-left-color:var(--green);}
+.check-row.st-pending{background:rgba(245,166,35,.08); border-left-color:var(--amber);}
+.check-row.st-standby{background:rgba(76,139,245,.08); border-left-color:var(--blue);}
+.check-row.st-updated{background:rgba(167,139,250,.08); border-left-color:var(--purple);}
+.check-row.st-na{opacity:.55;}
+.status-select{width:128px; flex:0 0 128px; font-size:.85rem; font-weight:600; padding:.45rem .5rem;}
+.st-completed .status-select{border-color:var(--green); color:var(--green);}
+.st-pending .status-select{border-color:var(--amber); color:var(--amber);}
+.st-standby .status-select{border-color:var(--blue); color:var(--blue);}
+.st-updated .status-select{border-color:var(--purple); color:var(--purple);}
+.st-na .status-select{color:var(--muted);}
+.check-body{flex:1; min-width:0;}
+.check-task{font-weight:600; font-size:.95rem; margin:.15rem 0 .35rem;}
+.notes{font-size:15px; padding:.4rem .6rem;}
+.stamp{font-size:.72rem; color:var(--muted); margin-top:.25rem;}
+.x{flex:0 0 auto; background:transparent; color:var(--muted); border:1px solid var(--border); width:32px; height:32px; padding:0; border-radius:6px; font-size:.9rem;}
+.summary{display:flex; gap:.6rem; flex-wrap:wrap; font-size:.8rem; margin:.6rem 0;}
+.summary span{padding:.2rem .6rem; border-radius:99px; background:var(--card); border:1px solid var(--border);}
+.footer{text-align:center; font-size:.75rem; color:var(--muted); margin-top:2.5rem; line-height:1.6;}
+.hide{display:none!important;}
+@media print{
+  :root{--bg:#fff; --card:#fff; --border:#ccc; --text:#000; --muted:#555;}
+  .topbar,.toolbar,.back,.x,.noprint{display:none!important;}
+  .check-row{break-inside:avoid; opacity:1!important;}
+  select,input{border:none; padding:0; -webkit-appearance:none; appearance:none;}
+}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <a class="brand" href="#/">✓ Flight Checklist</a>
+  <div class="actions">
+    <button class="secondary small" id="btn-backup">Backup</button>
+    <button class="secondary small" id="btn-restore">Import</button>
+    <input type="file" id="restore-file" accept="application/json,.json" class="hide">
+  </div>
+</div>
+<div class="container" id="view"></div>
+
+<script>
+/* ===================== Modelo (igual ao FlightOps Companion) ===================== */
+var INTL_SECTIONS = [
+  ["AIRCRAFT", ["ACFT's DOC/MANUALS","CBP LOE/DECAL","FOREFLIGHT UPDATE","INSURANCE NOTICE"]],
+  ["FLIGHT PLANNING", ["FOREFLIGHT RELEASE","FPL ATC","FLIGHT PACKAGE","FUEL QUOTE WFS","FUEL QUOTE AEG","FUEL QUOTE JETEX","FUEL ORDER","WX","NOTAM","ALTERNATE","OVERFLIGHT 1","OVERFLIGHT 2","AIRPORT CURFEW","LDG/TKOFF SLOT"]],
+  ["AIRPORT SERVICES", ["AIRPORT ADM","FBO DEP","FBO ARR","SERVICES REQUESTED","FBO ARR QUOTE","PARKING PERMIT","HANGAR SLOT"]],
+  ["AIRCRAFT MAINTENANCE", ["PRE FLIGHT","FMS UPDATE","CHARTS UPDATE"]],
+  ["CATERING", ["CATERING","READING MATERIAL","BEDDING"]],
+  ["CUSTOMS & IMMIGRATION", ["GENDEC","CUSTOMS & IMMIGRATION","e-APIS/CARICOM/GAR"]],
+  ["CREW REQUIREMENTS", ["CREW VISAS","CREW VACCINES","CREW ENTRY FORM","DUTY TIME"]],
+  ["PASSENGERS REQUIREMENTS", ["PAX VISA","PAX VACCINES","PAX ENTRY FORM"]],
+  ["HOTEL & TRANSPORTATION", ["CREW HOTEL","CREW TRANSFER","PAX TRANSPORTATION"]]
+];
+var NAC_SECTIONS = [
+  ["AIRCRAFT", ["ACFT's DOCs","FOREFLIGHT UPDATE"]],
+  ["FLIGHT PLANNING", ["FOREFLIGHT RELEASE","FPL ATC","FLIGHT PACKAGE","FUEL (ORDER/QUOTE)","WX","NOTAM","LDG/TKOFF SLOT"]],
+  ["AIRPORT SERVICES", ["FBO DEP","FBO ARR","SERVICES REQUESTED","FBO ARR QUOTE","PARKING PERMIT"]],
+  ["AIRCRAFT MAINTENANCE", ["PRE FLIGHT","FMS UPDATE","CHARTS UPDATE"]],
+  ["AIRCRAFT MISCELLANEOUS", ["CATERING / MAGAZINES / BEDDING"]],
+  ["CREW/PAX/ACFT - CUSTOMS & IMMIGRATION", ["PASSENGER LIST","AIRPORT ADM","DUTY TIME"]],
+  ["MISCELLANEOUS", ["CREW TRANSPORTATION","PAX TRANSPORTATION","CREW HOTEL"]]
+];
+var STATUS_OPTIONS = ["None","Completed","Pending","Standby","Updated","N/A"];
+
+/* ===================== Armazenamento (só neste iPad) ===================== */
+var KEY = "lr-flight-checklist-v1";
+var state = {flights: []};
+function load(){ try{ var s = JSON.parse(localStorage.getItem(KEY)); if (s && s.flights) state = s; }catch(e){} }
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){ alert("Could not save: " + e); } }
+function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+if (navigator.storage && navigator.storage.persist) { navigator.storage.persist(); }
+
+function buildItems(type){
+  var items = [];
+  (type === "INTL" ? INTL_SECTIONS : NAC_SECTIONS).forEach(function(s){
+    s[1].forEach(function(t){ items.push({id: uid(), section: s[0], task: t, status: "None", notes: "", at: ""}); });
+  });
+  return items;
+}
+function newLeg(d){
+  var leg = {id: uid(), origin: up(d.origin), destination: up(d.destination), type: d.type === "INTL" ? "INTL" : "NAC",
+    date: d.date || "", dep: d.dep || "", ftime: d.ftime || "", items: buildItems(d.type)};
+  return leg;
+}
+function up(s){ return (s || "").trim().toUpperCase(); }
+function findFlight(id){ return state.flights.find(function(f){ return f.id === id; }); }
+function findLeg(f, id){ return f && f.legs.find(function(l){ return l.id === id; }); }
+
+function arrival(leg){
+  if (!(leg.date && leg.dep && /^\d{1,2}:\d{2}$/.test((leg.ftime||"").trim()))) return null;
+  var p = leg.date.split("-"), d = leg.dep.split(":"), t = leg.ftime.trim().split(":");
+  var ms = Date.UTC(+p[0], +p[1]-1, +p[2], +d[0], +d[1]) + ((+t[0])*60 + (+t[1]))*60000;
+  if (isNaN(ms)) return null;
+  var a = new Date(ms);
+  return {time: pad(a.getUTCHours()) + ":" + pad(a.getUTCMinutes()),
+          date: a.getUTCFullYear() + "-" + pad(a.getUTCMonth()+1) + "-" + pad(a.getUTCDate())};
+}
+function pad(n){ return (n < 10 ? "0" : "") + n; }
+function fmtDate(iso){ if (!iso) return ""; var p = iso.split("-"); return p[2] + "/" + p[1] + "/" + p[0]; }
+function progress(leg){
+  var total = 0, done = 0;
+  leg.items.forEach(function(i){ if (i.status !== "N/A"){ total++; if (i.status === "Completed") done++; } });
+  return {done: done, total: total};
+}
+function esc(s){ return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
+function stClass(s){ return "st-" + (s || "None").toLowerCase().replace("/", ""); }
+function timesLine(leg){
+  var a = arrival(leg), out = [];
+  out.push(leg.date ? fmtDate(leg.date) : "Date not set");
+  if (leg.dep) out.push("Dep " + leg.dep + "Z");
+  if (a) out.push("Arr " + (a.date !== leg.date ? fmtDate(a.date) + " " : "") + a.time + "Z");
+  return out.join(" · ");
+}
+function tag(type){ return '<span class="tag ' + (type === "INTL" ? "intl" : "nac") + '">' + (type === "INTL" ? "INTERNATIONAL" : "DOMESTIC") + "</span>"; }
+
+/* ===================== Telas ===================== */
+var view = document.getElementById("view");
+
+function renderHome(){
+  var h = '<div class="row-top"><h1>Flights</h1><a class="btn" href="#/new">+ New flight</a></div>';
+  if (!state.flights.length){
+    h += '<div class="empty">No flights yet.<br>Tap <b>+ New flight</b> to get started.</div>';
+  } else {
+    h += '<div class="grid">';
+    state.flights.forEach(function(f){
+      h += '<div class="card link" data-go="#/f/' + f.id + '"><h2>' + esc(f.name) + '</h2><p class="muted" style="margin:.1rem 0 .6rem">' + esc(f.aircraft || "") + '</p>';
+      f.legs.forEach(function(l){
+        var p = progress(l);
+        h += '<div class="legline"><span>' + esc(l.origin) + ' → ' + esc(l.destination) + '</span><span class="muted">' + p.done + '/' + p.total + '</span></div>';
+      });
+      h += '</div>';
+    });
+    h += '</div>';
+  }
+  h += footer();
+  view.innerHTML = h;
+}
+
+function legFieldsHTML(l, n){
+  l = l || {};
+  return '<div class="leg-row" data-leg>' +
+    (n ? '<div class="leg-row-head"><span>Leg <span class="leg-n">' + n + '</span></span><button type="button" class="x rm-leg" title="Remove">✕</button></div>' : '') +
+    '<div class="leg-fields">' +
+    '<div><label>Origin (ICAO)</label><input name="origin" maxlength="4" autocapitalize="characters" value="' + esc(l.origin) + '"></div>' +
+    '<div><label>Destination (ICAO)</label><input name="destination" maxlength="4" autocapitalize="characters" value="' + esc(l.destination) + '"></div>' +
+    '<div><label>Type</label><select name="type"><option value="INTL"' + (l.type === "INTL" ? " selected" : "") + '>International</option><option value="NAC"' + (l.type !== "INTL" ? " selected" : "") + '>Domestic</option></select></div>' +
+    '<div><label>Flight date</label><input type="date" name="date" value="' + esc(l.date) + '"></div>' +
+    '<div><label>Dep. (ZULU)</label><input type="time" name="dep" value="' + esc(l.dep) + '"></div>' +
+    '<div><label>Flight time (h : min)</label>' + ftimeHTML(l.ftime) + '</div>' +
+    '</div></div>';
+}
+function ftimeHTML(v){
+  var m = /^(\d{1,2}):(\d{2})$/.exec((v || "").trim()), H = m ? +m[1] : null, M = m ? +m[2] : null;
+  var h = '<select name="fth" aria-label="hours"><option value="">h</option>', i;
+  for (i = 0; i <= 20; i++) h += '<option value="' + i + '"' + (H === i ? " selected" : "") + '>' + pad(i) + ' h</option>';
+  h += '</select><span class="ft-sep">:</span><select name="ftm" aria-label="minutes"><option value="">min</option>';
+  for (i = 0; i < 60; i++) h += '<option value="' + i + '"' + (M === i ? " selected" : "") + '>' + pad(i) + ' min</option>';
+  return '<div class="ft">' + h + '</select></div>';
+}
+function readLeg(el){
+  var g = function(n){ return el.querySelector('[name="' + n + '"]').value; };
+  return {origin: g("origin"), destination: g("destination"), type: g("type"), date: g("date"), dep: g("dep"), ftime: (g("fth") === "" && g("ftm") === "") ? "" : pad(+(g("fth") || 0)) + ":" + pad(+(g("ftm") || 0))};
+}
+function validLeg(d){ return /^[A-Z0-9]{3,4}$/.test(up(d.origin)) && /^[A-Z0-9]{3,4}$/.test(up(d.destination)) && (!d.ftime || /^\d{1,2}:\d{2}$/.test(d.ftime)); }
+
+function renderNew(){
+  view.innerHTML = '<a class="back" href="#/">← Flights</a><h1>New flight</h1>' +
+    '<label>Flight name</label><input id="f-name" placeholder="e.g. Europe Trip">' +
+    '<label>Aircraft</label><input id="f-acft" placeholder="Registration (optional)" autocapitalize="characters">' +
+    '<div id="legs"></div>' +
+    '<button type="button" class="secondary" id="add-leg" style="margin-top:.8rem">+ Leg</button>' +
+    '<div class="form-actions"><button id="create">Create flight</button><a href="#/">Cancel</a></div>';
+  var legs = document.getElementById("legs");
+  function renumber(){ legs.querySelectorAll(".leg-n").forEach(function(s, i){ s.textContent = i + 1; }); }
+  function add(){
+    var prev = legs.querySelectorAll("[data-leg]"), pre = {};
+    if (prev.length){ var last = readLeg(prev[prev.length-1]); pre = {origin: last.destination, type: last.type, date: last.date}; }
+    legs.insertAdjacentHTML("beforeend", legFieldsHTML(pre, prev.length + 1));
+    renumber();
+  }
+  legs.addEventListener("click", function(e){
+    if (e.target.classList.contains("rm-leg")){ e.target.closest("[data-leg]").remove(); renumber(); }
+  });
+  document.getElementById("add-leg").onclick = add;
+  add();
+  document.getElementById("create").onclick = function(){
+    var name = document.getElementById("f-name").value.trim();
+    var ds = [].map.call(legs.querySelectorAll("[data-leg]"), readLeg).filter(function(d){ return d.origin.trim(); });
+    if (!name || !ds.length){ alert("Enter the flight name and at least one leg."); return; }
+    if (!ds.every(validLeg)){ alert("Check the ICAO codes (3-4 letters) and flight time (HH:MM)."); return; }
+    var f = {id: uid(), name: name, aircraft: up(document.getElementById("f-acft").value), created: new Date().toISOString(), legs: ds.map(newLeg)};
+    state.flights.unshift(f); save();
+    location.hash = "#/f/" + f.id;
+  };
+}
+
+function renderFlight(fid){
+  var f = findFlight(fid); if (!f) return go("#/");
+  var h = '<a class="back" href="#/">← Flights</a>' +
+    '<div class="row-top"><h1>' + esc(f.name) + '</h1><button class="danger small" id="del-flight">Delete flight</button></div>' +
+    '<p class="muted">' + esc(f.aircraft || "") + '</p>' +
+    '<div class="toolbar"><button class="small" id="share-flight">Share (AirDrop)</button>' +
+    '<button class="secondary small" id="pdf-flight">PDF (all legs)</button></div><div class="grid">';
+  f.legs.forEach(function(l, i){
+    var p = progress(l), pct = p.total ? p.done / p.total * 100 : 0;
+    h += '<div class="card"><div class="row-top">' + tag(l.type) + '<span class="muted" style="font-size:.8rem">Leg ' + (i+1) + '</span></div>' +
+      '<div class="link" data-go="#/f/' + f.id + '/l/' + l.id + '" style="cursor:pointer"><h2 style="margin-top:.5rem">' + esc(l.origin) + ' → ' + esc(l.destination) + '</h2>' +
+      '<p class="muted" style="margin:.2rem 0;font-size:.88rem">' + timesLine(l) + '</p>' +
+      '<div class="bar"><div class="fill' + (p.total && p.done === p.total ? " done" : "") + '" style="width:' + pct + '%"></div></div>' +
+      '<p class="plabel">' + p.done + ' / ' + p.total + ' items completed</p></div>' +
+      '<div class="toolbar" style="margin-bottom:0"><a class="btn secondary small" href="#/f/' + f.id + '/e/' + l.id + '">Edit</a>' +
+      '<button class="danger small" data-del-leg="' + l.id + '">Delete</button></div></div>';
+  });
+  h += '</div><a class="btn secondary" style="margin-top:1rem" href="#/f/' + f.id + '/e/new">+ Add leg</a>';
+  view.innerHTML = h;
+  document.getElementById("share-flight").onclick = function(){ shareFlight(f); };
+  document.getElementById("pdf-flight").onclick = function(){ sharePDF(f, f.legs); };
+  document.getElementById("del-flight").onclick = function(){
+    if (!confirm("Delete flight '" + f.name + "' and its whole checklist?")) return;
+    state.flights = state.flights.filter(function(x){ return x !== f; }); save(); go("#/");
+  };
+  view.querySelectorAll("[data-del-leg]").forEach(function(b){
+    b.onclick = function(){
+      var l = findLeg(f, b.dataset.delLeg);
+      if (!confirm("Delete leg " + l.origin + " → " + l.destination + " and its checklist?")) return;
+      f.legs = f.legs.filter(function(x){ return x !== l; }); save(); renderFlight(fid);
+    };
+  });
+}
+
+function renderLegForm(fid, lid){
+  var f = findFlight(fid); if (!f) return go("#/");
+  var edit = lid !== "new", l = edit ? findLeg(f, lid) : null;
+  if (edit && !l) return go("#/f/" + fid);
+  var pre = l || (f.legs.length ? {origin: f.legs[f.legs.length-1].destination, type: f.legs[f.legs.length-1].type} : {});
+  view.innerHTML = '<a class="back" href="#/f/' + fid + '">← ' + esc(f.name) + '</a><h1>' + (edit ? "Edit leg" : "New leg") + '</h1>' +
+    legFieldsHTML(pre, 0) +
+    (edit ? '<p class="muted" style="font-size:.82rem">The completed checklist stays as is — this only fixes route and times.</p>' : '') +
+    '<div class="form-actions"><button id="save-leg">' + (edit ? "Save changes" : "Add leg") + '</button><a href="#/f/' + fid + '">Cancel</a></div>';
+  if (edit) view.querySelector('[name="type"]').disabled = true;
+  document.getElementById("save-leg").onclick = function(){
+    var d = readLeg(view.querySelector("[data-leg]"));
+    if (!validLeg(d)){ alert("Check the ICAO codes (3-4 letters) and flight time (HH:MM)."); return; }
+    if (edit){ l.origin = up(d.origin); l.destination = up(d.destination); l.date = d.date; l.dep = d.dep; l.ftime = d.ftime; }
+    else f.legs.push(newLeg(d));
+    save(); go("#/f/" + fid);
+  };
+}
+
+function renderLeg(fid, lid){
+  var f = findFlight(fid), l = findLeg(f, lid); if (!l) return go(f ? "#/f/" + fid : "#/");
+  var sections = [];
+  l.items.forEach(function(i){
+    var s = sections.find(function(x){ return x.name === i.section; });
+    if (!s){ s = {name: i.section, items: []}; sections.push(s); }
+    s.items.push(i);
+  });
+  var h = '<a class="back" href="#/f/' + fid + '">← ' + esc(f.name) + '</a>' +
+    '<h1>' + esc(l.origin) + ' → ' + esc(l.destination) + ' ' + tag(l.type) + '</h1>' +
+    '<p class="muted" style="margin:.2rem 0">' + esc(f.aircraft || "") + (f.aircraft ? " · " : "") + timesLine(l) + '</p>' +
+    '<div class="summary" id="summary"></div>' +
+    '<div class="toolbar"><button class="secondary small" id="print">PDF</button>' +
+    '<button class="secondary small" id="share-flight">Share flight (AirDrop)</button>' +
+    '<button class="secondary small" id="hide-done">Hide completed</button>' +
+    '<button class="danger small" id="reset">Reset checklist</button></div>' +
+    '<div id="checklist">';
+  sections.forEach(function(s){
+    h += '<div class="section"><h3><span>' + esc(s.name) + '</span><button class="secondary small noprint" data-add="' + esc(s.name) + '">+ item</button></h3>';
+    s.items.forEach(function(i){ h += rowHTML(i); });
+    h += '</div>';
+  });
+  h += '</div>';
+  view.innerHTML = h;
+  updateSummary(l);
+
+  var root = document.getElementById("checklist");
+  root.addEventListener("change", function(e){
+    if (!e.target.classList.contains("status-select")) return;
+    var row = e.target.closest(".check-row"), it = l.items.find(function(x){ return x.id === row.dataset.id; });
+    it.status = e.target.value; it.at = it.status === "None" ? "" : new Date().toISOString();
+    save();
+    row.className = "check-row " + stClass(it.status) + (hideDone && isDone(it) ? " hide" : "");
+    row.querySelector(".stamp").textContent = stamp(it);
+    updateSummary(l);
+  });
+  root.addEventListener("input", function(e){
+    if (!e.target.classList.contains("notes")) return;
+    var row = e.target.closest(".check-row"), it = l.items.find(function(x){ return x.id === row.dataset.id; });
+    it.notes = e.target.value; save();
+  });
+  root.addEventListener("click", function(e){
+    var t = e.target;
+    if (t.classList.contains("x")){
+      var row = t.closest(".check-row"), it = l.items.find(function(x){ return x.id === row.dataset.id; });
+      if (!confirm('Remove "' + it.task + '" from this checklist? Other legs are not affected.')) return;
+      l.items = l.items.filter(function(x){ return x !== it; }); save(); row.remove(); updateSummary(l);
+    } else if (t.dataset.add){
+      var name = prompt("New item in " + t.dataset.add + ":");
+      if (!name || !name.trim()) return;
+      var it2 = {id: uid(), section: t.dataset.add, task: name.trim().toUpperCase(), status: "None", notes: "", at: ""};
+      var last = -1; l.items.forEach(function(x, k){ if (x.section === t.dataset.add) last = k; });
+      l.items.splice(last + 1, 0, it2); save();
+      t.closest(".section").insertAdjacentHTML("beforeend", rowHTML(it2)); updateSummary(l);
+    }
+  });
+  var hideDone = false;
+  function isDone(it){ return it.status === "Completed" || it.status === "N/A"; }
+  document.getElementById("hide-done").onclick = function(){
+    hideDone = !hideDone; this.textContent = hideDone ? "Show all" : "Hide completed";
+    root.querySelectorAll(".check-row").forEach(function(r){
+      var it = l.items.find(function(x){ return x.id === r.dataset.id; });
+      r.classList.toggle("hide", hideDone && isDone(it));
+    });
+  };
+  document.getElementById("print").onclick = function(){ sharePDF(f, [l]); };
+  document.getElementById("share-flight").onclick = function(){ shareFlight(f); };
+  document.getElementById("reset").onclick = function(){
+    if (!confirm("Reset this leg? Rebuilds the default " + (l.type === "INTL" ? "INTERNATIONAL" : "DOMESTIC") + " list and clears all status and notes.")) return;
+    l.items = buildItems(l.type); save(); renderLeg(fid, lid);
+  };
+}
+function stamp(i){
+  if (!i.at || i.status === "None") return "";
+  var d = new Date(i.at);
+  return i.status + " — " + pad(d.getDate()) + "/" + pad(d.getMonth()+1) + " " + pad(d.getHours()) + ":" + pad(d.getMinutes()) + " (local time)";
+}
+function rowHTML(i){
+  return '<div class="check-row ' + stClass(i.status) + '" data-id="' + i.id + '">' +
+    '<select class="status-select">' + STATUS_OPTIONS.map(function(o){ return '<option' + (o === i.status ? " selected" : "") + '>' + o + '</option>'; }).join("") + '</select>' +
+    '<div class="check-body"><div class="check-task">' + esc(i.task) + '</div>' +
+    '<input class="notes" placeholder="Notes" value="' + esc(i.notes) + '"><div class="stamp">' + esc(stamp(i)) + '</div></div>' +
+    '<button type="button" class="x" title="Remove item">✕</button></div>';
+}
+function updateSummary(l){
+  var c = {}; l.items.forEach(function(i){ c[i.status] = (c[i.status] || 0) + 1; });
+  var p = progress(l);
+  document.getElementById("summary").innerHTML = '<span><b>' + p.done + '/' + p.total + '</b> completed</span>' +
+    ["Pending","Standby","Updated","N/A","None"].filter(function(s){ return c[s]; }).map(function(s){
+      return '<span>' + (s === "None" ? "No status" : s) + ': ' + c[s] + '</span>'; }).join("");
+}
+function footer(){
+  return '<div class="footer">Data is stored only on this iPad. Use <b>Backup</b> from time to time to keep a copy (Files/iCloud). To send a flight to another iPad, open it and tap <b>Share (AirDrop)</b>; on the other iPad tap <b>Import</b> and pick the file (it lands in Files › Downloads).<br>LR Aviation · Flight Checklist</div>';
+}
+
+/* ===================== Compartilhar / backup / importar ===================== */
+function shareFile(blob, name){
+  var file = null; try { file = new File([blob], name, {type: blob.type}); } catch(e){}
+  if (file && navigator.canShare && navigator.canShare({files: [file]})){
+    navigator.share({files: [file], title: name}).catch(function(err){
+      if (err && err.name !== "AbortError") alert("Could not share: " + err.message);
+    });
+  } else {
+    var url = URL.createObjectURL(blob), a = document.createElement("a");
+    a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 60000);
+  }
+}
+function safeName(s){ return (s || "flight").replace(/[\\\/:*?"<>|]+/g, "").replace(/\s+/g, "_").slice(0, 60) || "flight"; }
+function shareFlight(f){
+  var data = {kind: "lr-flight", version: 1, exported: new Date().toISOString(), flight: f};
+  shareFile(new Blob([JSON.stringify(data)], {type: "application/json"}), safeName(f.name) + ".json");
+}
+document.getElementById("btn-backup").onclick = function(){
+  var d = new Date(), name = "checklist-backup-" + d.getFullYear() + pad(d.getMonth()+1) + pad(d.getDate()) + ".json";
+  shareFile(new Blob([JSON.stringify(state)], {type: "application/json"}), name);
+};
+function validFlight(f){ return f && typeof f.name === "string" && Array.isArray(f.legs) && f.legs.every(function(l){ return Array.isArray(l.items); }); }
+document.getElementById("btn-restore").onclick = function(){ document.getElementById("restore-file").click(); };
+document.getElementById("restore-file").onchange = function(){
+  var file = this.files[0]; if (!file) return;
+  var r = new FileReader();
+  r.onload = function(){
+    try {
+      var s = JSON.parse(r.result);
+      if (s && s.kind === "lr-flight" && validFlight(s.flight)){
+        var f = s.flight, ex = findFlight(f.id);
+        if (ex){
+          if (confirm("'" + ex.name + "' already exists on this iPad.\n\nOK = replace it with the received version\nCancel = keep both")){
+            state.flights[state.flights.indexOf(ex)] = f;
+          } else {
+            f.id = uid(); f.name = f.name + " (copy)"; state.flights.unshift(f);
+          }
+        } else state.flights.unshift(f);
+        save(); go("#/f/" + f.id);
+      } else if (s && Array.isArray(s.flights) && s.flights.every(validFlight)){
+        if (!confirm("This is a full backup (" + s.flights.length + " flights).\nReplace ALL data on this iPad with it?")) return;
+        state = {flights: s.flights}; save(); go("#/");
+      } else throw new Error("not a Flight Checklist file");
+    } catch(e){ alert("Could not import: " + e.message); }
+  };
+  r.readAsText(file);
+  this.value = "";
+};
+
+/* ===================== PDF (gerado no próprio iPad, sem internet) ===================== */
+var HW = [278,278,355,556,556,889,667,191,333,333,389,584,278,333,278,278,556,556,556,556,556,556,556,556,556,556,278,278,584,584,584,556,1015,667,667,722,722,667,611,778,722,278,500,667,556,833,722,778,667,778,722,667,611,722,667,944,667,667,611,278,278,278,469,556,333,556,556,500,556,556,278,556,556,222,222,500,222,833,556,556,556,556,333,500,278,556,500,722,500,500,500,334,260,334,584,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,278,333,556,556,556,556,260,556,333,737,370,556,584,333,737,333,400,584,333,333,333,556,537,278,333,333,365,556,834,834,834,611,667,667,667,667,667,667,1000,722,667,667,667,667,278,278,278,278,722,722,778,778,778,778,778,584,778,722,722,722,722,667,667,611,556,556,556,556,556,556,889,500,556,556,556,556,278,278,278,278,556,556,556,556,556,556,556,584,611,556,556,556,556,500,556,500], HBW = [278,333,474,556,556,889,722,238,333,333,389,584,278,333,278,278,556,556,556,556,556,556,556,556,556,556,333,333,584,584,584,611,975,722,722,722,722,667,611,778,722,278,556,722,611,833,722,778,667,778,722,667,611,722,667,944,667,667,611,333,278,333,584,556,333,556,611,556,611,556,333,611,611,278,278,556,278,889,611,611,611,611,389,556,333,611,556,778,556,556,500,389,280,389,584,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,761,278,333,556,556,556,556,280,556,333,737,370,556,584,333,737,333,400,584,333,333,333,611,556,278,333,333,365,556,834,834,834,611,722,722,722,722,722,722,1000,722,667,667,667,667,278,278,278,278,722,722,778,778,778,778,778,584,778,722,722,722,722,667,667,611,556,556,556,556,556,556,889,556,556,556,556,556,278,278,278,278,611,611,611,611,611,611,611,584,611,611,611,611,611,556,611,556];
+var PMAP = {"—":"-","–":"-","→":"->","‘":"'","’":"'","“":'"',"”":'"',"•":"*","€":"EUR","…":"...","✓":"v"};
+function ptxt(s){
+  s = String(s == null ? "" : s); var o = "";
+  for (var i = 0; i < s.length; i++){
+    var ch = s[i], c = s.charCodeAt(i);
+    if (PMAP[ch]) o += PMAP[ch];
+    else if ((c >= 32 && c <= 126) || (c >= 160 && c <= 255)) o += ch;
+    else if (c === 9 || c === 10 || c === 13) o += " ";
+    else o += "?";
+  }
+  return o;
+}
+function tw(s, size, bold){ var w = bold ? HBW : HW, t = 0; for (var i = 0; i < s.length; i++) t += w[s.charCodeAt(i) - 32] || 556; return t * size / 1000; }
+function wrap(s, size, bold, maxw){
+  var words = s.split(/\s+/).filter(Boolean), lines = [], cur = "";
+  words.forEach(function(w){
+    while (tw(w, size, bold) > maxw && w.length > 1){ // palavra longa demais: quebra
+      var k = w.length; while (k > 1 && tw(w.slice(0, k), size, bold) > maxw) k--;
+      if (cur){ lines.push(cur); cur = ""; }
+      lines.push(w.slice(0, k)); w = w.slice(k);
+    }
+    var t = cur ? cur + " " + w : w;
+    if (tw(t, size, bold) <= maxw) cur = t; else { if (cur) lines.push(cur); cur = w; }
+  });
+  if (cur) lines.push(cur);
+  return lines.length ? lines : [""];
+}
+function pesc(s){ return s.replace(/\\/g, "\\\\").replace(/\(/g, "\\(").replace(/\)/g, "\\)"); }
+function n2(v){ return (Math.round(v * 100) / 100).toString(); }
+var PW = 595.28, PH = 841.89, PM = 40;
+var C = {text:"0.1 0.12 0.15", muted:"0.42 0.45 0.5", accent:"0 0.5 0.53", line:"0.85 0.87 0.9", band:"0.93 0.95 0.96",
+  Completed:"0.1 0.55 0.25", Pending:"0.8 0.5 0", Standby:"0.2 0.4 0.85", Updated:"0.5 0.35 0.85", "N/A":"0.55 0.57 0.6", None:"0.55 0.57 0.6"};
+function buildPDF(f, legs){
+  var pages = [], cur, y;
+  function page(){ cur = []; pages.push(cur); y = PH - PM; }
+  function T(x, yy, s, size, bold, col){ cur.push("BT /" + (bold ? "F2" : "F1") + " " + size + " Tf " + (col || C.text) + " rg " + n2(x) + " " + n2(yy) + " Td (" + pesc(s) + ") Tj ET"); }
+  function R(x, yy, w, h, col){ cur.push(col + " rg " + n2(x) + " " + n2(yy) + " " + n2(w) + " " + n2(h) + " re f"); }
+  function L(x1, y1, x2, y2, col){ cur.push(col + " RG 0.5 w " + n2(x1) + " " + n2(y1) + " m " + n2(x2) + " " + n2(y2) + " l S"); }
+  var now = new Date(), gen = pad(now.getDate()) + "/" + pad(now.getMonth()+1) + "/" + now.getFullYear() + " " + pad(now.getHours()) + ":" + pad(now.getMinutes());
+  var X1 = PM, X2 = PM + 88, X3 = PM + 262, WR = PW - PM;
+  legs.forEach(function(l){
+    var idx = f.legs.indexOf(l) + 1, route = ptxt(l.origin + " -> " + l.destination), p = progress(l);
+    function colHeads(){
+      T(X1, y, "STATUS", 7, true, C.muted); T(X2, y, "ITEM", 7, true, C.muted); T(X3, y, "NOTES", 7, true, C.muted);
+      y -= 5; L(PM, y, WR, y, C.line); y -= 12;
+    }
+    function cont(){ page(); T(PM, y - 4, ptxt(f.name) + "  |  " + route + " (cont.)", 9, true, C.muted); y -= 24; colHeads(); }
+    page();
+    T(PM, y - 2, "FLIGHT CHECKLIST", 8, true, C.accent); y -= 22;
+    T(PM, y, ptxt(f.name), 18, true); y -= 22;
+    T(PM, y, route, 13, true);
+    var tl = (l.type === "INTL" ? "INTERNATIONAL" : "DOMESTIC") + "  |  Leg " + idx;
+    T(PM + tw(route, 13, true) + 12, y, tl, 9, true, C.accent); y -= 16;
+    T(PM, y, ptxt((f.aircraft ? f.aircraft + "  |  " : "") + timesLine(l)), 9.5, false, C.muted); y -= 14;
+    T(PM, y, p.done + " / " + p.total + " items completed   |   generated " + gen, 8.5, false, C.muted); y -= 22;
+    colHeads();
+    var sec = null;
+    l.items.forEach(function(it){
+      var task = wrap(ptxt(it.task), 9, true, X3 - X2 - 10), notes = wrap(ptxt(it.notes), 9, false, WR - X3);
+      var st = stamp(it) ? (function(d){ return pad(d.getDate()) + "/" + pad(d.getMonth()+1) + " " + pad(d.getHours()) + ":" + pad(d.getMinutes()); })(new Date(it.at)) : "";
+      var rows = Math.max(task.length, it.notes ? notes.length : 1, st ? 2 : 1), h = rows * 11 + 6;
+      var needSec = it.section !== sec;
+      if (y - h - (needSec ? 22 : 0) < PM + 24) cont();
+      if (needSec){
+        sec = it.section; R(PM, y - 5, WR - PM, 15, C.band); T(PM + 5, y, ptxt(sec), 8, true, C.accent); y -= 19;
+      }
+      var top = y;
+      T(X1, top, it.status === "None" ? "-" : it.status, 8.5, true, C[it.status] || C.muted);
+      if (st) T(X1, top - 11, st, 7, false, C.muted);
+      task.forEach(function(s, k){ T(X2, top - k * 11, s, 9, true); });
+      if (it.notes) notes.forEach(function(s, k){ T(X3, top - k * 11, s, 9, false); });
+      y = top - rows * 11 - 2; L(PM, y + 6, WR, y + 6, C.line); y -= 6;
+    });
+  });
+  pages.forEach(function(pg, i){
+    pg.push("BT /F1 7.5 Tf " + C.muted + " rg " + PM + " 22 Td (LR Aviation  |  Flight Checklist) Tj ET");
+    var s = "Page " + (i + 1) + " / " + pages.length;
+    pg.push("BT /F1 7.5 Tf " + C.muted + " rg " + n2(PW - PM - tw(s, 7.5)) + " 22 Td (" + s + ") Tj ET");
+  });
+  // montar o arquivo PDF
+  var objs = [], kids = [];
+  objs[1] = "<< /Type /Catalog /Pages 2 0 R >>";
+  objs[3] = "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>";
+  objs[4] = "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>";
+  pages.forEach(function(pg, i){
+    var po = 5 + i * 2, co = po + 1, content = pg.join("\n");
+    kids.push(po + " 0 R");
+    objs[po] = "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 " + PW + " " + PH + "] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents " + co + " 0 R >>";
+    objs[co] = "<< /Length " + content.length + " >>\nstream\n" + content + "\nendstream";
+  });
+  objs[2] = "<< /Type /Pages /Kids [" + kids.join(" ") + "] /Count " + pages.length + " >>";
+  var out = "%PDF-1.4\n", offs = [];
+  for (var k = 1; k < objs.length; k++){ offs[k] = out.length; out += k + " 0 obj\n" + objs[k] + "\nendobj\n"; }
+  var xref = out.length;
+  out += "xref\n0 " + objs.length + "\n0000000000 65535 f \n";
+  for (k = 1; k < objs.length; k++) out += ("0000000000" + offs[k]).slice(-10) + " 00000 n \n";
+  out += "trailer\n<< /Size " + objs.length + " /Root 1 0 R >>\nstartxref\n" + xref + "\n%%EOF";
+  var bytes = new Uint8Array(out.length);
+  for (k = 0; k < out.length; k++) bytes[k] = out.charCodeAt(k) & 255;
+  return new Blob([bytes], {type: "application/pdf"});
+}
+function sharePDF(f, legs){
+  try {
+    var name = safeName(f.name) + (legs.length === 1 ? "_" + legs[0].origin + "-" + legs[0].destination : "") + ".pdf";
+    shareFile(buildPDF(f, legs), name);
+  } catch(e){ alert("Could not create PDF: " + e.message); }
+}
+
+/* ===================== Roteamento ===================== */
+function go(h){ if (location.hash === h) route(); else location.hash = h; }
+function route(){
+  var p = (location.hash || "#/").slice(2).split("/");
+  window.scrollTo(0, 0);
+  if (p[0] === "new") renderNew();
+  else if (p[0] === "f" && p[2] === "l") renderLeg(p[1], p[3]);
+  else if (p[0] === "f" && p[2] === "e") renderLegForm(p[1], p[3]);
+  else if (p[0] === "f") renderFlight(p[1]);
+  else renderHome();
+}
+view.addEventListener("click", function(e){
+  var el = e.target.closest("[data-go]");
+  if (el && !e.target.closest("button,a")) location.hash = el.dataset.go;
+});
+window.addEventListener("hashchange", route);
+load(); route();
+
+if ("serviceWorker" in navigator) { navigator.serviceWorker.register("sw.js").catch(function(){}); }
+</script>
+
+<div style="text-align:center; font-size:11px; margin:16px 0 0; opacity:.75"><a href="../legal/" style="color:inherit">Operational disclaimer · Privacy · Terms of use</a></div>
+</body>
+</html>
