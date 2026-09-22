@@ -17,7 +17,7 @@ var OCEANIC = [
   {t:"MAINTENANCE LOG", n:"Check for any NAV/COMM/SSR or RVSM issues"},
   {t:"ALTIMETERS (±75 ft)", n:"Record readings on QNH", f:["QNH","Pilot's","STBY","Copilot's"]},
   {t:"FPL", n:"OFP × ATC FPL (check routing, fuel load, times and GS)"},
-  {t:"LRNS — course and distance check (±2° / ±2 NM)", f:["IRS #1 diff","IRS #2 diff"]},
+  {t:"LRNS — course and distance check (±2° / ±2 NM)", f:["IRS #1 diff","IRS #2 diff","IRS #3 diff"]},
   {t:"LRNS — currency and software version"},
   {t:"LRNS — independently verify waypoint entries (expanded coordinates)"},
   {t:"LRNS — upload WINDS"},

@@ -44,33 +44,42 @@
   .secbody{padding:2px 18px 14px;}
   .oitem{border-top:1px solid var(--line); padding:10px 0;}
   .oitem:first-of-type{border-top:none;}
-  .orow{display:flex; gap:12px; align-items:flex-start; cursor:pointer;}
-  .box{flex:none; width:26px; height:26px; border:2px solid var(--accent); border-radius:7px;
+  .orow{display:flex; gap:12px; align-items:flex-start;}
+  .box{flex:none; width:28px; height:28px; border:2px solid var(--accent); border-radius:7px;
     margin-top:1px; display:flex; align-items:center; justify-content:center;
-    font-size:16px; color:#fff; background:#fff; transition:background .12s;}
+    font-size:17px; color:#fff; background:#fff; cursor:pointer; transition:background .12s;}
   .oitem.done .box{background:var(--ok); border-color:var(--ok);}
   .otext{flex:1; min-width:0;}
-  .otask{font-weight:700; font-size:13.5px; color:var(--navy);}
-  .oitem.done .otask{color:var(--gray); text-decoration:line-through;}
-  .onote{font-size:12.5px; color:var(--gray);}
+  input.etask{font-weight:700; font-size:13.5px; color:var(--navy); border:none; background:transparent;
+    padding:1px 2px; width:100%; border-bottom:1px dashed transparent; border-radius:0;}
+  input.enote{font-size:12.5px; color:var(--gray); border:none; background:transparent;
+    padding:1px 2px; width:100%; border-bottom:1px dashed transparent; border-radius:0;}
+  input.etask:hover, input.enote:hover{border-bottom-color:var(--line);}
+  input.etask:focus, input.enote:focus{outline:none; border-bottom:1px dashed var(--accent); background:#f7fafd;}
+  .oitem.done input.etask{color:var(--gray); text-decoration:line-through;}
   .ofields{display:grid; grid-template-columns:repeat(auto-fit, minmax(110px, 1fr)); gap:8px;
-    margin:8px 0 0 38px;}
+    margin:8px 0 0 40px;}
   .ofields .field label{font-size:10.5px;}
   .ofields input{padding:6px 8px; font-size:12.5px;}
-  details.ann{margin:7px 0 0 38px; font-size:12.5px;}
+  details.ann{margin:7px 0 0 40px; font-size:12.5px;}
   details.ann summary{cursor:pointer; color:var(--amber); font-weight:700; list-style:none;}
   details.ann summary::-webkit-details-marker{display:none;}
-  details.ann summary::before{content:"ⓘ "; }
-  details.ann .anntext{background:var(--amber-bg); border-left:3px solid var(--amber-line);
+  details.ann summary::before{content:"ⓘ ";}
+  details.ann summary.empty{color:#b9a98c;}
+  textarea.remtext{background:var(--amber-bg); border:none; border-left:3px solid var(--amber-line);
+    border-radius:0 8px 8px 0; padding:9px 12px; margin-top:6px; color:#4a3a20;
+    font-size:12.5px; overflow:hidden; min-height:34px; resize:none;}
+  textarea.remtext:focus{outline:1px dashed var(--amber);}
+  .anntext{background:var(--amber-bg); border-left:3px solid var(--amber-line);
     border-radius:0 8px 8px 0; padding:9px 12px; margin-top:6px; white-space:pre-line; color:#4a3a20;}
   table.ref{width:100%; border-collapse:collapse; font-size:12.5px;}
   table.ref td{padding:6px 8px; border-bottom:1px solid var(--line);}
   table.ref td:first-child{font-weight:700; color:var(--navy);}
   .refnote{font-size:12px; color:var(--gray); margin-top:8px;}
-  .card.wx td:last-child{font-weight:700; color:var(--accent);}
+  .diagram{width:100%; height:auto; display:block; margin:4px 0 6px;}
   .card.cont{border-left:5px solid var(--red);}
   .card.cont h2{color:var(--red);}
-  .card.cont ol{margin:0; padding-left:20px; font-size:13px; font-weight:600;}
+  .card.cont ol{margin:8px 0 0; padding-left:20px; font-size:13px; font-weight:600;}
   .card.cont li{margin-bottom:7px;}
   .btnrow{display:flex; gap:10px; flex-wrap:wrap;}
   .btnrow button{flex:1 1 150px; padding:12px; border:none; border-radius:8px; font-size:14px;
@@ -120,15 +129,92 @@
     <div class="refnote" id="accnote"></div>
   </div>
 
-  <div class="card wx">
+  <div class="card">
     <h2>Weather avoidance</h2>
-    <table class="ref" id="wxtable"></table>
+    <svg class="diagram" viewBox="0 0 720 260" xmlns="http://www.w3.org/2000/svg" aria-label="Weather avoidance diagram">
+      <rect x="0" y="0" width="720" height="260" fill="#f9fbfd"/>
+      <!-- corredor ±10 NM -->
+      <rect x="0" y="85" width="720" height="90" fill="#eef3f8"/>
+      <line x1="0" y1="85" x2="720" y2="85" stroke="#9db1c7" stroke-width="1.5" stroke-dasharray="6 5"/>
+      <line x1="0" y1="175" x2="720" y2="175" stroke="#9db1c7" stroke-width="1.5" stroke-dasharray="6 5"/>
+      <text x="8" y="79" font-size="11" fill="#7b8ba0">10 NM</text>
+      <text x="8" y="190" font-size="11" fill="#7b8ba0">10 NM</text>
+      <text x="672" y="20" font-size="12" font-weight="700" fill="#5b5f66">NORTH</text>
+      <text x="672" y="252" font-size="12" font-weight="700" fill="#5b5f66">SOUTH</text>
+      <!-- track -->
+      <line x1="20" y1="130" x2="700" y2="130" stroke="#1B2A4A" stroke-width="3"/>
+      <path d="M60 122 L74 130 L60 138 Z" fill="#1B2A4A"/>
+      <path d="M660 122 L674 130 L660 138 Z" fill="#1B2A4A"/>
+      <text x="84" y="147" font-size="11.5" fill="#1B2A4A" font-weight="700">CLEARED TRACK</text>
+      <!-- CB -->
+      <g transform="translate(430 130)">
+        <circle cx="-16" cy="-4" r="17" fill="#aab6c6"/>
+        <circle cx="6" cy="-12" r="21" fill="#98a6b9"/>
+        <circle cx="22" cy="0" r="15" fill="#aab6c6"/>
+        <rect x="-30" y="4" width="64" height="11" rx="5" fill="#98a6b9"/>
+        <path d="M2 12 L-6 30 L2 28 L-4 46" stroke="#E8A33D" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+        <text x="-14" y="-24" font-size="11" font-weight="800" fill="#5b5f66">CB</text>
+      </g>
+      <!-- desvio norte -->
+      <path d="M240 130 C 300 130, 320 40, 430 40 C 540 40, 560 130, 620 130"
+        fill="none" stroke="#0B5A8A" stroke-width="3" stroke-dasharray="9 6"/>
+      <path d="M310 74 L322 62 L324 78 Z" fill="#0B5A8A"/>
+      <g font-size="12" font-weight="800" fill="#0B5A8A">
+        <text x="360" y="26">&gt;10 NM NORTH → DESCEND 300 ft ▼</text>
+      </g>
+      <!-- desvio sul -->
+      <path d="M240 130 C 300 130, 320 220, 430 220 C 540 220, 560 130, 620 130"
+        fill="none" stroke="#7fa8c4" stroke-width="2.5" stroke-dasharray="6 6"/>
+      <g font-size="12" font-weight="800" fill="#4d7fa0">
+        <text x="372" y="244">&gt;10 NM SOUTH → CLIMB 300 ft ▲</text>
+      </g>
+      <text x="126" y="112" font-size="11.5" font-weight="700" fill="#5b5f66">≤10 NM: maintain cleared altitude</text>
+    </svg>
+    <div class="refnote">Deviation ≤ 10 NM: maintain cleared altitude · &gt; 10 NM north of track: descend 300 ft · &gt; 10 NM south of track: climb 300 ft. Advise ATC as soon as possible.</div>
   </div>
 
   <div class="card cont">
     <h2>Inflight contingency procedure</h2>
+    <svg class="diagram" viewBox="0 0 720 250" xmlns="http://www.w3.org/2000/svg" aria-label="Contingency offset diagram">
+      <rect x="0" y="0" width="720" height="250" fill="#fdf9f8"/>
+      <!-- track original -->
+      <line x1="20" y1="70" x2="700" y2="70" stroke="#1B2A4A" stroke-width="3"/>
+      <path d="M70 62 L84 70 L70 78 Z" fill="#1B2A4A"/>
+      <path d="M640 62 L654 70 L640 78 Z" fill="#1B2A4A"/>
+      <text x="94" y="60" font-size="11.5" font-weight="700" fill="#1B2A4A">CLEARED TRACK</text>
+      <!-- manobra -->
+      <path d="M220 70 L318 158 L620 158" fill="none" stroke="#b71c1c" stroke-width="3.5"/>
+      <path d="M300 142 L318 158 L296 160 Z" fill="#b71c1c"/>
+      <path d="M600 150 L620 158 L600 166 Z" fill="#b71c1c"/>
+      <!-- arco de 30° -->
+      <path d="M262 70 A 42 42 0 0 1 253 100" fill="none" stroke="#b71c1c" stroke-width="2" stroke-dasharray="4 4"/>
+      <text x="272" y="98" font-size="12.5" font-weight="800" fill="#b71c1c">≥ 30°</text>
+      <!-- offset 5 NM -->
+      <line x1="662" y1="70" x2="662" y2="158" stroke="#5b5f66" stroke-width="1.5"/>
+      <path d="M658 78 L662 70 L666 78 Z" fill="#5b5f66"/>
+      <path d="M658 150 L662 158 L666 150 Z" fill="#5b5f66"/>
+      <text x="670" y="119" font-size="12" font-weight="800" fill="#5b5f66">5 NM</text>
+      <!-- variação vertical na paralela -->
+      <g transform="translate(420 158)">
+        <line x1="0" y1="-26" x2="0" y2="26" stroke="#a15c00" stroke-width="2"/>
+        <path d="M-5 -18 L0 -27 L5 -18 Z" fill="#a15c00"/>
+        <path d="M-5 18 L0 27 L5 18 Z" fill="#a15c00"/>
+        <text x="10" y="-16" font-size="11.5" font-weight="800" fill="#a15c00">± 500 ft</text>
+        <text x="10" y="0" font-size="10.5" fill="#a15c00">(1,000 ft above FL410)</text>
+        <text x="10" y="16" font-size="10.5" fill="#a15c00">consider below FL290</text>
+      </g>
+      <!-- avisos -->
+      <g transform="translate(84 208)">
+        <rect x="0" y="-16" width="176" height="26" rx="13" fill="#fdeceb"/>
+        <text x="12" y="2" font-size="11.5" font-weight="800" fill="#b71c1c">💡 ALL LIGHTS ON</text>
+        <rect x="188" y="-16" width="292" height="26" rx="13" fill="#fdeceb"/>
+        <text x="200" y="2" font-size="11.5" font-weight="800" fill="#b71c1c">📻 BROADCAST 123.45 · GUARD 121.5</text>
+        <rect x="492" y="-16" width="118" height="26" rx="13" fill="#fdeceb"/>
+        <text x="504" y="2" font-size="11.5" font-weight="800" fill="#b71c1c">→ DIVERT</text>
+      </g>
+    </svg>
     <ol id="contlist"></ol>
-    <details class="ann"><summary>Study note — EDM</summary>
+    <details class="ann"><summary>Remarks — EDM</summary>
       <div class="anntext" id="edmnote"></div></details>
   </div>
 
@@ -137,13 +223,13 @@
       <button id="resetbtn" onclick="newCrossing()">New crossing (reset checklist)</button>
     </div>
     <p style="font-size:11.5px; color:var(--gray); margin:10px 0 0">
-      Checks and recorded values are kept on this device while you work; "New crossing" clears them
-      (Tail Number and Crew are kept).
+      Checks and recorded values are cleared by "New crossing"; item texts, remarks you edited,
+      Tail Number and Crew are kept.
     </p>
   </div>
 
   <div class="footer">
-    NAT-HLA operational checklist from the operator's own documentation, with study notes.<br>
+    NAT-HLA operational checklist from the operator's own documentation, with remarks.<br>
     Support tool — it does not replace the AFM/AOM, the NAT Doc 007, current OACs' procedures or the
     captain's judgement. Confirm windows and frequencies in the current publications.
   </div>
@@ -157,10 +243,11 @@ var openSecs = {0: true};
 
 function blank(keepId){
   var s = { header: { date: new Date().toISOString().slice(0, 10), route: '', tail: '', crew: '' },
-            checks: [], fields: {} };
+            checks: [], fields: {}, edits: {} };
   if (keepId && state){
     s.header.tail = state.header.tail || '';
     s.header.crew = state.header.crew || '';
+    s.edits = state.edits || {};
   }
   OCEANIC.forEach(function(ph){ s.checks.push(ph.items.map(function(){ return false; })); });
   return s;
@@ -169,27 +256,42 @@ function blank(keepId){
 function esc(t){ return (t || '').replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
 function escA(t){ return esc(t).replace(/"/g, '&quot;'); }
 
+function itemVal(pi, ii, k){
+  var e = state.edits[pi + ':' + ii];
+  if (e && e[k] !== undefined && e[k] !== null) return e[k];
+  var it = OCEANIC[pi].items[ii];
+  return (k === 't' ? it.t : k === 'n' ? it.n : it.a) || '';
+}
+
+function setEdit(pi, ii, k, v){
+  var key = pi + ':' + ii;
+  if (!state.edits[key]) state.edits[key] = {};
+  state.edits[key][k] = v;
+  autosave();
+}
+
 function itemHTML(pi, ii){
   var it = OCEANIC[pi].items[ii];
   var done = state.checks[pi][ii];
+  var t = itemVal(pi, ii, 't'), n = itemVal(pi, ii, 'n'), a = itemVal(pi, ii, 'a');
   var html = '<div class="oitem' + (done ? ' done' : '') + '" id="oi_' + pi + '_' + ii + '">' +
-    '<div class="orow" onclick="toggle(' + pi + ',' + ii + ')">' +
-    '<div class="box">' + (done ? '✓' : '') + '</div>' +
-    '<div class="otext"><div class="otask">' + esc(it.t) + '</div>' +
-    (it.n ? '<div class="onote">' + esc(it.n) + '</div>' : '') +
+    '<div class="orow">' +
+    '<div class="box" onclick="toggle(' + pi + ',' + ii + ')">' + (done ? '✓' : '') + '</div>' +
+    '<div class="otext">' +
+    '<input class="etask" value="' + escA(t) + '" placeholder="Task" onchange="setEdit(' + pi + ',' + ii + ',\'t\',this.value)">' +
+    '<input class="enote" value="' + escA(n) + '" placeholder="Note" onchange="setEdit(' + pi + ',' + ii + ',\'n\',this.value)">' +
     '</div></div>';
   if (it.f){
     html += '<div class="ofields">' + it.f.map(function(lbl){
       var key = pi + ':' + ii + ':' + lbl;
       return '<div class="field"><label>' + esc(lbl) + '</label>' +
         '<input value="' + escA(state.fields[key] || '') + '" ' +
-        'onclick="event.stopPropagation()" onchange="setF(\'' + key.replace(/'/g, "\\'") + '\', this.value)"></div>';
+        'onchange="setF(\'' + key.replace(/'/g, "\\'") + '\', this.value)"></div>';
     }).join('') + '</div>';
   }
-  if (it.a){
-    html += '<details class="ann"><summary>Study note</summary>' +
-      '<div class="anntext">' + esc(it.a) + '</div></details>';
-  }
+  html += '<details class="ann"' + (a ? '' : '') + '><summary' + (a ? '' : ' class="empty"') + '>Remarks</summary>' +
+    '<textarea class="remtext" placeholder="Remarks" oninput="autoGrow(this)" ' +
+    'onchange="setEdit(' + pi + ',' + ii + ',\'a\',this.value)">' + esc(a) + '</textarea></details>';
   return html + '</div>';
 }
 
@@ -204,7 +306,16 @@ function render(){
   ['date','route','tail','crew'].forEach(function(k){
     document.getElementById('h_' + k).value = state.header[k] || '';
   });
+  growAll();
   refresh();
+}
+
+function growAll(){
+  document.querySelectorAll('textarea.remtext').forEach(autoGrow);
+}
+function autoGrow(t){
+  t.style.height = 'auto';
+  t.style.height = Math.min(t.scrollHeight + 2, 340) + 'px';
 }
 
 function refresh(){
@@ -224,7 +335,13 @@ function toggle(pi, ii){
   state.checks[pi][ii] = !state.checks[pi][ii];
   autosave();
   var el = document.getElementById('oi_' + pi + '_' + ii);
-  if (el) el.outerHTML = itemHTML(pi, ii);
+  if (el){
+    var open = el.querySelector('details.ann') && el.querySelector('details.ann').open;
+    el.outerHTML = itemHTML(pi, ii);
+    var nel = document.getElementById('oi_' + pi + '_' + ii);
+    if (open && nel){ nel.querySelector('details.ann').open = true; }
+    nel.querySelectorAll('textarea.remtext').forEach(autoGrow);
+  }
   refresh();
 }
 
@@ -252,7 +369,7 @@ function autosave(){
 }
 
 function newCrossing(){
-  if (!confirm('Start a new crossing? All checks and recorded values will be cleared.')) return;
+  if (!confirm('Start a new crossing? Checks and recorded values will be cleared. Edited texts, remarks, Tail and Crew are kept.')) return;
   state = blank(true);
   try { localStorage.setItem('oceanic_state', JSON.stringify(state)); } catch(e){}
   openSecs = {0: true};
@@ -265,9 +382,6 @@ document.getElementById('acctable').innerHTML = ACC_TABLE.map(function(r){
   return '<tr><td>' + r[0] + '</td><td>' + r[1] + '</td></tr>';
 }).join('');
 document.getElementById('accnote').textContent = ACC_NOTE;
-document.getElementById('wxtable').innerHTML = WX_AVOID.map(function(r){
-  return '<tr><td>' + r[0] + '</td><td>' + r[1] + '</td></tr>';
-}).join('');
 document.getElementById('contlist').innerHTML = CONTINGENCY.map(function(l){
   return '<li>' + l + '</li>';
 }).join('');
@@ -282,6 +396,8 @@ try {
   if (saved && saved.checks && saved.checks.length === OCEANIC.length &&
       saved.checks.every(function(c, i){ return c.length === OCEANIC[i].items.length; })){
     state = saved;
+    if (!state.edits) state.edits = {};
+    if (!state.fields) state.fields = {};
   } else state = blank(false);
 } catch(e){ state = blank(false); }
 render();
