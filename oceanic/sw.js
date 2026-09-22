@@ -1,4 +1,4 @@
-const CACHE = 'oceanic-natla-v2';
+const CACHE = 'oceanic-natla-v3';
 const FILES = ['./', './index.html', './oceanic_data.js', './manifest.json',
   './icon-180.png', './icon-192.png', './icon-512.png'];
 self.addEventListener('install', function(e){

@@ -2,7 +2,8 @@
 // item: {t: task, n: note, f: [field labels], a: annotation (study note)}
 var OCEANIC = [
  {phase:"FLIGHT PLANNING", items:[
-  {t:"CNS", n:"Comm/Nav/SSR FPL codes and planning documents (FPL codes item 10)"},
+  {t:"CNS", n:"Comm/Nav/SSR FPL codes and planning documents (FPL codes item 10)",
+   a:"PBCS tracks require RNP 4 + CPDLC RCP240 + ADS-C RSP180 — file P2 in item 10a and SUR/RSP180 in item 18. Fields 7, 10a, 10b and 18 must all carry the CPDLC/ADS-C information consistently (common rejects: wrong registration or Mode S hex code)."},
   {t:"PLOTTING CHART", n:"Plot route coast out OEP to coast in OXP (iPad plotting chart)",
    a:"Random route: 1 waypoint every 10 degrees of longitude."},
   {t:"ETP", n:"Plot (iPad plotting chart)"},
@@ -35,7 +36,7 @@ var OCEANIC = [
  ]},
  {phase:"PRIOR TO OCEANIC ENTRY", items:[
   {t:"OCEANIC CLEARANCE", n:"Verify and cross-check independently. Confirm ATC route and FMS route. Voice: at least 40 min prior to entry · Data link: 30–90 min prior.",
-   a:"Delayed clearance — Shanwick: if not received before the OCA boundary, advise domestic ATC and REMAIN CLEAR of oceanic airspace until you have it. All other oceanic centers: fly the filed route and maintain the last cleared altitude.\n\nDon't climb when you get the Oceanic Clearance (or send RCL) without talking to domestic ATC.\n\nNew York Oceanic (since 09/2012): the three elements of the clearance need NOT arrive together or from the same agency — once all three are received, that constitutes the clearance. If cleared via the OTS, the TMI is verified prior to the OTS entry fix."},
+   a:"NAT EASTBOUND (Gander): there is no oceanic clearance any more — the RCL (position, time, level, speed) is one-and-done, sent 90-60 min before the OEP; the 1-hour cut-off is firm. ACK received = nothing further. Late or no ACARS: read the RCL to ATC by voice and you're done. 'RCL REJECTED' (sent early/late): just read your RCL to ATC on the current frequency. NEVER climb to your RCL level without clearance — domestic ATC delivers you at the right level at the OEP; nil comms = no change. At the OEP maintain the level domestic assigned. Don't ask for route confirmation — ATC auto-queries your FMS ('Confirm Assigned Route').\n\nDelayed clearance — Shanwick: if not received before the OCA boundary, advise domestic ATC and REMAIN CLEAR of oceanic airspace until you have it. All other oceanic centers: fly the filed route and maintain the last cleared altitude.\n\nNew York Oceanic: the three elements of the clearance need NOT arrive together or from the same agency — once all three are received, that constitutes the clearance. If cleared via the OTS, the TMI is verified prior to the OTS entry fix."},
   {t:"WAYPOINTS", n:"Check expanded coordinates for all oceanic waypoints"},
   {t:"FLT LVL / MACH NUMBER", n:"Confirm flight level / Mach / route for the crossing"},
   {t:"ACFT PERF", n:"Ensure aircraft performance for maintaining assigned altitude/speed"},
@@ -44,14 +45,16 @@ var OCEANIC = [
   {t:"NAV AIDS — accuracy check", f:["FMS fix","FMS radial","FMS dist","RAW fix","RAW radial","RAW dist"]},
   {t:"HF", n:"Check if not done during pre-flight",
    a:"Use higher frequencies during daylight and lower frequencies at night.\n\nIf HF and SELCAL checks were not done on the ground, do them before oceanic entry. Additional SELCAL checks at each control-area boundary, regardless of CPDLC working normally."},
-  {t:"CPDLC", n:"Log on to CPDLC and ADS-C 10–25 minutes prior"},
+  {t:"CPDLC", n:"Log on to CPDLC and ADS-C 10–25 minutes prior (NAT: 15–45 min)",
+   a:"Respond to uplinks within 60 s (send STANDBY if you need more time, then answer within the next 60 s). WILCO/UNABLE applies to ALL elements of the message — never comply with only part of a multi-element message. Any doubt about a CPDLC message: respond UNABLE and revert to voice.\n\nShanwick may uplink 'CONFIRM ASSIGNED ROUTE' after logon — respond by sending the current FMS flight plan; the controller checks it and only calls back if something is wrong.\n\nThe CPDLC position report at each FIR boundary establishes that center as your Current Data Authority (CDA).\n\nCPDLC failure phraseology: '[station] radio, [callsign], CPDLC failure, continuing on voice.'"},
   {t:"RNP", n:"Verify value"},
   {t:"ALTIMETERS (STD)", n:"Record readings", f:["Pilot's","STBY","Copilot's"]},
   {t:"COMPASS", n:"Record reading", f:["Reading"]},
  ]},
  {phase:"AFTER OCEANIC ENTRY", items:[
   {t:"TRANSPONDER", n:"Squawk 2000, normally 10 minutes after OEP (except Reykjavik OCA)"},
-  {t:"SPEED", n:"Maintain assigned Mach, if applicable"},
+  {t:"SPEED", n:"Maintain assigned Mach, if applicable",
+   a:"Advise ATC if the Mach changes by plus or minus 0.02 or more from the assigned / RCL Mach (NAT Doc 007). 'Resume Normal Speed' = fly RCL speed (Cost Index), still notifying ±0.02 changes."},
   {t:"VHF", n:"Set air-to-air VHF #2 123.45 and guard VHF #1 121.5 MHz"},
   {t:"SLOP", n:"0.7 NM, 1 NM or 2 NM to the RIGHT of the ATC cleared track"},
   {t:"ALTIMETERS", n:"Check hourly and record on the Master Document"},
@@ -82,7 +85,7 @@ var OCEANIC = [
 var ACC_TABLE = [
  ["ICELAND", "20 min or less"],
  ["BODO", "20 min or more"],
- ["GANDER", "90–60 min"],
+ ["GANDER", "RCL 90–60 min · one-and-done (no clearance eastbound)"],
  ["SHANWICK", "90–30 min"],
  ["NEW YORK", "see clearance note (3 elements)"],
  ["SANTA MARIA", "40 min or more"],
