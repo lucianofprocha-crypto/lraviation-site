@@ -1,4 +1,4 @@
-const CACHE = 'ramp-check-v4';
+const CACHE = 'ramp-check-v5';
 const FILES = ['./', './index.html', './ramp_data.js', './jspdf.umd.min.js', './jspdf.plugin.autotable.min.js', './manifest.json',
   './icon-180.png', './icon-192.png', './icon-512.png'];
 self.addEventListener('install', function(e){
