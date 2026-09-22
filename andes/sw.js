@@ -1,5 +1,5 @@
 /* Andes Crossing Advisor — service worker. Ao atualizar o app, mude a versão. */
-const CACHE = "andes-advisor-v7";
+const CACHE = "andes-advisor-v8";
 const ASSETS = ["./", "index.html", "manifest.webmanifest",
   "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png"];
 self.addEventListener("install", (e) => {
