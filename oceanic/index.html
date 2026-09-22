@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Oceanic Checklist — NAT-HLA</title>
+<style>
+  :root{
+    --navy:#1B2A4A; --accent:#0B5A8A; --gray:#5b5f66; --line:#e2e5ea;
+    --bg:#f5f7fa; --card:#ffffff;
+    --ok:#1b7a3d; --ok-bg:#e7f5ec; --amber:#a15c00; --amber-bg:#fdf1e0; --amber-line:#f2d4a3;
+    --red:#b71c1c; --red-bg:#fdeceb;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    background:var(--bg); color:#1c1f24; padding:0 14px 60px; font-size:14.5px; line-height:1.5;}
+  .wrap{max-width:860px; margin:0 auto;}
+  .header{text-align:center; padding:24px 0 6px;}
+  .header h1{font-size:20px; margin:0 0 3px; color:var(--navy); font-weight:800;}
+  .header p{font-size:12px; color:var(--gray); margin:0;}
+  .progress{position:sticky; top:0; z-index:5; margin:12px -14px 14px; padding:10px 14px;
+    background:#ffffffee; border-bottom:2px solid var(--accent); backdrop-filter:blur(4px);
+    display:flex; gap:14px; align-items:center; flex-wrap:wrap; font-size:13px;}
+  .progress b{font-size:16px;}
+  .pill{border-radius:20px; padding:2px 12px; font-weight:700; font-size:12px;
+    background:var(--ok-bg); color:var(--ok);}
+  .card{background:var(--card); border:1px solid var(--line); border-radius:12px;
+    padding:16px 18px; margin-bottom:14px;}
+  .card h2{font-size:12.5px; text-transform:uppercase; letter-spacing:.04em;
+    color:var(--accent); margin:0 0 10px; font-weight:750;}
+  .hrow{display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:10px;}
+  .hrow .field{min-width:0;}
+  .field label{display:block; font-size:11.5px; color:var(--gray); margin-bottom:3px; font-weight:600;}
+  input, textarea{width:100%; min-width:0; max-width:100%; padding:7px 9px; font-size:13.5px;
+    border:1px solid var(--line); border-radius:7px; background:#fff; font-family:inherit;}
+  input[type=date]{-webkit-appearance:none; appearance:none; min-height:36px; text-align:left; display:block;}
+  details.sec{background:var(--card); border:1px solid var(--line); border-radius:12px;
+    margin-bottom:12px; overflow:hidden;}
+  details.sec summary{cursor:pointer; padding:13px 18px; font-weight:800; color:var(--navy);
+    font-size:13.5px; display:flex; align-items:center; gap:10px; list-style:none;}
+  details.sec summary::-webkit-details-marker{display:none;}
+  details.sec summary .count{margin-left:auto; font-weight:700; font-size:12px; color:var(--gray);}
+  details.sec summary .count.done{color:var(--ok);}
+  .secbody{padding:2px 18px 14px;}
+  .oitem{border-top:1px solid var(--line); padding:10px 0;}
+  .oitem:first-of-type{border-top:none;}
+  .orow{display:flex; gap:12px; align-items:flex-start; cursor:pointer;}
+  .box{flex:none; width:26px; height:26px; border:2px solid var(--accent); border-radius:7px;
+    margin-top:1px; display:flex; align-items:center; justify-content:center;
+    font-size:16px; color:#fff; background:#fff; transition:background .12s;}
+  .oitem.done .box{background:var(--ok); border-color:var(--ok);}
+  .otext{flex:1; min-width:0;}
+  .otask{font-weight:700; font-size:13.5px; color:var(--navy);}
+  .oitem.done .otask{color:var(--gray); text-decoration:line-through;}
+  .onote{font-size:12.5px; color:var(--gray);}
+  .ofields{display:grid; grid-template-columns:repeat(auto-fit, minmax(110px, 1fr)); gap:8px;
+    margin:8px 0 0 38px;}
+  .ofields .field label{font-size:10.5px;}
+  .ofields input{padding:6px 8px; font-size:12.5px;}
+  details.ann{margin:7px 0 0 38px; font-size:12.5px;}
+  details.ann summary{cursor:pointer; color:var(--amber); font-weight:700; list-style:none;}
+  details.ann summary::-webkit-details-marker{display:none;}
+  details.ann summary::before{content:"ⓘ "; }
+  details.ann .anntext{background:var(--amber-bg); border-left:3px solid var(--amber-line);
+    border-radius:0 8px 8px 0; padding:9px 12px; margin-top:6px; white-space:pre-line; color:#4a3a20;}
+  table.ref{width:100%; border-collapse:collapse; font-size:12.5px;}
+  table.ref td{padding:6px 8px; border-bottom:1px solid var(--line);}
+  table.ref td:first-child{font-weight:700; color:var(--navy);}
+  .refnote{font-size:12px; color:var(--gray); margin-top:8px;}
+  .card.wx td:last-child{font-weight:700; color:var(--accent);}
+  .card.cont{border-left:5px solid var(--red);}
+  .card.cont h2{color:var(--red);}
+  .card.cont ol{margin:0; padding-left:20px; font-size:13px; font-weight:600;}
+  .card.cont li{margin-bottom:7px;}
+  .btnrow{display:flex; gap:10px; flex-wrap:wrap;}
+  .btnrow button{flex:1 1 150px; padding:12px; border:none; border-radius:8px; font-size:14px;
+    font-weight:750; cursor:pointer;}
+  #resetbtn{background:var(--accent); color:#fff;}
+  .footer{text-align:center; font-size:11px; color:var(--gray); margin-top:20px; line-height:1.7;}
+  .footer a{color:var(--accent);}
+</style>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1B2A4A">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Oceanic">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+</head>
+<body>
+<div class="wrap">
+
+  <div class="header">
+    <h1>Oceanic Checklist — NAT-HLA</h1>
+    <p>Flight planning → coast in · single-user · works offline</p>
+  </div>
+
+  <div class="progress">
+    <b id="pct">0%</b>
+    <span class="pill" id="c-done">0 / 0 done</span>
+    <span style="margin-left:auto; font-size:11.5px; color:var(--gray)" id="autosave"></span>
+  </div>
+
+  <div class="card">
+    <h2>Crossing</h2>
+    <div class="hrow">
+      <div class="field"><label>Date</label><input type="date" id="h_date"></div>
+      <div class="field"><label>Flight / Route</label><input type="text" id="h_route" placeholder="e.g. SBSP → LSGG"></div>
+      <div class="field"><label>Tail Number</label><input type="text" id="h_tail"></div>
+      <div class="field"><label>Crew</label><input type="text" id="h_crew"></div>
+    </div>
+  </div>
+
+  <div id="phases"></div>
+
+  <div class="card">
+    <h2>Oceanic clearance / RCL windows from the OEP</h2>
+    <table class="ref" id="acctable"></table>
+    <div class="refnote" id="accnote"></div>
+  </div>
+
+  <div class="card wx">
+    <h2>Weather avoidance</h2>
+    <table class="ref" id="wxtable"></table>
+  </div>
+
+  <div class="card cont">
+    <h2>Inflight contingency procedure</h2>
+    <ol id="contlist"></ol>
+    <details class="ann"><summary>Study note — EDM</summary>
+      <div class="anntext" id="edmnote"></div></details>
+  </div>
+
+  <div class="card">
+    <div class="btnrow">
+      <button id="resetbtn" onclick="newCrossing()">New crossing (reset checklist)</button>
+    </div>
+    <p style="font-size:11.5px; color:var(--gray); margin:10px 0 0">
+      Checks and recorded values are kept on this device while you work; "New crossing" clears them
+      (Tail Number and Crew are kept).
+    </p>
+  </div>
+
+  <div class="footer">
+    NAT-HLA operational checklist from the operator's own documentation, with study notes.<br>
+    Support tool — it does not replace the AFM/AOM, the NAT Doc 007, current OACs' procedures or the
+    captain's judgement. Confirm windows and frequencies in the current publications.
+  </div>
+
+</div>
+
+<script src="oceanic_data.js"></script>
+<script>
+var state = null;
+var openSecs = {0: true};
+
+function blank(keepId){
+  var s = { header: { date: new Date().toISOString().slice(0, 10), route: '', tail: '', crew: '' },
+            checks: [], fields: {} };
+  if (keepId && state){
+    s.header.tail = state.header.tail || '';
+    s.header.crew = state.header.crew || '';
+  }
+  OCEANIC.forEach(function(ph){ s.checks.push(ph.items.map(function(){ return false; })); });
+  return s;
+}
+
+function esc(t){ return (t || '').replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
+function escA(t){ return esc(t).replace(/"/g, '&quot;'); }
+
+function itemHTML(pi, ii){
+  var it = OCEANIC[pi].items[ii];
+  var done = state.checks[pi][ii];
+  var html = '<div class="oitem' + (done ? ' done' : '') + '" id="oi_' + pi + '_' + ii + '">' +
+    '<div class="orow" onclick="toggle(' + pi + ',' + ii + ')">' +
+    '<div class="box">' + (done ? '✓' : '') + '</div>' +
+    '<div class="otext"><div class="otask">' + esc(it.t) + '</div>' +
+    (it.n ? '<div class="onote">' + esc(it.n) + '</div>' : '') +
+    '</div></div>';
+  if (it.f){
+    html += '<div class="ofields">' + it.f.map(function(lbl){
+      var key = pi + ':' + ii + ':' + lbl;
+      return '<div class="field"><label>' + esc(lbl) + '</label>' +
+        '<input value="' + escA(state.fields[key] || '') + '" ' +
+        'onclick="event.stopPropagation()" onchange="setF(\'' + key.replace(/'/g, "\\'") + '\', this.value)"></div>';
+    }).join('') + '</div>';
+  }
+  if (it.a){
+    html += '<details class="ann"><summary>Study note</summary>' +
+      '<div class="anntext">' + esc(it.a) + '</div></details>';
+  }
+  return html + '</div>';
+}
+
+function render(){
+  document.getElementById('phases').innerHTML = OCEANIC.map(function(ph, pi){
+    var rows = ph.items.map(function(_, ii){ return itemHTML(pi, ii); }).join('');
+    return '<details class="sec"' + (openSecs[pi] ? ' open' : '') +
+      ' ontoggle="openSecs[' + pi + ']=this.open">' +
+      '<summary>' + esc(ph.phase) + '<span class="count" id="cnt_' + pi + '"></span></summary>' +
+      '<div class="secbody">' + rows + '</div></details>';
+  }).join('');
+  ['date','route','tail','crew'].forEach(function(k){
+    document.getElementById('h_' + k).value = state.header[k] || '';
+  });
+  refresh();
+}
+
+function refresh(){
+  var done = 0, total = 0;
+  OCEANIC.forEach(function(ph, pi){
+    var d = 0;
+    ph.items.forEach(function(_, ii){ total++; if (state.checks[pi][ii]){ done++; d++; } });
+    var el = document.getElementById('cnt_' + pi);
+    if (el){ el.textContent = d + '/' + ph.items.length;
+      el.className = 'count' + (d === ph.items.length ? ' done' : ''); }
+  });
+  document.getElementById('pct').textContent = total ? Math.round(done / total * 100) + '%' : '0%';
+  document.getElementById('c-done').textContent = done + ' / ' + total + ' done';
+}
+
+function toggle(pi, ii){
+  state.checks[pi][ii] = !state.checks[pi][ii];
+  autosave();
+  var el = document.getElementById('oi_' + pi + '_' + ii);
+  if (el) el.outerHTML = itemHTML(pi, ii);
+  refresh();
+}
+
+function setF(key, v){
+  state.fields[key] = v;
+  autosave();
+}
+
+function headerChanged(){
+  ['date','route','tail','crew'].forEach(function(k){
+    state.header[k] = document.getElementById('h_' + k).value;
+  });
+  autosave();
+}
+
+var saveTimer = null;
+function autosave(){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(function(){
+    try {
+      localStorage.setItem('oceanic_state', JSON.stringify(state));
+      document.getElementById('autosave').textContent = 'saved ' + new Date().toTimeString().slice(0, 5);
+    } catch(e){}
+  }, 300);
+}
+
+function newCrossing(){
+  if (!confirm('Start a new crossing? All checks and recorded values will be cleared.')) return;
+  state = blank(true);
+  try { localStorage.setItem('oceanic_state', JSON.stringify(state)); } catch(e){}
+  openSecs = {0: true};
+  render();
+  window.scrollTo({top: 0});
+}
+
+// referência
+document.getElementById('acctable').innerHTML = ACC_TABLE.map(function(r){
+  return '<tr><td>' + r[0] + '</td><td>' + r[1] + '</td></tr>';
+}).join('');
+document.getElementById('accnote').textContent = ACC_NOTE;
+document.getElementById('wxtable').innerHTML = WX_AVOID.map(function(r){
+  return '<tr><td>' + r[0] + '</td><td>' + r[1] + '</td></tr>';
+}).join('');
+document.getElementById('contlist').innerHTML = CONTINGENCY.map(function(l){
+  return '<li>' + l + '</li>';
+}).join('');
+document.getElementById('edmnote').textContent = EDM_NOTE;
+
+document.addEventListener('change', function(e){
+  if (/^h_/.test(e.target.id)) headerChanged();
+});
+
+try {
+  var saved = JSON.parse(localStorage.getItem('oceanic_state') || 'null');
+  if (saved && saved.checks && saved.checks.length === OCEANIC.length &&
+      saved.checks.every(function(c, i){ return c.length === OCEANIC[i].items.length; })){
+    state = saved;
+  } else state = blank(false);
+} catch(e){ state = blank(false); }
+render();
+</script>
+
+<div style="text-align:center; font-size:11px; margin:16px 0 0; opacity:.75">
+<a href="../legal/" style="color:inherit">Operational disclaimer · Privacy · Terms of use</a></div>
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function(){ navigator.serviceWorker.register('sw.js'); });
+}
+</script>
+</body>
+</html>
