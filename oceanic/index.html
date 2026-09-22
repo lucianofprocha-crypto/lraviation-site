@@ -65,7 +65,12 @@
   details.ann summary{cursor:pointer; color:var(--amber); font-weight:700; list-style:none;}
   details.ann summary::-webkit-details-marker{display:none;}
   details.ann summary::before{content:"ⓘ ";}
-  details.ann summary.empty{color:#b9a98c;}
+  .warn{flex:none; border:none; background:var(--amber-bg); color:var(--amber);
+    width:28px; height:28px; border-radius:8px; font-size:15px; cursor:pointer;
+    margin-top:1px; line-height:1;}
+  .warn.on{background:var(--amber); color:#fff;}
+  .remblock{display:none; margin:7px 0 0 40px;}
+  .remblock.open{display:block;}
   textarea.remtext{background:var(--amber-bg); border:none; border-left:3px solid var(--amber-line);
     border-radius:0 8px 8px 0; padding:9px 12px; margin-top:6px; color:#4a3a20;
     font-size:12.5px; overflow:hidden; min-height:34px; resize:none;}
@@ -248,6 +253,7 @@
   <div class="card">
     <div class="btnrow">
       <button id="resetbtn" onclick="newCrossing()">New crossing (reset checklist)</button>
+      <button id="pdfbtn" onclick="exportPDF()" style="background:#e6eaf0; color:var(--navy)">Export PDF (everything)</button>
     </div>
     <p style="font-size:11.5px; color:var(--gray); margin:10px 0 0">
       Checks and recorded values are cleared by "New crossing"; item texts, remarks you edited,
@@ -263,10 +269,13 @@
 
 </div>
 
+<script src="jspdf.umd.min.js"></script>
+<script src="jspdf.plugin.autotable.min.js"></script>
 <script src="oceanic_data.js"></script>
 <script>
 var state = null;
 var openSecs = {0: true};
+var openRem = {};
 
 function blank(keepId){
   var s = { header: { date: new Date().toISOString().slice(0, 10), route: '', tail: '', crew: '' },
@@ -301,24 +310,31 @@ function itemHTML(pi, ii){
   var it = OCEANIC[pi].items[ii];
   var done = state.checks[pi][ii];
   var t = itemVal(pi, ii, 't'), n = itemVal(pi, ii, 'n'), a = itemVal(pi, ii, 'a');
+  var key = pi + ':' + ii;
+  var hasRem = !!(a && a.trim());
+  var open = hasRem && openRem[key];
   var html = '<div class="oitem' + (done ? ' done' : '') + '" id="oi_' + pi + '_' + ii + '">' +
     '<div class="orow">' +
     '<div class="box" onclick="toggle(' + pi + ',' + ii + ')">' + (done ? '✓' : '') + '</div>' +
     '<div class="otext">' +
     '<input class="etask" value="' + escA(t) + '" placeholder="Task" onchange="setEdit(' + pi + ',' + ii + ',\'t\',this.value)">' +
     '<input class="enote" value="' + escA(n) + '" placeholder="Note" onchange="setEdit(' + pi + ',' + ii + ',\'n\',this.value)">' +
-    '</div></div>';
+    '</div>' +
+    (hasRem ? '<button class="warn' + (open ? ' on' : '') + '" title="Remarks" onclick="toggleRem(' + pi + ',' + ii + ')">⚠</button>' : '') +
+    '</div>';
   if (it.f){
     html += '<div class="ofields">' + it.f.map(function(lbl){
-      var key = pi + ':' + ii + ':' + lbl;
+      var fkey = pi + ':' + ii + ':' + lbl;
       return '<div class="field"><label>' + esc(lbl) + '</label>' +
-        '<input value="' + escA(state.fields[key] || '') + '" ' +
-        'onchange="setF(\'' + key.replace(/'/g, "\\'") + '\', this.value)"></div>';
+        '<input value="' + escA(state.fields[fkey] || '') + '" ' +
+        'onchange="setF(\'' + fkey.replace(/'/g, "\\'") + '\', this.value)"></div>';
     }).join('') + '</div>';
   }
-  html += '<details class="ann"' + (a ? '' : '') + '><summary' + (a ? '' : ' class="empty"') + '>Remarks</summary>' +
-    '<textarea class="remtext" placeholder="Remarks" oninput="autoGrow(this)" ' +
-    'onchange="setEdit(' + pi + ',' + ii + ',\'a\',this.value)">' + esc(a) + '</textarea></details>';
+  if (hasRem){
+    html += '<div class="remblock' + (open ? ' open' : '') + '">' +
+      '<textarea class="remtext" oninput="autoGrow(this)" ' +
+      'onchange="setEdit(' + pi + ',' + ii + ',\'a\',this.value)">' + esc(a) + '</textarea></div>';
+  }
   return html + '</div>';
 }
 
@@ -358,16 +374,23 @@ function refresh(){
   document.getElementById('c-done').textContent = done + ' / ' + total + ' done';
 }
 
+function toggleRem(pi, ii){
+  var key = pi + ':' + ii;
+  openRem[key] = !openRem[key];
+  var el = document.getElementById('oi_' + pi + '_' + ii);
+  if (el) el.outerHTML = itemHTML(pi, ii);
+  var nel = document.getElementById('oi_' + pi + '_' + ii);
+  if (nel) nel.querySelectorAll('textarea.remtext').forEach(autoGrow);
+}
+
 function toggle(pi, ii){
   state.checks[pi][ii] = !state.checks[pi][ii];
   autosave();
   var el = document.getElementById('oi_' + pi + '_' + ii);
   if (el){
-    var open = el.querySelector('details.ann') && el.querySelector('details.ann').open;
     el.outerHTML = itemHTML(pi, ii);
     var nel = document.getElementById('oi_' + pi + '_' + ii);
-    if (open && nel){ nel.querySelector('details.ann').open = true; }
-    nel.querySelectorAll('textarea.remtext').forEach(autoGrow);
+    if (nel) nel.querySelectorAll('textarea.remtext').forEach(autoGrow);
   }
   refresh();
 }
@@ -393,6 +416,66 @@ function autosave(){
       document.getElementById('autosave').textContent = 'saved ' + new Date().toTimeString().slice(0, 5);
     } catch(e){}
   }, 300);
+}
+
+function exportPDF(){
+  headerChanged();
+  if (!window.jspdf || !window.jspdf.jsPDF){
+    alert('PDF module not loaded — connect once online and retry.');
+    return;
+  }
+  var doc = new window.jspdf.jsPDF({orientation: 'p', unit: 'mm', format: 'a4'});
+  var h = state.header;
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(13);
+  doc.text('Oceanic Checklist - NAT-HLA', 14, 14);
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5); doc.setTextColor(70);
+  doc.text('Date: ' + (h.date || '-') + '   Flight/Route: ' + (h.route || '-') +
+    '   Tail: ' + (h.tail || '-') + '   Crew: ' + (h.crew || '-'), 14, 20);
+  var y = 25;
+
+  OCEANIC.forEach(function(ph, pi){
+    var body = [];
+    ph.items.forEach(function(it, ii){
+      var t = itemVal(pi, ii, 't'), n = itemVal(pi, ii, 'n'), a = itemVal(pi, ii, 'a');
+      var recs = '';
+      if (it.f){
+        recs = it.f.map(function(lbl){
+          var v = state.fields[pi + ':' + ii + ':' + lbl] || '';
+          return v ? lbl + ': ' + v : null;
+        }).filter(Boolean).join('\n');
+      }
+      body.push([
+        t + (n ? '\n' + n : ''),
+        state.checks[pi][ii] ? 'DONE' : '-',
+        recs,
+        (a || '')
+      ]);
+    });
+    doc.autoTable({
+      startY: y,
+      head: [[ph.phase, '', 'Records', 'Remarks']],
+      body: body,
+      styles: {fontSize: 6.6, cellPadding: 1.2, valign: 'top', overflow: 'linebreak'},
+      headStyles: {fillColor: [27, 42, 74], fontSize: 7.2},
+      columnStyles: {0: {cellWidth: 56}, 1: {cellWidth: 13}, 2: {cellWidth: 34}, 3: {cellWidth: 79}},
+      margin: {left: 14, right: 14},
+      didParseCell: function(d){
+        if (d.section === 'body' && d.column.index === 1 && d.cell.raw === 'DONE'){
+          d.cell.styles.textColor = [27, 122, 61]; d.cell.styles.fontStyle = 'bold';
+        }
+      }
+    });
+    y = doc.lastAutoTable.finalY + 4;
+    if (y > 260){ doc.addPage(); y = 14; }
+  });
+
+  var pages = doc.getNumberOfPages();
+  for (var p = 1; p <= pages; p++){
+    doc.setPage(p);
+    doc.setFontSize(7); doc.setTextColor(120);
+    doc.text('Generated by LR Aviation FlightOps Companion - page ' + p + '/' + pages, 14, 291);
+  }
+  doc.save('oceanic_crossing_' + (h.date || new Date().toISOString().slice(0, 10)) + '.pdf');
 }
 
 function newCrossing(){
