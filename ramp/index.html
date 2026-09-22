@@ -30,8 +30,8 @@
     padding:16px 18px; margin-bottom:14px;}
   .card h2{font-size:12.5px; text-transform:uppercase; letter-spacing:.04em;
     color:var(--accent); margin:0 0 10px; font-weight:750;}
-  .hrow{display:flex; gap:10px; flex-wrap:wrap;}
-  .hrow .field{flex:1 1 150px;}
+  .hrow{display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:10px;}
+  .hrow .field.full{grid-column:1 / -1;}
   .field label{display:block; font-size:11.5px; color:var(--gray); margin-bottom:3px; font-weight:600;}
   input, textarea{width:100%; padding:7px 9px; font-size:13.5px; border:1px solid var(--line);
     border-radius:7px; background:#fff; font-family:inherit;}
@@ -50,8 +50,18 @@
   .item:first-of-type{border-top:none;}
   .irow{display:flex; gap:10px; align-items:flex-start; flex-wrap:wrap;}
   .imain{flex:1 1 260px; min-width:220px;}
-  .iname{font-weight:700; font-size:13.5px; color:var(--navy);}
-  .iloc{font-size:12px; color:var(--gray);}
+  input.ename{font-weight:700; font-size:13.5px; color:var(--navy); border:none; background:transparent;
+    padding:1px 2px; width:100%; border-bottom:1px dashed transparent; border-radius:0;}
+  input.eloc{font-size:12px; color:var(--gray); border:none; background:transparent;
+    padding:1px 2px; width:100%; border-bottom:1px dashed transparent; border-radius:0;}
+  input.ename:hover, input.eloc:hover{border-bottom-color:var(--line);}
+  input.ename:focus, input.eloc:focus{outline:none; border-bottom:1px dashed var(--accent); background:#f7fafd;}
+  .secbtns{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px;}
+  .secbtns .verifyall{margin-bottom:0;}
+  .verifyall.na{background:var(--nc-bg); color:var(--nc);}
+  .verifyall.add{background:var(--ok-bg); color:var(--ok);}
+  .naline{font-size:12.5px; color:var(--gray); padding:4px 0 8px;}
+  .naline a{color:var(--accent); cursor:pointer;}
   .chips{margin-top:3px;}
   .chip{display:inline-block; font-size:10.5px; font-weight:700; border-radius:10px;
     padding:1px 8px; margin-right:5px; background:#eef2f7; color:var(--accent);}
@@ -131,11 +141,11 @@
     <h2>Inspection header</h2>
     <div class="hrow">
       <div class="field"><label>Inspection date</label><input type="date" id="h_date"></div>
-      <div class="field"><label>Aircraft</label><input type="text" id="h_aircraft"></div>
+      <div class="field"><label>Tail Number</label><input type="text" id="h_aircraft"></div>
       <div class="field"><label>Serial number</label><input type="text" id="h_serial"></div>
       <div class="field"><label>Inspector</label><input type="text" id="h_inspector"></div>
       <div class="field"><label>Location</label><input type="text" id="h_location"></div>
-      <div class="field" style="flex:2 1 100%"><label>Notes</label><input type="text" id="h_notes"></div>
+      <div class="field full"><label>Notes</label><input type="text" id="h_notes"></div>
     </div>
   </div>
 
@@ -157,7 +167,7 @@
   <div class="card">
     <h2>Saved inspections (this device)</h2>
     <table class="hist">
-      <thead><tr><th>Date</th><th>Aircraft</th><th>Verified</th><th>NC</th><th>Inspector</th></tr></thead>
+      <thead><tr><th>Date</th><th>Tail</th><th>Verified</th><th>NC</th><th>Inspector</th></tr></thead>
       <tbody id="histbody"></tbody>
     </table>
   </div>
@@ -192,13 +202,16 @@ function blankFromTemplate(inherit){
     s.header.inspector = last.header.inspector || '';
   }
   TEMPLATE.forEach(function(sec, si){
+    var lastSec = last && last.sections && last.sections[si];
     var items = sec.items.map(function(it, ii){
       var seed = SEED[si + ':' + ii] || [null, null, null, null];
-      var o = { name: it[0], loc: it[1], cond: it[2], remarks: it[3] || '', applies: it[4],
+      var o = { name: it[0], loc: it[1] || '', cond: it[2], remarks: it[3] || '', applies: it[4],
                 status: 'Pending', insp: seed[0] || '', due: seed[1] || '', removed: false };
       if (seed[2]) o.remarks = (o.remarks ? o.remarks + ' · ' : '') + seed[2];
-      if (last && last.sections && last.sections[si] && last.sections[si].items[ii]){
-        var p = last.sections[si].items[ii];
+      if (lastSec && lastSec.items[ii]){
+        var p = lastSec.items[ii];
+        if (p.name) o.name = p.name;
+        if (p.loc !== undefined && p.loc !== null) o.loc = p.loc;
         o.insp = p.insp || o.insp;
         o.due = p.due || o.due;
         o.remarks = (p.remarks !== undefined && p.remarks !== null) ? p.remarks : o.remarks;
@@ -206,7 +219,16 @@ function blankFromTemplate(inherit){
       }
       return o;
     });
-    s.sections.push({ name: sec.name, items: items });
+    // itens personalizados adicionados em inspeções anteriores (além do template)
+    if (lastSec && lastSec.items.length > sec.items.length){
+      lastSec.items.slice(sec.items.length).forEach(function(p){
+        items.push({ name: p.name || 'Item', loc: p.loc || '', cond: p.cond || null,
+          remarks: p.remarks || '', applies: p.applies || null, custom: true,
+          status: 'Pending', insp: p.insp || '', due: p.due || '', removed: !!p.removed });
+      });
+    }
+    s.sections.push({ name: sec.name, items: items,
+      removed: !!(lastSec && lastSec.removed) });
   });
   return s;
 }
@@ -220,6 +242,7 @@ function dueClass(due){
 }
 
 function esc(t){ return (t || '').replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
+function escA(t){ return esc(t).replace(/"/g, '&quot;'); }
 
 function itemHTML(si, ii){
   var o = state.sections[si].items[ii];
@@ -229,8 +252,9 @@ function itemHTML(si, ii){
   var dc = dueClass(o.due);
   if (dc) chips += '<span class="chip ' + dc[0] + '">' + dc[1] + '</span>';
   return '<div class="irow">' +
-    '<div class="imain"><div class="iname">' + esc(o.name) + '</div>' +
-    (o.loc ? '<div class="iloc">' + esc(o.loc) + '</div>' : '') +
+    '<div class="imain">' +
+    '<input class="ename" value="' + escA(o.name) + '" placeholder="Item name" onchange="setField(' + si + ',' + ii + ',\'name\',this.value)">' +
+    '<input class="eloc" value="' + escA(o.loc) + '" placeholder="Location" onchange="setField(' + si + ',' + ii + ',\'loc\',this.value)">' +
     '<div class="chips">' + chips + '</div></div>' +
     '<div class="status">' +
     '<button class="v' + (o.status === 'Verified' ? ' on' : '') + '" onclick="setStatus(' + si + ',' + ii + ',\'Verified\')">Verified</button>' +
@@ -248,6 +272,10 @@ function itemHTML(si, ii){
 
 function sectionBodyHTML(si){
   var sec = state.sections[si];
+  if (sec.removed){
+    return '<div class="naline">Section marked not applicable to this aircraft — ' +
+      '<a onclick="toggleSectionNA(' + si + ')">restore</a></div>';
+  }
   var rows = '';
   var removed = 0;
   sec.items.forEach(function(o, ii){
@@ -255,7 +283,11 @@ function sectionBodyHTML(si){
     rows += '<div class="item" id="it_' + si + '_' + ii + '">' + itemHTML(si, ii) + '</div>';
   });
   var extra = removed ? '<div class="removedline">' + removed + ' item(s) removed as not applicable — <a onclick="restoreSection(' + si + ')">restore</a></div>' : '';
-  return '<button class="verifyall" onclick="verifySection(' + si + ')">✓ Verify all in this section (today)</button>' + rows + extra;
+  return '<div class="secbtns">' +
+    '<button class="verifyall" onclick="verifySection(' + si + ')">✓ Verify all (today)</button>' +
+    '<button class="verifyall add" onclick="addItem(' + si + ')">+ Add item</button>' +
+    '<button class="verifyall na" onclick="toggleSectionNA(' + si + ')">Section N/A</button>' +
+    '</div>' + rows + extra;
 }
 
 function render(){
@@ -284,6 +316,11 @@ function autoGrow(t){
 function refreshCounters(){
   var ok = 0, nc = 0, pend = 0, total = 0;
   state.sections.forEach(function(sec, si){
+    var el = document.getElementById('cnt_' + si);
+    if (sec.removed){
+      if (el){ el.textContent = 'N/A'; el.className = 'count'; }
+      return;
+    }
     var done = 0, act = 0;
     sec.items.forEach(function(o){
       if (o.removed) return;
@@ -292,7 +329,6 @@ function refreshCounters(){
       else if (o.status === 'NC'){ nc++; done++; }
       else pend++;
     });
-    var el = document.getElementById('cnt_' + si);
     if (el){ el.textContent = done + '/' + act;
       el.className = 'count' + (act && done === act ? ' done' : ''); }
   });
@@ -322,9 +358,20 @@ function setField(si, ii, k, v){
   if (k === 'due' || k === 'insp') repaintItem(si, ii);
 }
 
+function addItem(si){
+  state.sections[si].items.push({ name: '', loc: '', cond: null, remarks: '', applies: null,
+    custom: true, status: 'Pending', insp: '', due: '', removed: false });
+  autosave();
+  document.getElementById('sb_' + si).innerHTML = sectionBodyHTML(si);
+  growAll();
+  refreshCounters();
+  var inputs = document.querySelectorAll('#sb_' + si + ' .item:last-of-type input.ename');
+  if (inputs.length) inputs[0].focus();
+}
+
 function removeItem(si, ii){
   var o = state.sections[si].items[ii];
-  if (!confirm('Remove "' + o.name + '" from this inspection as not applicable?')) return;
+  if (!confirm('Remove "' + (o.name || 'this item') + '" from this inspection as not applicable?')) return;
   o.removed = true;
   o.status = 'Pending';
   autosave();
@@ -335,6 +382,16 @@ function removeItem(si, ii){
 
 function restoreSection(si){
   state.sections[si].items.forEach(function(o){ o.removed = false; });
+  autosave();
+  document.getElementById('sb_' + si).innerHTML = sectionBodyHTML(si);
+  growAll();
+  refreshCounters();
+}
+
+function toggleSectionNA(si){
+  var sec = state.sections[si];
+  if (!sec.removed && !confirm('Mark the whole section "' + sec.name + '" as not applicable to this aircraft?')) return;
+  sec.removed = !sec.removed;
   autosave();
   document.getElementById('sb_' + si).innerHTML = sectionBodyHTML(si);
   growAll();
@@ -376,9 +433,12 @@ function saveInspection(){
   try {
     var hist = JSON.parse(localStorage.getItem('ramp_hist') || '[]');
     var ok = 0, nc = 0;
-    state.sections.forEach(function(s){ s.items.forEach(function(o){
-      if (o.removed) return;
-      if (o.status === 'Verified') ok++; if (o.status === 'NC') nc++; }); });
+    state.sections.forEach(function(sec){
+      if (sec.removed) return;
+      sec.items.forEach(function(o){
+        if (o.removed) return;
+        if (o.status === 'Verified') ok++; if (o.status === 'NC') nc++; });
+    });
     hist.unshift({ ts: new Date().toISOString(), header: state.header, ok: ok, nc: nc });
     localStorage.setItem('ramp_hist', JSON.stringify(hist.slice(0, 20)));
     localStorage.setItem('ramp_last', JSON.stringify(state));
@@ -389,7 +449,7 @@ function saveInspection(){
 }
 
 function newInspection(confirmFirst){
-  if (confirmFirst && !confirm('Start a new inspection? Statuses reset to Pending; dates, remarks and removed items are inherited from the last saved inspection.')) return;
+  if (confirmFirst && !confirm('Start a new inspection? Statuses reset to Pending; names, dates, remarks, added and removed items are inherited from the last saved inspection.')) return;
   state = blankFromTemplate(true);
   try { localStorage.removeItem('ramp_draft'); } catch(e){}
   render();
@@ -408,8 +468,7 @@ function exportJSON(){
 function exportPDF(){
   headerChanged();
   if (!window.jspdf || !window.jspdf.jsPDF){
-    document.getElementById('printview').innerHTML = '';
-    window.print();
+    alert('PDF module not loaded — connect once online and retry.');
     return;
   }
   var doc = new window.jspdf.jsPDF({orientation: 'p', unit: 'mm', format: 'a4'});
@@ -417,18 +476,19 @@ function exportPDF(){
   doc.setFont('helvetica', 'bold'); doc.setFontSize(13);
   doc.text('Ramp Inspection Checklist - Emergency Equipment', 14, 14);
   doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5); doc.setTextColor(70);
-  doc.text('Date: ' + (h.date || '-') + '   Aircraft: ' + (h.aircraft || '-') +
+  doc.text('Date: ' + (h.date || '-') + '   Tail: ' + (h.aircraft || '-') +
     '   S/N: ' + (h.serial || '-') + '   Inspector: ' + (h.inspector || '-') +
     '   Location: ' + (h.location || '-'), 14, 20);
   if (h.notes) doc.text('Notes: ' + h.notes, 14, 24.5);
   var y = h.notes ? 28 : 24;
 
   state.sections.forEach(function(sec){
+    if (sec.removed) return;
     var body = [];
     sec.items.forEach(function(o){
       if (o.removed) return;
       body.push([
-        o.name + (o.loc ? '\n' + o.loc : ''),
+        (o.name || '') + (o.loc ? '\n' + o.loc : ''),
         o.status, o.insp || '', o.due || '', o.remarks || ''
       ]);
     });
@@ -479,8 +539,13 @@ document.addEventListener('change', function(e){
 try {
   var draft = JSON.parse(localStorage.getItem('ramp_draft') || 'null');
   state = draft || blankFromTemplate(true);
-  state.sections.forEach(function(sec){ sec.items.forEach(function(o){
-    if (o.removed === undefined) o.removed = false; }); });
+  state.sections.forEach(function(sec){
+    if (sec.removed === undefined) sec.removed = false;
+    sec.items.forEach(function(o){
+      if (o.removed === undefined) o.removed = false;
+      if (o.loc === undefined || o.loc === null) o.loc = '';
+    });
+  });
 } catch(e){ state = blankFromTemplate(true); }
 render();
 loadHist();
