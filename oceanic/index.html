@@ -50,13 +50,15 @@
     font-size:17px; color:#fff; background:#fff; cursor:pointer; transition:background .12s;}
   .oitem.done .box{background:var(--ok); border-color:var(--ok);}
   .otext{flex:1; min-width:0;}
-  input.etask{font-weight:700; font-size:13.5px; color:var(--navy); border:none; background:transparent;
-    padding:1px 2px; width:100%; border-bottom:1px dashed transparent; border-radius:0;}
-  input.enote{font-size:12.5px; color:var(--gray); border:none; background:transparent;
-    padding:1px 2px; width:100%; border-bottom:1px dashed transparent; border-radius:0;}
-  input.etask:hover, input.enote:hover{border-bottom-color:var(--line);}
-  input.etask:focus, input.enote:focus{outline:none; border-bottom:1px dashed var(--accent); background:#f7fafd;}
-  .oitem.done input.etask{color:var(--gray); text-decoration:line-through;}
+  textarea.etask{font-weight:700; font-size:13.5px; color:var(--navy); border:none; background:transparent;
+    padding:1px 2px; width:100%; border-bottom:1px dashed transparent; border-radius:0;
+    resize:none; overflow:hidden; min-height:20px; line-height:1.4;}
+  textarea.enote{font-size:12.5px; color:var(--gray); border:none; background:transparent;
+    padding:1px 2px; width:100%; border-bottom:1px dashed transparent; border-radius:0;
+    resize:none; overflow:hidden; min-height:18px; line-height:1.4;}
+  textarea.etask:hover, textarea.enote:hover{border-bottom-color:var(--line);}
+  textarea.etask:focus, textarea.enote:focus{outline:none; border-bottom:1px dashed var(--accent); background:#f7fafd;}
+  .oitem.done textarea.etask{color:var(--gray); text-decoration:line-through;}
   .ofields{display:grid; grid-template-columns:repeat(auto-fit, minmax(110px, 1fr)); gap:8px;
     margin:8px 0 0 40px;}
   .ofields .field label{font-size:10.5px;}
@@ -182,8 +184,10 @@
         <tr><td><a href="bulletins/2026-001-oesb.pdf" target="_blank">2026-001</a></td>
             <td>OESB — Oceanic Errors Safety Bulletin (18 SEP 2026)</td></tr>
       </table>
-      <p class="refnote" style="margin-top:8px">Official source for currency: ICAO EUR/NAT website —
-        check the bulletin checklist when a new one is announced and replace the files here.</p>
+      <p class="refnote" style="margin-top:8px">Official source for currency:
+        <a href="https://www.icao.int/EURNAT/EUR-NAT-DOCS?fid=3493#block-icao-page-title" target="_blank"
+        style="color:var(--accent)">ICAO EUR/NAT — NAT OPS Bulletins</a> — check the bulletin checklist
+        when a new one is announced and replace the files here.</p>
     </div>
   </details>
 
@@ -343,8 +347,8 @@ function itemHTML(pi, ii){
     '<div class="orow">' +
     '<div class="box" onclick="toggle(' + pi + ',' + ii + ')">' + (done ? '✓' : '') + '</div>' +
     '<div class="otext">' +
-    '<input class="etask" value="' + escA(t) + '" placeholder="Task" onchange="setEdit(' + pi + ',' + ii + ',\'t\',this.value)">' +
-    '<input class="enote" value="' + escA(n) + '" placeholder="Note" onchange="setEdit(' + pi + ',' + ii + ',\'n\',this.value)">' +
+    '<textarea class="etask" rows="1" placeholder="Task" oninput="autoGrow(this)" onchange="setEdit(' + pi + ',' + ii + ',\'t\',this.value)">' + esc(t) + '</textarea>' +
+    '<textarea class="enote" rows="1" placeholder="Note" oninput="autoGrow(this)" onchange="setEdit(' + pi + ',' + ii + ',\'n\',this.value)">' + esc(n) + '</textarea>' +
     '</div>' +
     (hasRem ? '<button class="warn' + (open ? ' on' : '') + '" title="Remarks" onclick="toggleRem(' + pi + ',' + ii + ')">⚠</button>' : '') +
     '</div>';
@@ -380,7 +384,7 @@ function render(){
 }
 
 function growAll(){
-  document.querySelectorAll('textarea.remtext').forEach(autoGrow);
+  document.querySelectorAll('textarea.remtext, textarea.etask, textarea.enote').forEach(autoGrow);
 }
 function autoGrow(t){
   t.style.height = 'auto';
@@ -406,7 +410,7 @@ function toggleRem(pi, ii){
   var el = document.getElementById('oi_' + pi + '_' + ii);
   if (el) el.outerHTML = itemHTML(pi, ii);
   var nel = document.getElementById('oi_' + pi + '_' + ii);
-  if (nel) nel.querySelectorAll('textarea.remtext').forEach(autoGrow);
+  if (nel) nel.querySelectorAll('textarea').forEach(autoGrow);
 }
 
 function toggle(pi, ii){
@@ -416,7 +420,7 @@ function toggle(pi, ii){
   if (el){
     el.outerHTML = itemHTML(pi, ii);
     var nel = document.getElementById('oi_' + pi + '_' + ii);
-    if (nel) nel.querySelectorAll('textarea.remtext').forEach(autoGrow);
+    if (nel) nel.querySelectorAll('textarea').forEach(autoGrow);
   }
   refresh();
 }
