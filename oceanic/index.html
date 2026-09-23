@@ -533,11 +533,17 @@ document.addEventListener('change', function(e){
 
 try {
   var saved = JSON.parse(localStorage.getItem('oceanic_state') || 'null');
-  if (saved && saved.checks && saved.checks.length === OCEANIC.length &&
-      saved.checks.every(function(c, i){ return c.length === OCEANIC[i].items.length; })){
+  if (saved && saved.checks){
     state = saved;
     if (!state.edits) state.edits = {};
     if (!state.fields) state.fields = {};
+    // migração: novas fases/itens entram como não marcados, nada existente se perde
+    OCEANIC.forEach(function(ph, pi){
+      if (!state.checks[pi]) state.checks[pi] = [];
+      while (state.checks[pi].length < ph.items.length) state.checks[pi].push(false);
+      if (state.checks[pi].length > ph.items.length) state.checks[pi] = state.checks[pi].slice(0, ph.items.length);
+    });
+    state.checks = state.checks.slice(0, OCEANIC.length);
   } else state = blank(false);
 } catch(e){ state = blank(false); }
 render();
