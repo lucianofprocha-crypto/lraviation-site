@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>G550 Study Program - Checklist de Estudos</title>
+<style>
+  :root{
+    --navy:#1B2A4A; --accent:#0B5A8A; --gray:#5b5f66; --line:#e2e5ea;
+    --bg:#f5f7fa; --card:#ffffff; --amber:#E8A33D; --amber-dk:#a15c00;
+    --green:#1b7a3d; --green-bg:#e7f5ec; --green-line:#bfe3cc;
+    --soft:#f7f9fb;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  body{margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    background:var(--bg); color:#1c1f24;
+    padding:calc(28px + env(safe-area-inset-top)) 16px calc(60px + env(safe-area-inset-bottom));}
+  .wrap{max-width:780px; margin:0 auto;}
+  .header{text-align:center; margin-bottom:20px;}
+  .header h1{font-size:22px; margin:0 0 4px; color:var(--navy); font-weight:700;}
+  .header p{font-size:13px; color:var(--gray); margin:0;}
+  .card{background:var(--card); border:1px solid var(--line); border-radius:12px;
+    padding:20px 22px; margin-bottom:18px;}
+  .card h2{font-size:14px; text-transform:uppercase; letter-spacing:.04em;
+    color:var(--accent); margin:0 0 14px; font-weight:700; display:flex; align-items:center; gap:10px;}
+  .card h2 .count{margin-left:auto; font-size:12px; color:var(--gray); letter-spacing:0; text-transform:none; font-weight:600;}
+  .card h2 .focus{font-size:12px; color:var(--gray); text-transform:none; letter-spacing:0; font-weight:500;}
+
+  /* progress */
+  .stat-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(140px,1fr)); gap:10px; margin-bottom:14px;}
+  .stat{background:var(--soft); border-radius:8px; padding:10px 12px;}
+  .stat .label{font-size:11.5px; color:var(--gray); margin-bottom:3px;}
+  .stat .value{font-size:17px; font-weight:700; color:var(--navy);}
+  .bar{height:10px; background:#e9edf2; border-radius:6px; overflow:hidden;}
+  .bar > i{display:block; height:100%; background:var(--accent); border-radius:6px; transition:width .3s;}
+  .bar.done > i{background:var(--green);}
+  .weeks-mini{display:grid; grid-template-columns:repeat(5,1fr); gap:8px; margin-top:14px;}
+  .wm{font-size:11.5px; color:var(--gray); text-align:center; cursor:pointer;}
+  .wm b{display:block; color:var(--navy); font-size:13px; margin-bottom:4px;}
+  .wm .bar{height:6px; margin-top:5px;}
+
+  .next{border-radius:10px; padding:14px 16px; display:flex; align-items:center; gap:14px;
+    border:1px solid #cfe0ec; background:#eef5fa; margin-top:14px;}
+  .next.all{background:var(--green-bg); border-color:var(--green-line);}
+  .badge{font-size:12.5px; font-weight:700; padding:6px 12px; border-radius:20px; color:#fff;
+    background:var(--accent); white-space:nowrap;}
+  .next.all .badge{background:var(--green);}
+  .next .txt{font-size:14px; line-height:1.4; color:var(--navy);}
+  .next .txt small{display:block; color:var(--gray); font-size:12px;}
+
+  /* sessions */
+  .sess{border-top:1px solid var(--line); padding:10px 0;}
+  .sess:first-of-type{border-top:none; padding-top:0;}
+  .srow{display:flex; align-items:center; gap:12px;}
+  .day{flex:0 0 34px; height:34px; border-radius:8px; background:var(--soft); color:var(--navy);
+    font-weight:700; font-size:13px; display:flex; align-items:center; justify-content:center;}
+  .sname{flex:1; min-width:0;}
+  .sname .t{font-size:15px; font-weight:600; color:#1c1f24;}
+  .sname .m{font-size:11.5px; color:var(--gray); margin-top:2px; display:flex; flex-wrap:wrap; gap:5px; align-items:center;}
+  .chip{display:inline-block; font-size:10.5px; font-weight:700; padding:2px 7px; border-radius:10px;
+    background:#eef3f8; color:var(--accent); letter-spacing:.02em;}
+  .chip.fc{background:#fdf1e0; color:var(--amber-dk);}
+  .chip.rel{background:#f0f0f2; color:var(--gray);}
+  .sess.done .sname .t{color:var(--gray); text-decoration:line-through; text-decoration-color:#b8bec7;}
+  .sess.is-next .day{background:var(--accent); color:#fff;}
+  .notebtn{border:none; background:none; color:var(--gray); font-size:18px; padding:6px; cursor:pointer; line-height:1;}
+  .notebtn.has{color:var(--amber-dk);}
+  .chk{flex:0 0 40px; height:40px; border-radius:10px; border:2px solid #c8d0da; background:#fff;
+    display:flex; align-items:center; justify-content:center; cursor:pointer; padding:0;}
+  .chk svg{opacity:0;}
+  .sess.done .chk{background:var(--green); border-color:var(--green);}
+  .sess.done .chk svg{opacity:1;}
+  .sdetail{display:none; margin:10px 0 2px 46px; gap:10px; flex-wrap:wrap;}
+  .sess.open .sdetail{display:flex;}
+  .sdetail .field{flex:1 1 160px;}
+  .sdetail .field.wide{flex:2 1 260px;}
+  .field label{display:block; font-size:12px; color:var(--gray); margin-bottom:5px; font-weight:600;}
+  input[type=date], input[type=text], textarea{width:100%; padding:9px 10px; font-size:14.5px; font-family:inherit;
+    border:1px solid var(--line); border-radius:8px; background:#fff; color:#1c1f24;}
+  input[type=date]{min-height:40px;}
+  textarea{min-height:70px; resize:vertical;}
+  input:focus, textarea:focus{outline:none; border-color:var(--accent);}
+  .dateline{font-size:11.5px; color:var(--green); font-weight:600;}
+  .wnotes{margin-top:12px;}
+
+  /* buttons */
+  .btns{display:flex; gap:10px; flex-wrap:wrap;}
+  .btn{flex:1 1 150px; padding:10px; border:none; border-radius:8px; background:var(--accent); color:#fff;
+    font-size:14px; font-weight:700; cursor:pointer; font-family:inherit;}
+  .btn.sec{background:#fff; color:var(--accent); border:1px solid var(--line);}
+  .btn.warn{background:#fff; color:#b71c1c; border:1px solid #f3c3c1;}
+  .note{font-size:12px; color:var(--gray); line-height:1.5; margin-top:10px;}
+
+  table.hist{width:100%; border-collapse:collapse; font-size:12.5px;}
+  table.hist th, table.hist td{text-align:left; padding:6px 8px; border-bottom:1px solid var(--line);}
+  table.hist th{color:var(--gray); font-weight:600;}
+
+  .concept summary{cursor:pointer; font-size:14px; font-weight:700; color:var(--accent);
+    text-transform:uppercase; letter-spacing:.04em; list-style:none; outline:none;}
+  .concept summary::-webkit-details-marker{display:none;}
+  .concept summary::before{content:"+ "; color:var(--accent);}
+  .concept[open] summary::before{content:"- ";}
+  .concept p, .concept li{font-size:13.5px; line-height:1.65; color:#333;}
+  .concept p{margin:12px 0;}
+
+  .toast{position:fixed; left:50%; bottom:calc(24px + env(safe-area-inset-bottom)); transform:translateX(-50%) translateY(120px);
+    background:var(--navy); color:#fff; font-size:13.5px; padding:10px 16px; border-radius:20px; transition:transform .25s; z-index:9;}
+  .toast.show{transform:translateX(-50%) translateY(0);}
+  .footer{text-align:center; font-size:11.5px; color:var(--gray); margin-top:24px; line-height:1.6;}
+  .back{display:inline-block; font-size:12.5px; color:var(--accent); text-decoration:none; margin-bottom:10px;}
+  @media (max-width:520px){
+    .card{padding:16px;}
+    .weeks-mini{grid-template-columns:repeat(5,1fr); gap:5px;}
+    .sdetail{margin-left:0;}
+  }
+  @media print{
+    body{background:#fff; padding:0;} .btns,.notebtn,.toast,.back,.no-print{display:none !important;}
+    .card{break-inside:avoid; border-color:#ccc;} .sess .sdetail{display:flex !important;}
+  }
+</style>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1B2A4A">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="G550 Estudos">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+</head>
+<body>
+<div class="wrap">
+
+  <div class="header">
+    <h1>G550 Study Program</h1>
+    <p>Checklist de estudos · recorrência em 5 semanas · 27 sessões de 2h</p>
+  </div>
+
+  <div class="card">
+    <h2>Progresso <span class="count" id="cycle-lbl"></span></h2>
+    <div class="stat-grid">
+      <div class="stat"><div class="label">Sessões concluídas</div><div class="value" id="st-sess">-</div></div>
+      <div class="stat"><div class="label">Horas estudadas</div><div class="value" id="st-hrs">-</div></div>
+      <div class="stat"><div class="label">Progresso</div><div class="value" id="st-pct">-</div></div>
+      <div class="stat"><div class="label">Última sessão</div><div class="value" id="st-last">-</div></div>
+    </div>
+    <div class="bar" id="bar-all"><i style="width:0"></i></div>
+    <div class="weeks-mini" id="weeks-mini"></div>
+    <div class="next" id="next"></div>
+  </div>
+
+  <div id="weeks"></div>
+
+  <div class="card no-print">
+    <h2>Material extra <span class="focus">fora do programa · não conta no progresso</span></h2>
+    <div id="extras"></div>
+  </div>
+
+  <div class="card">
+    <h2>Ciclos concluídos</h2>
+    <table class="hist">
+      <thead><tr><th>#</th><th>Início</th><th>Fim</th><th>Sessões</th></tr></thead>
+      <tbody id="hist-body"></tbody>
+    </table>
+    <div class="note" id="hist-empty">Nenhum ciclo arquivado ainda. Ao terminar as 27 sessões, use “Novo ciclo” para arquivar e recomeçar a recorrência.</div>
+  </div>
+
+  <div class="card no-print">
+    <h2>Dados</h2>
+    <div class="btns">
+      <button class="btn" onclick="newCycle()">Novo ciclo</button>
+      <button class="btn sec" onclick="exportData()">Exportar backup</button>
+      <button class="btn sec" onclick="document.getElementById('imp').click()">Importar backup</button>
+      <button class="btn sec" onclick="window.print()">Imprimir / PDF</button>
+    </div>
+    <input type="file" id="imp" accept="application/json,.json" style="display:none" onchange="importData(this)">
+    <div class="note">Os dados ficam salvos só neste iPad (armazenamento local do Safari). Exporte um backup de vez em quando — se os dados de sites do Safari forem apagados, o progresso vai junto.</div>
+  </div>
+
+  <details class="card concept">
+    <summary>Como usar</summary>
+    <ul>
+      <li>Toque no quadrado à direita para marcar a sessão como feita — a data de hoje é preenchida automaticamente.</li>
+      <li>Toque no ✎ para ajustar a data e escrever observações da sessão.</li>
+      <li>Cada semana tem um campo de anotações livre.</li>
+      <li>As etiquetas <span class="chip">GUIA</span> e <span class="chip fc">FLASH</span> indicam o material já disponível na pasta <em>Study Guides (Improved)</em>; <span class="chip rel">REL.</span> é material relacionado.</li>
+      <li>Semana 5 inclui 7 sessões (sem Flash Cards/Self Check dedicado).</li>
+    </ul>
+  </details>
+
+  <div class="footer">
+    Baseado no “Programa de estudos G550” (5 semanas) — Personal Records.<br>
+    Ferramenta de organização de estudo, sem conteúdo técnico próprio. Não é material oficial da Gulfstream nem de centro de treinamento, e não tem afiliação com eles.
+    Não substitui o AFM/AOM, os manuais do operador nem o treinamento aprovado — em caso de divergência, vale sempre a documentação oficial.<br>
+    LR Aviation · FlightOps Companion
+  </div>
+  <div style="text-align:center; font-size:11px; margin:16px 0 0; opacity:.75"><a href="../legal/" style="color:inherit">Operational disclaimer · Privacy · Terms of use</a></div>
+
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+var KEY = 'g550_study_v1';
+
+// SG = Study Guide, FC = Flash Cards, R = related material
+var WEEKS = [
+  {n:1, focus:'Aircraft General, Electrical, APU, Fuel', s:[
+    {t:'Aircraft General/Performance', sg:1, fc:1},
+    {t:'Electrical', sg:1, fc:1},
+    {t:'APU', sg:1, fc:1},
+    {t:'Fuel', sg:1, fc:1},
+    {t:'Flash Cards/Self Check', fc:1, self:1}]},
+  {n:2, focus:'Hydraulic, Flight Controls, Fire Protection, Powerplant', s:[
+    {t:'Hydraulic', sg:1, fc:1},
+    {t:'Flight Controls', sg:1, fc:1},
+    {t:'Fire Protection', sg:1, fc:1},
+    {t:'Powerplant', sg:1, fc:1},
+    {t:'Flash Cards/Self Check', fc:1, self:1}]},
+  {n:3, focus:'APU, Landing Gear & Brakes, Pneumatic, Air Conditioning', s:[
+    {t:'APU', sg:1, fc:1},
+    {t:'Landing Gear & Brakes', sg:1, fc:1},
+    {t:'Pneumatic', sg:1, fc:1},
+    {t:'Air Conditioning', sg:1, fc:1},
+    {t:'Flash Cards/Self Check', fc:1, self:1}]},
+  {n:4, focus:'Ice/Rain Protection, Oxygen, Water & Waste, Avionics', s:[
+    {t:'Ice and Rain Protection', sg:1, fc:1},
+    {t:'Oxygen', sg:1, fc:1},
+    {t:'Water and Waste'},
+    {t:'Avionics'},
+    {t:'Flash Cards/Self Check', fc:1, self:1}]},
+  {n:5, focus:'Stalls, High/Hot/Heavy, Cold Weather, Low Vis, Fires, Windshear, Performance', s:[
+    {t:'Stalls, Unusual Attitude'},
+    {t:'High, Hot and Heavy', fc:1},
+    {t:'Cold Weather', sg:1, fc:1},
+    {t:'Low Visibility', r:'EFVS Guide + Flash'},
+    {t:'Fires', r:'Fire Protection'},
+    {t:'Windshear'},
+    {t:'Performance', r:'FLEX · Driftdown'}]}
+];
+var EXTRAS = [
+  {id:'x-lim', t:'Limitations', sg:1, fc:1},
+  {id:'x-press', t:'Pressurization', sg:1, fc:1},
+  {id:'x-door', t:'Door System', sg:1},
+  {id:'x-light', t:'Lighting System', sg:1},
+  {id:'x-flex', t:'FLEX Takeoff', sg:1},
+  {id:'x-drift', t:'Driftdown', sg:1},
+  {id:'x-efvs', t:'EFVS Operations', sg:1, fc:1}
+];
+var HRS = 2;
+var ALL = [];
+WEEKS.forEach(function(w){ w.s.forEach(function(s, i){ s.id = 'w'+w.n+'d'+(i+1); s.w = w.n; s.d = i+1; ALL.push(s); }); });
+
+var state = {sess:{}, wnotes:{}, cycles:[], cycleStart:null};
+var openId = null;
+
+function load(){ try{ var s = JSON.parse(localStorage.getItem(KEY)); if (s && s.sess) state = s; }catch(e){} if(!state.cycles) state.cycles=[]; if(!state.wnotes) state.wnotes={}; }
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){ toast('Não foi possível salvar'); } }
+function S(id){ if(!state.sess[id]) state.sess[id] = {done:false, date:'', note:''}; return state.sess[id]; }
+function today(){ var d = new Date(); return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
+function pad(n){ return (n<10?'0':'')+n; }
+function br(iso){ if(!iso) return ''; var p = iso.split('-'); return p[2]+'/'+p[1]+'/'+p[0]; }
+function esc(t){ return String(t||'').replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+function toast(m){ var t = document.getElementById('toast'); t.textContent = m; t.classList.add('show'); clearTimeout(t._h); t._h = setTimeout(function(){ t.classList.remove('show'); }, 1800); }
+
+var CHECK = '<svg width="22" height="22" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+function chips(s){
+  var h = '';
+  if (s.sg) h += '<span class="chip">GUIA</span>';
+  if (s.fc) h += '<span class="chip fc">FLASH</span>';
+  if (s.r) h += '<span class="chip rel">REL. ' + esc(s.r) + '</span>';
+  return h;
+}
+
+function sessHTML(s, isNext, extra){
+  var st = S(s.id);
+  var cls = 'sess' + (st.done?' done':'') + (isNext?' is-next':'') + (openId===s.id?' open':'');
+  var meta = HRS + 'h' + (chips(s) ? ' ' + chips(s) : '') + (st.done && st.date ? ' <span class="dateline">✓ ' + br(st.date) + '</span>' : '');
+  return '<div class="'+cls+'" id="row-'+s.id+'">' +
+    '<div class="srow">' +
+      '<div class="day">' + (extra ? '+' : s.d) + '</div>' +
+      '<div class="sname"><div class="t">' + esc(s.t) + '</div><div class="m">' + meta + '</div></div>' +
+      '<button class="notebtn' + (st.note?' has':'') + '" onclick="toggleOpen(\''+s.id+'\')" aria-label="Detalhes">✎</button>' +
+      '<button class="chk" onclick="toggleDone(\''+s.id+'\')" aria-label="Feito">' + CHECK + '</button>' +
+    '</div>' +
+    '<div class="sdetail">' +
+      '<div class="field"><label>Data</label><input type="date" value="'+esc(st.date)+'" onchange="setField(\''+s.id+'\',\'date\',this.value)"></div>' +
+      '<div class="field wide"><label>Observações</label><input type="text" value="'+esc(st.note)+'" placeholder="dúvidas, pontos a revisar…" onchange="setField(\''+s.id+'\',\'note\',this.value)"></div>' +
+    '</div>' +
+  '</div>';
+}
+
+function nextSess(){ for (var i=0;i<ALL.length;i++){ if(!S(ALL[i].id).done) return ALL[i]; } return null; }
+
+function render(){
+  var nx = nextSess();
+  var done = ALL.filter(function(s){ return S(s.id).done; });
+  var pct = Math.round(done.length / ALL.length * 100);
+  document.getElementById('st-sess').textContent = done.length + ' / ' + ALL.length;
+  document.getElementById('st-hrs').textContent = (done.length*HRS) + ' / ' + (ALL.length*HRS) + ' h';
+  document.getElementById('st-pct').textContent = pct + '%';
+  var last = done.map(function(s){ return S(s.id).date; }).filter(Boolean).sort().pop();
+  document.getElementById('st-last').textContent = last ? br(last).slice(0,5) : '-';
+  var ba = document.getElementById('bar-all'); ba.firstChild.style.width = pct + '%'; ba.classList.toggle('done', pct===100);
+  document.getElementById('cycle-lbl').textContent = 'Ciclo ' + (state.cycles.length+1) + (state.cycleStart ? ' · desde ' + br(state.cycleStart) : '');
+
+  // week mini bars
+  var wm = '';
+  WEEKS.forEach(function(w){
+    var d = w.s.filter(function(s){ return S(s.id).done; }).length, p = Math.round(d/w.s.length*100);
+    wm += '<div class="wm" onclick="document.getElementById(\'wk'+w.n+'\').scrollIntoView({behavior:\'smooth\'})"><b>S'+w.n+'</b>'+d+'/'+w.s.length+'<div class="bar'+(p===100?' done':'')+'"><i style="width:'+p+'%"></i></div></div>';
+  });
+  document.getElementById('weeks-mini').innerHTML = wm;
+
+  var ne = document.getElementById('next');
+  if (nx){
+    ne.className = 'next';
+    ne.innerHTML = '<span class="badge">PRÓXIMA</span><div class="txt"><b>Semana ' + nx.w + ' · Dia ' + nx.d + '</b> — ' + esc(nx.t) + '<small>' + HRS + 'h de estudo' + (nx.sg||nx.fc||nx.r ? ' · material: ' + [nx.sg?'Study Guide':'', nx.fc?'Flash Cards':'', nx.r?nx.r:''].filter(Boolean).join(' + ') : ' · sem guia pronto na pasta') + '</small></div>';
+  } else {
+    ne.className = 'next all';
+    ne.innerHTML = '<span class="badge">COMPLETO</span><div class="txt"><b>Programa concluído.</b><small>Arquive com “Novo ciclo” para iniciar a próxima recorrência.</small></div>';
+  }
+
+  // weeks
+  var h = '';
+  WEEKS.forEach(function(w){
+    var d = w.s.filter(function(s){ return S(s.id).done; }).length;
+    h += '<div class="card" id="wk'+w.n+'"><h2>Semana ' + w.n + ' <span class="count">' + d + '/' + w.s.length + (d===w.s.length?' ✓':'') + '</span></h2>';
+    h += '<div class="note" style="margin:-8px 0 12px">' + esc(w.focus) + '</div>';
+    w.s.forEach(function(s){ h += sessHTML(s, nx && nx.id===s.id); });
+    h += '<div class="wnotes field"><label>Anotações da semana</label><textarea placeholder="Resumo, dúvidas para o instrutor, itens de memória…" onchange="setWNote('+w.n+',this.value)">' + esc(state.wnotes[w.n]) + '</textarea></div>';
+    h += '</div>';
+  });
+  document.getElementById('weeks').innerHTML = h;
+
+  var ex = '';
+  EXTRAS.forEach(function(s){ ex += sessHTML(s, false, true); });
+  document.getElementById('extras').innerHTML = ex;
+
+  var hb = '';
+  state.cycles.slice().reverse().forEach(function(c, i){
+    hb += '<tr><td>' + (state.cycles.length - i) + '</td><td>' + (br(c.start)||'-') + '</td><td>' + br(c.end) + '</td><td>' + c.done + '/' + c.total + '</td></tr>';
+  });
+  document.getElementById('hist-body').innerHTML = hb;
+  document.getElementById('hist-empty').style.display = state.cycles.length ? 'none' : 'block';
+}
+
+function toggleDone(id){
+  var st = S(id);
+  st.done = !st.done;
+  if (st.done && !st.date) st.date = today();
+  if (!st.done) st.date = '';
+  if (st.done && !state.cycleStart && id.charAt(0)==='w') state.cycleStart = st.date;
+  save(); render();
+  if (st.done && !nextSess()) toast('Programa concluído!'); else if (st.done) toast('Sessão registrada');
+}
+function toggleOpen(id){ openId = (openId===id) ? null : id; render(); }
+function setField(id, f, v){ S(id)[f] = v; if (f==='date' && v && !S(id).done){ S(id).done = true; } save(); render(); }
+function setWNote(n, v){ state.wnotes[n] = v; save(); toast('Anotação salva'); }
+
+function newCycle(){
+  var done = ALL.filter(function(s){ return S(s.id).done; }).length;
+  var msg = done < ALL.length
+    ? 'Ainda faltam ' + (ALL.length-done) + ' sessões. Arquivar este ciclo mesmo assim e recomeçar?'
+    : 'Arquivar o ciclo concluído e recomeçar a recorrência?';
+  if (!confirm(msg)) return;
+  var dates = ALL.map(function(s){ return S(s.id).date; }).filter(Boolean).sort();
+  state.cycles.push({start: state.cycleStart || dates[0] || '', end: dates[dates.length-1] || today(), done: done, total: ALL.length,
+    notes: state.wnotes, sess: state.sess});
+  var keep = {}; EXTRAS.forEach(function(x){ if (state.sess[x.id]) keep[x.id] = state.sess[x.id]; });
+  state.sess = keep; state.wnotes = {}; state.cycleStart = null; openId = null;
+  save(); render(); window.scrollTo({top:0, behavior:'smooth'}); toast('Novo ciclo iniciado');
+}
+
+function exportData(){
+  var blob = new Blob([JSON.stringify(state, null, 1)], {type:'application/json'});
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = 'G550_estudos_backup_' + today() + '.json';
+  document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 500);
+}
+function importData(inp){
+  var f = inp.files[0]; if (!f) return;
+  var r = new FileReader();
+  r.onload = function(){
+    try{ var s = JSON.parse(r.result); if (!s || !s.sess) throw 0;
+      if (!confirm('Substituir os dados atuais pelo backup?')) return;
+      state = s; load2(); save(); render(); toast('Backup importado');
+    }catch(e){ toast('Arquivo inválido'); }
+    inp.value = '';
+  };
+  r.readAsText(f);
+}
+function load2(){ if(!state.cycles) state.cycles=[]; if(!state.wnotes) state.wnotes={}; }
+
+load(); render();
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function(){ navigator.serviceWorker.register('sw.js').catch(function(){}); });
+}
+</script>
+</body>
+</html>
