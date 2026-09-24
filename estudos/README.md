@@ -1,17 +1,21 @@
 # G550 Study Program — PWA
 
-Checklist do programa de estudos G550 (recorrência, 5 semanas, 27 sessões de 2h),
-no mesmo padrão das calculadoras FlightOps Companion. Marca sessões feitas com data,
-observações por sessão, anotações por semana, próxima sessão, histórico de ciclos
-e backup JSON. Dados salvos só no iPad (localStorage).
+Programa de estudos G550 (recorrência, 5 semanas, 27 sessões de 2h) com o conteúdo dentro do app:
+21 study guides (convertidos dos .docx de "Study Guides (Improved)") e 401 flash cards (dos PDFs).
 
-## Publicar no GitHub Pages
-Crie a pasta `estudos/` no repositório do site e envie estes arquivos
-(Add file → Upload files). URL: lraviation.com.br/estudos/
+- Programa: cada sessão abre o GUIA e os CARDS correspondentes; Self Check junta os cards da semana.
+- Biblioteca: todos os guias e baralhos; revisão geral e "só os que errei".
+- Buscar: busca em todos os guias e cards.
+- Leitor: índice de seções, links internos, letra maior, lembra onde parou.
+- Dados (progresso, notas, placar dos cards) só no iPad (localStorage, chave g550_study_v1).
+
+## Arquivos
+index.html · content.js (guias + cards) · img/ (figuras Cold Weather e FLEX) · sw.js · manifest.json · ícones
+
+## Atualizar conteúdo
+Quando editar um guia (.docx) ou flash cards (.pdf), peça para regenerar o content.js
+e suba a versão no sw.js (v3 → v4).
 
 ## Instalar no iPad
-Safari → abrir a URL → Compartilhar → Adicionar à Tela de Início.
+Publicar a pasta (ex.: lraviation.com.br/estudos/) → Safari → Compartilhar → Adicionar à Tela de Início.
 Funciona offline após o primeiro acesso.
-
-## Atualizações futuras
-Ao alterar o index.html, mude a versão no sw.js (v1 → v2).

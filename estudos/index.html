@@ -3,22 +3,28 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>G550 Study Program - Checklist de Estudos</title>
+<title>G550 Study Program - Estudos</title>
 <style>
   :root{
     --navy:#1B2A4A; --accent:#0B5A8A; --gray:#5b5f66; --line:#e2e5ea;
     --bg:#f5f7fa; --card:#ffffff; --amber:#E8A33D; --amber-dk:#a15c00;
     --green:#1b7a3d; --green-bg:#e7f5ec; --green-line:#bfe3cc;
-    --soft:#f7f9fb;
+    --red:#b71c1c; --red-bg:#fdeceb; --soft:#f7f9fb;
   }
   *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{overscroll-behavior-y:none;}
   body{margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
     background:var(--bg); color:#1c1f24;
     padding:calc(28px + env(safe-area-inset-top)) 16px calc(60px + env(safe-area-inset-bottom));}
+  body.locked{overflow:hidden;}
   .wrap{max-width:780px; margin:0 auto;}
-  .header{text-align:center; margin-bottom:20px;}
+  .header{text-align:center; margin-bottom:16px;}
   .header h1{font-size:22px; margin:0 0 4px; color:var(--navy); font-weight:700;}
   .header p{font-size:13px; color:var(--gray); margin:0;}
+  .tabs{display:flex; gap:6px; background:#e9edf2; padding:4px; border-radius:10px; margin:0 auto 18px; max-width:420px;}
+  .tabs button{flex:1; border:none; background:none; padding:9px 6px; border-radius:7px; font:600 14px -apple-system,sans-serif; color:var(--gray); cursor:pointer;}
+  .tabs button.on{background:#fff; color:var(--navy); box-shadow:0 1px 2px rgba(0,0,0,.08);}
+  .view{display:none;} .view.on{display:block;}
   .card{background:var(--card); border:1px solid var(--line); border-radius:12px;
     padding:20px 22px; margin-bottom:18px;}
   .card h2{font-size:14px; text-transform:uppercase; letter-spacing:.04em;
@@ -26,7 +32,6 @@
   .card h2 .count{margin-left:auto; font-size:12px; color:var(--gray); letter-spacing:0; text-transform:none; font-weight:600;}
   .card h2 .focus{font-size:12px; color:var(--gray); text-transform:none; letter-spacing:0; font-weight:500;}
 
-  /* progress */
   .stat-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(140px,1fr)); gap:10px; margin-bottom:14px;}
   .stat{background:var(--soft); border-radius:8px; padding:10px 12px;}
   .stat .label{font-size:11.5px; color:var(--gray); margin-bottom:3px;}
@@ -45,10 +50,10 @@
   .badge{font-size:12.5px; font-weight:700; padding:6px 12px; border-radius:20px; color:#fff;
     background:var(--accent); white-space:nowrap;}
   .next.all .badge{background:var(--green);}
-  .next .txt{font-size:14px; line-height:1.4; color:var(--navy);}
+  .next .txt{font-size:14px; line-height:1.4; color:var(--navy); flex:1;}
   .next .txt small{display:block; color:var(--gray); font-size:12px;}
+  .next .go{border:none; background:var(--accent); color:#fff; font-weight:700; font-size:13.5px; padding:9px 14px; border-radius:8px; cursor:pointer;}
 
-  /* sessions */
   .sess{border-top:1px solid var(--line); padding:10px 0;}
   .sess:first-of-type{border-top:none; padding-top:0;}
   .srow{display:flex; align-items:center; gap:12px;}
@@ -56,11 +61,13 @@
     font-weight:700; font-size:13px; display:flex; align-items:center; justify-content:center;}
   .sname{flex:1; min-width:0;}
   .sname .t{font-size:15px; font-weight:600; color:#1c1f24;}
-  .sname .m{font-size:11.5px; color:var(--gray); margin-top:2px; display:flex; flex-wrap:wrap; gap:5px; align-items:center;}
-  .chip{display:inline-block; font-size:10.5px; font-weight:700; padding:2px 7px; border-radius:10px;
-    background:#eef3f8; color:var(--accent); letter-spacing:.02em;}
+  .sname .m{font-size:11.5px; color:var(--gray); margin-top:4px; display:flex; flex-wrap:wrap; gap:5px; align-items:center;}
+  .chip{display:inline-block; font-size:11px; font-weight:700; padding:4px 9px; border-radius:12px;
+    background:#eef3f8; color:var(--accent); letter-spacing:.02em; border:none; cursor:pointer; font-family:inherit;}
   .chip.fc{background:#fdf1e0; color:var(--amber-dk);}
   .chip.rel{background:#f0f0f2; color:var(--gray);}
+  span.chip{cursor:default;}
+  .nomat{font-size:11px; color:#9aa0a8; font-style:italic;}
   .sess.done .sname .t{color:var(--gray); text-decoration:line-through; text-decoration-color:#b8bec7;}
   .sess.is-next .day{background:var(--accent); color:#fff;}
   .notebtn{border:none; background:none; color:var(--gray); font-size:18px; padding:6px; cursor:pointer; line-height:1;}
@@ -75,21 +82,31 @@
   .sdetail .field{flex:1 1 160px;}
   .sdetail .field.wide{flex:2 1 260px;}
   .field label{display:block; font-size:12px; color:var(--gray); margin-bottom:5px; font-weight:600;}
-  input[type=date], input[type=text], textarea{width:100%; padding:9px 10px; font-size:14.5px; font-family:inherit;
-    border:1px solid var(--line); border-radius:8px; background:#fff; color:#1c1f24;}
+  input[type=date], input[type=text], input[type=search], textarea{width:100%; padding:9px 10px; font-size:15px; font-family:inherit;
+    border:1px solid var(--line); border-radius:8px; background:#fff; color:#1c1f24; -webkit-appearance:none;}
   input[type=date]{min-height:40px;}
   textarea{min-height:70px; resize:vertical;}
   input:focus, textarea:focus{outline:none; border-color:var(--accent);}
   .dateline{font-size:11.5px; color:var(--green); font-weight:600;}
   .wnotes{margin-top:12px;}
 
-  /* buttons */
   .btns{display:flex; gap:10px; flex-wrap:wrap;}
   .btn{flex:1 1 150px; padding:10px; border:none; border-radius:8px; background:var(--accent); color:#fff;
     font-size:14px; font-weight:700; cursor:pointer; font-family:inherit;}
   .btn.sec{background:#fff; color:var(--accent); border:1px solid var(--line);}
-  .btn.warn{background:#fff; color:#b71c1c; border:1px solid #f3c3c1;}
   .note{font-size:12px; color:var(--gray); line-height:1.5; margin-top:10px;}
+
+  /* library */
+  .lib{display:flex; align-items:center; gap:12px; padding:11px 0; border-top:1px solid var(--line);}
+  .lib:first-child{border-top:none; padding-top:0;}
+  .lib .t{flex:1; min-width:0; font-size:14.5px; font-weight:600;}
+  .lib .t small{display:block; font-weight:400; color:var(--gray); font-size:12px; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .lib .acts{display:flex; gap:6px; flex-shrink:0;}
+  .hit{padding:10px 0; border-top:1px solid var(--line); cursor:pointer;}
+  .hit:first-child{border-top:none;}
+  .hit b{font-size:13.5px; color:var(--navy);} .hit small{display:block; color:var(--gray); font-size:11.5px;}
+  .hit p{margin:4px 0 0; font-size:13px; color:#333; line-height:1.45;}
+  mark{background:#fde9b8; color:inherit; border-radius:2px;}
 
   table.hist{width:100%; border-collapse:collapse; font-size:12.5px;}
   table.hist th, table.hist td{text-align:left; padding:6px 8px; border-bottom:1px solid var(--line);}
@@ -101,21 +118,77 @@
   .concept summary::before{content:"+ "; color:var(--accent);}
   .concept[open] summary::before{content:"- ";}
   .concept p, .concept li{font-size:13.5px; line-height:1.65; color:#333;}
-  .concept p{margin:12px 0;}
 
-  .toast{position:fixed; left:50%; bottom:calc(24px + env(safe-area-inset-bottom)); transform:translateX(-50%) translateY(120px);
-    background:var(--navy); color:#fff; font-size:13.5px; padding:10px 16px; border-radius:20px; transition:transform .25s; z-index:9;}
+  /* overlay panels */
+  .panel{position:fixed; inset:0; background:var(--bg); z-index:20; display:none; flex-direction:column;}
+  .panel.on{display:flex;}
+  .pbar{background:var(--navy); color:#fff; padding:calc(10px + env(safe-area-inset-top)) 12px 10px; display:flex; align-items:center; gap:10px; flex-shrink:0;}
+  .pbar button{border:none; background:rgba(255,255,255,.12); color:#fff; font:600 14px -apple-system,sans-serif; padding:8px 12px; border-radius:8px; cursor:pointer; white-space:nowrap;}
+  .pbar .pt{flex:1; min-width:0; font-weight:700; font-size:15px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .pscroll{flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; padding:18px 16px calc(40px + env(safe-area-inset-bottom));}
+  .toc{position:absolute; top:calc(58px + env(safe-area-inset-top)); right:10px; left:10px; max-width:460px; margin-left:auto; max-height:70vh; overflow-y:auto;
+    background:#fff; border:1px solid var(--line); border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,.18); display:none; z-index:2; padding:6px;}
+  .toc.on{display:block;}
+  .toc a{display:block; padding:9px 12px; color:#1c1f24; text-decoration:none; font-size:14px; border-radius:7px;}
+  .toc a.h1{font-weight:700; color:var(--accent); font-size:12.5px; text-transform:uppercase; letter-spacing:.03em; margin-top:4px;}
+  .toc a.h2{padding-left:22px;}
+  .toc a:active{background:var(--soft);}
+
+  .doc{max-width:780px; margin:0 auto; background:#fff; border:1px solid var(--line); border-radius:12px; padding:22px 24px; font-size:15.5px; line-height:1.6;}
+  .doc .dtitle{font-size:21px; font-weight:700; color:var(--navy); margin:0 0 4px;}
+  .doc .dsub{font-size:12.5px; color:var(--gray); margin:0 0 6px;}
+  .doc h1{font-size:15px; text-transform:uppercase; letter-spacing:.04em; color:#fff; background:var(--navy); padding:9px 12px; border-radius:8px; margin:30px 0 12px;}
+  .doc h2{font-size:17px; color:var(--accent); border-bottom:2px solid var(--amber); padding-bottom:4px; margin:26px 0 10px;}
+  .doc h3{font-size:15px; color:var(--navy); margin:18px 0 6px;}
+  .doc p{margin:8px 0;}
+  .doc ul, .doc ol{padding-left:22px; margin:8px 0;} .doc li{margin:4px 0;}
+  .doc li p{margin:0;}
+  .doc .tbl{overflow-x:auto; margin:10px 0; border:1px solid var(--line); border-radius:8px;}
+  .doc table{border-collapse:collapse; width:100%; font-size:14px;}
+  .doc th{background:#eef3f8; color:var(--navy); text-align:left;}
+  .doc th, .doc td{padding:8px 10px; border-bottom:1px solid var(--line); vertical-align:top;}
+  .doc tr:last-child td{border-bottom:none;}
+  .doc td:first-child{font-weight:600; color:#2a2f37;}
+  .doc .nbox{background:#fdf6e7; border-left:4px solid var(--amber); padding:10px 14px; border-radius:6px; margin:12px 0; font-size:14.5px;}
+  .doc .nbox p{margin:4px 0;}
+  .doc img{max-width:100%; height:auto; border-radius:8px; border:1px solid var(--line); margin:8px 0;}
+  .doc a{color:var(--accent);}
+  .doc.big{font-size:18px;} .doc.big table{font-size:16px;}
+
+  /* flash cards */
+  .fcwrap{max-width:640px; margin:0 auto;}
+  .fcmeta{display:flex; justify-content:space-between; align-items:center; font-size:12.5px; color:var(--gray); margin-bottom:8px;}
+  .fcard{background:#fff; border:1px solid var(--line); border-radius:16px; min-height:300px; padding:26px 24px; display:flex; flex-direction:column; cursor:pointer; box-shadow:0 2px 10px rgba(27,42,74,.06);}
+  .fcard .lbl{font-size:11px; font-weight:700; letter-spacing:.06em; color:var(--accent); text-transform:uppercase; margin-bottom:10px;}
+  .fcard .q{font-size:20px; font-weight:600; color:var(--navy); line-height:1.4;}
+  .fcard .a{display:none; margin-top:18px; padding-top:16px; border-top:2px dashed var(--line); font-size:17px; line-height:1.55; color:#1c1f24;}
+  .fcard.flip .a{display:block;}
+  .fcard .hint{margin-top:auto; padding-top:18px; font-size:12.5px; color:#9aa0a8; text-align:center;}
+  .fcard.flip .hint{display:none;}
+  .fcard .src{font-size:11.5px; color:var(--gray); margin-bottom:6px;}
+  .grade{display:flex; gap:10px; margin-top:14px;}
+  .grade button{flex:1; padding:14px; border-radius:10px; font:700 15px -apple-system,sans-serif; cursor:pointer; border:1px solid;}
+  .grade .no{background:var(--red-bg); color:var(--red); border-color:#f3c3c1;}
+  .grade .yes{background:var(--green-bg); color:var(--green); border-color:var(--green-line);}
+  .grade button:disabled{opacity:.35;}
+  .fcopts{display:flex; gap:8px; margin-top:14px; flex-wrap:wrap;}
+  .fcopts button{flex:1; padding:9px; border-radius:8px; border:1px solid var(--line); background:#fff; color:var(--accent); font:600 13px -apple-system,sans-serif; cursor:pointer;}
+  .fcopts button.on{background:var(--accent); color:#fff; border-color:var(--accent);}
+  .score{text-align:center; padding:30px 10px;}
+  .score .big{font-size:44px; font-weight:800; color:var(--navy);}
+
+  .toast{position:fixed; left:50%; bottom:calc(24px + env(safe-area-inset-bottom)); transform:translateX(-50%) translateY(140px);
+    background:var(--navy); color:#fff; font-size:13.5px; padding:10px 16px; border-radius:20px; transition:transform .25s; z-index:40;}
   .toast.show{transform:translateX(-50%) translateY(0);}
   .footer{text-align:center; font-size:11.5px; color:var(--gray); margin-top:24px; line-height:1.6;}
-  .back{display:inline-block; font-size:12.5px; color:var(--accent); text-decoration:none; margin-bottom:10px;}
   @media (max-width:520px){
-    .card{padding:16px;}
-    .weeks-mini{grid-template-columns:repeat(5,1fr); gap:5px;}
-    .sdetail{margin-left:0;}
+    .card{padding:16px;} .doc{padding:16px; font-size:15px;}
+    .weeks-mini{gap:5px;} .sdetail{margin-left:0;}
+    .lib{flex-wrap:wrap;} .lib .acts{width:100%;}
   }
   @media print{
-    body{background:#fff; padding:0;} .btns,.notebtn,.toast,.back,.no-print{display:none !important;}
-    .card{break-inside:avoid; border-color:#ccc;} .sess .sdetail{display:flex !important;}
+    body{background:#fff; padding:0;} .btns,.notebtn,.toast,.tabs,.no-print{display:none !important;}
+    .card{break-inside:avoid; border-color:#ccc;}
   }
 </style>
 <link rel="manifest" href="manifest.json">
@@ -126,159 +199,204 @@
 <meta name="apple-mobile-web-app-title" content="G550 Estudos">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" href="icon-192.png">
+<script src="content.js"></script>
 </head>
 <body>
 <div class="wrap">
 
   <div class="header">
     <h1>G550 Study Program</h1>
-    <p>Checklist de estudos · recorrência em 5 semanas · 27 sessões de 2h</p>
+    <p>Recorrência em 5 semanas · 21 study guides · 401 flash cards</p>
   </div>
 
-  <div class="card">
-    <h2>Progresso <span class="count" id="cycle-lbl"></span></h2>
-    <div class="stat-grid">
-      <div class="stat"><div class="label">Sessões concluídas</div><div class="value" id="st-sess">-</div></div>
-      <div class="stat"><div class="label">Horas estudadas</div><div class="value" id="st-hrs">-</div></div>
-      <div class="stat"><div class="label">Progresso</div><div class="value" id="st-pct">-</div></div>
-      <div class="stat"><div class="label">Última sessão</div><div class="value" id="st-last">-</div></div>
+  <div class="tabs no-print">
+    <button id="tab-prog" class="on" onclick="tab('prog')">Programa</button>
+    <button id="tab-lib" onclick="tab('lib')">Biblioteca</button>
+    <button id="tab-find" onclick="tab('find')">Buscar</button>
+  </div>
+
+  <!-- PROGRAMA -->
+  <div class="view on" id="v-prog">
+    <div class="card">
+      <h2>Progresso <span class="count" id="cycle-lbl"></span></h2>
+      <div class="stat-grid">
+        <div class="stat"><div class="label">Sessões concluídas</div><div class="value" id="st-sess">-</div></div>
+        <div class="stat"><div class="label">Horas estudadas</div><div class="value" id="st-hrs">-</div></div>
+        <div class="stat"><div class="label">Progresso</div><div class="value" id="st-pct">-</div></div>
+        <div class="stat"><div class="label">Flash cards dominados</div><div class="value" id="st-fc">-</div></div>
+      </div>
+      <div class="bar" id="bar-all"><i style="width:0"></i></div>
+      <div class="weeks-mini" id="weeks-mini"></div>
+      <div class="next" id="next"></div>
     </div>
-    <div class="bar" id="bar-all"><i style="width:0"></i></div>
-    <div class="weeks-mini" id="weeks-mini"></div>
-    <div class="next" id="next"></div>
-  </div>
-
-  <div id="weeks"></div>
-
-  <div class="card no-print">
-    <h2>Material extra <span class="focus">fora do programa · não conta no progresso</span></h2>
-    <div id="extras"></div>
-  </div>
-
-  <div class="card">
-    <h2>Ciclos concluídos</h2>
-    <table class="hist">
-      <thead><tr><th>#</th><th>Início</th><th>Fim</th><th>Sessões</th></tr></thead>
-      <tbody id="hist-body"></tbody>
-    </table>
-    <div class="note" id="hist-empty">Nenhum ciclo arquivado ainda. Ao terminar as 27 sessões, use “Novo ciclo” para arquivar e recomeçar a recorrência.</div>
-  </div>
-
-  <div class="card no-print">
-    <h2>Dados</h2>
-    <div class="btns">
-      <button class="btn" onclick="newCycle()">Novo ciclo</button>
-      <button class="btn sec" onclick="exportData()">Exportar backup</button>
-      <button class="btn sec" onclick="document.getElementById('imp').click()">Importar backup</button>
-      <button class="btn sec" onclick="window.print()">Imprimir / PDF</button>
+    <div id="weeks"></div>
+    <div class="card">
+      <h2>Ciclos concluídos</h2>
+      <table class="hist">
+        <thead><tr><th>#</th><th>Início</th><th>Fim</th><th>Sessões</th></tr></thead>
+        <tbody id="hist-body"></tbody>
+      </table>
+      <div class="note" id="hist-empty">Nenhum ciclo arquivado ainda. Ao terminar as 27 sessões, use “Novo ciclo” para arquivar e recomeçar a recorrência.</div>
     </div>
-    <input type="file" id="imp" accept="application/json,.json" style="display:none" onchange="importData(this)">
-    <div class="note">Os dados ficam salvos só neste iPad (armazenamento local do Safari). Exporte um backup de vez em quando — se os dados de sites do Safari forem apagados, o progresso vai junto.</div>
+    <div class="card no-print">
+      <h2>Dados</h2>
+      <div class="btns">
+        <button class="btn" onclick="newCycle()">Novo ciclo</button>
+        <button class="btn sec" onclick="exportData()">Exportar backup</button>
+        <button class="btn sec" onclick="document.getElementById('imp').click()">Importar backup</button>
+      </div>
+      <input type="file" id="imp" accept="application/json,.json" style="display:none" onchange="importData(this)">
+      <div class="note">Progresso, notas e resultados dos flash cards ficam salvos só neste iPad. Exporte um backup de vez em quando.</div>
+    </div>
   </div>
 
-  <details class="card concept">
+  <!-- BIBLIOTECA -->
+  <div class="view" id="v-lib">
+    <div class="card"><h2>Sistemas <span class="count">Guia · Flash cards</span></h2><div id="lib-sys"></div></div>
+    <div class="card"><h2>Operações e performance</h2><div id="lib-ops"></div></div>
+    <div class="card"><h2>Revisão geral</h2>
+      <div class="btns">
+        <button class="btn" onclick="openDeck(allDecks(), 'Todos os flash cards')">Todos os cards (aleatório)</button>
+        <button class="btn sec" onclick="openMissed()">Só os que errei</button>
+      </div>
+      <div class="note" id="missed-note"></div>
+    </div>
+  </div>
+
+  <!-- BUSCA -->
+  <div class="view" id="v-find">
+    <div class="card">
+      <input type="search" id="q" placeholder="Buscar nos guias e flash cards (ex.: BAAV, 732, PTU, crosswind)" oninput="find(this.value)" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+      <div class="note" id="find-count">Mínimo 2 letras.</div>
+    </div>
+    <div class="card" id="find-res" style="display:none"></div>
+  </div>
+
+  <details class="card concept no-print">
     <summary>Como usar</summary>
     <ul>
-      <li>Toque no quadrado à direita para marcar a sessão como feita — a data de hoje é preenchida automaticamente.</li>
-      <li>Toque no ✎ para ajustar a data e escrever observações da sessão.</li>
-      <li>Cada semana tem um campo de anotações livre.</li>
-      <li>As etiquetas <span class="chip">GUIA</span> e <span class="chip fc">FLASH</span> indicam o material já disponível na pasta <em>Study Guides (Improved)</em>; <span class="chip rel">REL.</span> é material relacionado.</li>
-      <li>Semana 5 inclui 7 sessões (sem Flash Cards/Self Check dedicado).</li>
+      <li><b>Programa:</b> cada sessão tem os botões <span class="chip">GUIA</span> (abre o study guide) e <span class="chip fc">CARDS</span> (flash cards). Marque o quadrado ao terminar — a data entra sozinha; o ✎ ajusta data e observações.</li>
+      <li><b>Flash cards:</b> toque no card para ver a resposta e marque <i>Errei</i> ou <i>Acertei</i>. Os que você errou voltam no fim da rodada e ficam em “Só os que errei”. Os dias de Self Check juntam os cards da semana.</li>
+      <li><b>Guia:</b> o botão <i>Seções</i> mostra o índice; <i>A±</i> aumenta a letra. O app lembra onde você parou em cada guia.</li>
+      <li>Tudo funciona offline depois do primeiro acesso.</li>
     </ul>
   </details>
 
   <div class="footer">
-    Baseado no “Programa de estudos G550” (5 semanas) — Personal Records.<br>
-    Ferramenta de organização de estudo, sem conteúdo técnico próprio. Não é material oficial da Gulfstream nem de centro de treinamento, e não tem afiliação com eles.
+    Programa baseado no “Programa de estudos G550” (5 semanas) — Personal Records. Conteúdo: study guides e flash cards pessoais (Study Guides – Improved).<br>
+    Material de estudo pessoal — não é material oficial da Gulfstream nem de centro de treinamento, e não tem afiliação com eles.
     Não substitui o AFM/AOM, os manuais do operador nem o treinamento aprovado — em caso de divergência, vale sempre a documentação oficial.<br>
     LR Aviation · FlightOps Companion
   </div>
   <div style="text-align:center; font-size:11px; margin:16px 0 0; opacity:.75"><a href="../legal/" style="color:inherit">Operational disclaimer · Privacy · Terms of use</a></div>
-
 </div>
+
+<!-- READER -->
+<div class="panel" id="reader">
+  <div class="pbar">
+    <button onclick="closePanel('reader')">‹ Voltar</button>
+    <div class="pt" id="r-title"></div>
+    <button onclick="fontToggle()">A±</button>
+    <button onclick="tocToggle()">Seções</button>
+  </div>
+  <div class="toc" id="r-toc"></div>
+  <div class="pscroll" id="r-scroll"><div class="doc" id="r-doc"></div></div>
+</div>
+
+<!-- FLASH CARDS -->
+<div class="panel" id="deck">
+  <div class="pbar">
+    <button onclick="closePanel('deck')">‹ Voltar</button>
+    <div class="pt" id="d-title"></div>
+  </div>
+  <div class="pscroll"><div class="fcwrap" id="d-body"></div></div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
 var KEY = 'g550_study_v1';
+var DATA = window.G550 || {guides:{}, cards:{}};
+var GD = DATA.guides, CD = DATA.cards;
 
-// SG = Study Guide, FC = Flash Cards, R = related material
+// g = guides, c = card decks, r = related label
 var WEEKS = [
   {n:1, focus:'Aircraft General, Electrical, APU, Fuel', s:[
-    {t:'Aircraft General/Performance', sg:1, fc:1},
-    {t:'Electrical', sg:1, fc:1},
-    {t:'APU', sg:1, fc:1},
-    {t:'Fuel', sg:1, fc:1},
-    {t:'Flash Cards/Self Check', fc:1, self:1}]},
+    {t:'Aircraft General/Performance', g:['aircraft-general-and-performance'], c:['aircraft-general-and-performance']},
+    {t:'Electrical', g:['electrical'], c:['electrical']},
+    {t:'APU', g:['apu'], c:['apu']},
+    {t:'Fuel', g:['fuel'], c:['fuel']},
+    {t:'Flash Cards/Self Check', self:1}]},
   {n:2, focus:'Hydraulic, Flight Controls, Fire Protection, Powerplant', s:[
-    {t:'Hydraulic', sg:1, fc:1},
-    {t:'Flight Controls', sg:1, fc:1},
-    {t:'Fire Protection', sg:1, fc:1},
-    {t:'Powerplant', sg:1, fc:1},
-    {t:'Flash Cards/Self Check', fc:1, self:1}]},
+    {t:'Hydraulic', g:['hydraulic'], c:['hydraulic']},
+    {t:'Flight Controls', g:['flight-controls'], c:['flight-controls']},
+    {t:'Fire Protection', g:['fire-protection'], c:['fire-protection']},
+    {t:'Powerplant', g:['powerplant'], c:['powerplant']},
+    {t:'Flash Cards/Self Check', self:1}]},
   {n:3, focus:'APU, Landing Gear & Brakes, Pneumatic, Air Conditioning', s:[
-    {t:'APU', sg:1, fc:1},
-    {t:'Landing Gear & Brakes', sg:1, fc:1},
-    {t:'Pneumatic', sg:1, fc:1},
-    {t:'Air Conditioning', sg:1, fc:1},
-    {t:'Flash Cards/Self Check', fc:1, self:1}]},
+    {t:'APU', g:['apu'], c:['apu']},
+    {t:'Landing Gear & Brakes', g:['landing-gear-and-brakes'], c:['landing-gear-and-brakes']},
+    {t:'Pneumatic', g:['pneumatic'], c:['pneumatic']},
+    {t:'Air Conditioning', g:['air-conditioning'], c:['air-conditioning']},
+    {t:'Flash Cards/Self Check', self:1}]},
   {n:4, focus:'Ice/Rain Protection, Oxygen, Water & Waste, Avionics', s:[
-    {t:'Ice and Rain Protection', sg:1, fc:1},
-    {t:'Oxygen', sg:1, fc:1},
-    {t:'Water and Waste'},
+    {t:'Ice and Rain Protection', g:['ice-and-rain-protection'], c:['ice-and-rain-protection']},
+    {t:'Oxygen', g:['oxygen'], c:['oxygen']},
+    {t:'Water and Waste', g:['cold-weather-ops'], r:1},
     {t:'Avionics'},
-    {t:'Flash Cards/Self Check', fc:1, self:1}]},
+    {t:'Flash Cards/Self Check', self:1}]},
   {n:5, focus:'Stalls, High/Hot/Heavy, Cold Weather, Low Vis, Fires, Windshear, Performance', s:[
     {t:'Stalls, Unusual Attitude'},
-    {t:'High, Hot and Heavy', fc:1},
-    {t:'Cold Weather', sg:1, fc:1},
-    {t:'Low Visibility', r:'EFVS Guide + Flash'},
-    {t:'Fires', r:'Fire Protection'},
+    {t:'High, Hot and Heavy', g:['driftdown'], c:['high-hot-heavy']},
+    {t:'Cold Weather', g:['cold-weather-ops'], c:['cold-weather-ops']},
+    {t:'Low Visibility', g:['efvs-ops'], c:['efvs-ops']},
+    {t:'Fires', g:['fire-protection'], c:['fire-protection']},
     {t:'Windshear'},
-    {t:'Performance', r:'FLEX · Driftdown'}]}
+    {t:'Performance', g:['flex-takeoff','driftdown','aircraft-general-and-performance'], c:['aircraft-general-and-performance','high-hot-heavy']}]}
 ];
-var EXTRAS = [
-  {id:'x-lim', t:'Limitations', sg:1, fc:1},
-  {id:'x-press', t:'Pressurization', sg:1, fc:1},
-  {id:'x-door', t:'Door System', sg:1},
-  {id:'x-light', t:'Lighting System', sg:1},
-  {id:'x-flex', t:'FLEX Takeoff', sg:1},
-  {id:'x-drift', t:'Driftdown', sg:1},
-  {id:'x-efvs', t:'EFVS Operations', sg:1, fc:1}
-];
-var HRS = 2;
-var ALL = [];
-WEEKS.forEach(function(w){ w.s.forEach(function(s, i){ s.id = 'w'+w.n+'d'+(i+1); s.w = w.n; s.d = i+1; ALL.push(s); }); });
+var LIB_SYS = ['aircraft-general-and-performance','electrical','apu','fuel','hydraulic','flight-controls','fire-protection','powerplant','landing-gear-and-brakes','pneumatic','air-conditioning','ice-and-rain-protection','oxygen','pressurization','door-system','lighting-system','limitations'];
+var LIB_OPS = [['cold-weather-ops','cold-weather-ops'],['efvs-ops','efvs-ops'],['driftdown','high-hot-heavy'],['flex-takeoff',null]];
+var HRS = 2, ALL = [];
+WEEKS.forEach(function(w){
+  var wc = [];
+  w.s.forEach(function(s,i){ s.id='w'+w.n+'d'+(i+1); s.w=w.n; s.d=i+1; ALL.push(s); if(!s.self && s.c) wc = wc.concat(s.c); });
+  w.s.forEach(function(s){ if (s.self) s.c = wc.filter(function(x,i){ return wc.indexOf(x)===i; }); });
+});
 
-var state = {sess:{}, wnotes:{}, cycles:[], cycleStart:null};
+var state = {sess:{}, wnotes:{}, cycles:[], cycleStart:null, fc:{}, pos:{}, big:false};
 var openId = null;
 
-function load(){ try{ var s = JSON.parse(localStorage.getItem(KEY)); if (s && s.sess) state = s; }catch(e){} if(!state.cycles) state.cycles=[]; if(!state.wnotes) state.wnotes={}; }
+function load(){ try{ var s = JSON.parse(localStorage.getItem(KEY)); if (s && s.sess) state = s; }catch(e){} fix(); }
+function fix(){ ['sess','wnotes','fc','pos'].forEach(function(k){ if(!state[k]) state[k]={}; }); if(!state.cycles) state.cycles=[]; }
 function save(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){ toast('Não foi possível salvar'); } }
 function S(id){ if(!state.sess[id]) state.sess[id] = {done:false, date:'', note:''}; return state.sess[id]; }
 function today(){ var d = new Date(); return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
 function pad(n){ return (n<10?'0':'')+n; }
 function br(iso){ if(!iso) return ''; var p = iso.split('-'); return p[2]+'/'+p[1]+'/'+p[0]; }
-function esc(t){ return String(t||'').replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+function esc(t){ return String(t==null?'':t).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
 function toast(m){ var t = document.getElementById('toast'); t.textContent = m; t.classList.add('show'); clearTimeout(t._h); t._h = setTimeout(function(){ t.classList.remove('show'); }, 1800); }
+function gTitle(k){ return GD[k] ? GD[k].t.replace(/ Study Guide$/,'').replace(/ Guide$/,'') : k; }
+function cardKey(deck, i){ return deck + ':' + i; }
+function deckStats(decks){ var n=0,k=0; decks.forEach(function(d){ (CD[d]||[]).forEach(function(_,i){ n++; if (state.fc[cardKey(d,i)]===1) k++; }); }); return {n:n,k:k}; }
 
 var CHECK = '<svg width="22" height="22" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
-function chips(s){
+function matButtons(s){
   var h = '';
-  if (s.sg) h += '<span class="chip">GUIA</span>';
-  if (s.fc) h += '<span class="chip fc">FLASH</span>';
-  if (s.r) h += '<span class="chip rel">REL. ' + esc(s.r) + '</span>';
+  (s.g||[]).forEach(function(g){ if (GD[g]) h += '<button class="chip'+(s.r?' rel':'')+'" onclick="openGuide(\''+g+'\')">GUIA · '+esc(gTitle(g).replace(/ System$/,''))+'</button>'; });
+  if (s.c && s.c.length){ var st = deckStats(s.c); h += '<button class="chip fc" onclick="openSess(\''+s.id+'\')">CARDS · '+st.k+'/'+st.n+'</button>'; }
+  if (!h) h = '<span class="nomat">sem material pronto — estudar pelo AOM/curso</span>';
   return h;
 }
+function openSess(id){ var s = ALL.filter(function(x){ return x.id===id; })[0]; openDeck(s.c, s.t + (s.self ? ' · Semana '+s.w : '')); }
 
-function sessHTML(s, isNext, extra){
+function sessHTML(s, isNext){
   var st = S(s.id);
   var cls = 'sess' + (st.done?' done':'') + (isNext?' is-next':'') + (openId===s.id?' open':'');
-  var meta = HRS + 'h' + (chips(s) ? ' ' + chips(s) : '') + (st.done && st.date ? ' <span class="dateline">✓ ' + br(st.date) + '</span>' : '');
   return '<div class="'+cls+'" id="row-'+s.id+'">' +
     '<div class="srow">' +
-      '<div class="day">' + (extra ? '+' : s.d) + '</div>' +
-      '<div class="sname"><div class="t">' + esc(s.t) + '</div><div class="m">' + meta + '</div></div>' +
+      '<div class="day">' + s.d + '</div>' +
+      '<div class="sname"><div class="t">' + esc(s.t) + (st.done && st.date ? ' <span class="dateline">✓ ' + br(st.date).slice(0,5) + '</span>' : '') + '</div><div class="m">' + matButtons(s) + '</div></div>' +
       '<button class="notebtn' + (st.note?' has':'') + '" onclick="toggleOpen(\''+s.id+'\')" aria-label="Detalhes">✎</button>' +
       '<button class="chk" onclick="toggleDone(\''+s.id+'\')" aria-label="Feito">' + CHECK + '</button>' +
     '</div>' +
@@ -288,7 +406,6 @@ function sessHTML(s, isNext, extra){
     '</div>' +
   '</div>';
 }
-
 function nextSess(){ for (var i=0;i<ALL.length;i++){ if(!S(ALL[i].id).done) return ALL[i]; } return null; }
 
 function render(){
@@ -298,83 +415,203 @@ function render(){
   document.getElementById('st-sess').textContent = done.length + ' / ' + ALL.length;
   document.getElementById('st-hrs').textContent = (done.length*HRS) + ' / ' + (ALL.length*HRS) + ' h';
   document.getElementById('st-pct').textContent = pct + '%';
-  var last = done.map(function(s){ return S(s.id).date; }).filter(Boolean).sort().pop();
-  document.getElementById('st-last').textContent = last ? br(last).slice(0,5) : '-';
+  var fs = deckStats(Object.keys(CD)); document.getElementById('st-fc').textContent = fs.k + ' / ' + fs.n;
   var ba = document.getElementById('bar-all'); ba.firstChild.style.width = pct + '%'; ba.classList.toggle('done', pct===100);
   document.getElementById('cycle-lbl').textContent = 'Ciclo ' + (state.cycles.length+1) + (state.cycleStart ? ' · desde ' + br(state.cycleStart) : '');
-
-  // week mini bars
   var wm = '';
   WEEKS.forEach(function(w){
     var d = w.s.filter(function(s){ return S(s.id).done; }).length, p = Math.round(d/w.s.length*100);
     wm += '<div class="wm" onclick="document.getElementById(\'wk'+w.n+'\').scrollIntoView({behavior:\'smooth\'})"><b>S'+w.n+'</b>'+d+'/'+w.s.length+'<div class="bar'+(p===100?' done':'')+'"><i style="width:'+p+'%"></i></div></div>';
   });
   document.getElementById('weeks-mini').innerHTML = wm;
-
   var ne = document.getElementById('next');
   if (nx){
+    var go = (nx.g && nx.g.length && GD[nx.g[0]]) ? '<button class="go" onclick="openGuide(\''+nx.g[0]+'\')">Estudar</button>' : (nx.c && nx.c.length ? '<button class="go" onclick="openSess(\''+nx.id+'\')">Cards</button>' : '');
     ne.className = 'next';
-    ne.innerHTML = '<span class="badge">PRÓXIMA</span><div class="txt"><b>Semana ' + nx.w + ' · Dia ' + nx.d + '</b> — ' + esc(nx.t) + '<small>' + HRS + 'h de estudo' + (nx.sg||nx.fc||nx.r ? ' · material: ' + [nx.sg?'Study Guide':'', nx.fc?'Flash Cards':'', nx.r?nx.r:''].filter(Boolean).join(' + ') : ' · sem guia pronto na pasta') + '</small></div>';
+    ne.innerHTML = '<span class="badge">PRÓXIMA</span><div class="txt"><b>Semana ' + nx.w + ' · Dia ' + nx.d + '</b> — ' + esc(nx.t) + '<small>' + HRS + 'h de estudo</small></div>' + go;
   } else {
     ne.className = 'next all';
     ne.innerHTML = '<span class="badge">COMPLETO</span><div class="txt"><b>Programa concluído.</b><small>Arquive com “Novo ciclo” para iniciar a próxima recorrência.</small></div>';
   }
-
-  // weeks
   var h = '';
   WEEKS.forEach(function(w){
     var d = w.s.filter(function(s){ return S(s.id).done; }).length;
     h += '<div class="card" id="wk'+w.n+'"><h2>Semana ' + w.n + ' <span class="count">' + d + '/' + w.s.length + (d===w.s.length?' ✓':'') + '</span></h2>';
     h += '<div class="note" style="margin:-8px 0 12px">' + esc(w.focus) + '</div>';
     w.s.forEach(function(s){ h += sessHTML(s, nx && nx.id===s.id); });
-    h += '<div class="wnotes field"><label>Anotações da semana</label><textarea placeholder="Resumo, dúvidas para o instrutor, itens de memória…" onchange="setWNote('+w.n+',this.value)">' + esc(state.wnotes[w.n]) + '</textarea></div>';
-    h += '</div>';
+    h += '<div class="wnotes field"><label>Anotações da semana</label><textarea placeholder="Resumo, dúvidas para o instrutor, itens de memória…" onchange="setWNote('+w.n+',this.value)">' + esc(state.wnotes[w.n]) + '</textarea></div></div>';
   });
   document.getElementById('weeks').innerHTML = h;
-
-  var ex = '';
-  EXTRAS.forEach(function(s){ ex += sessHTML(s, false, true); });
-  document.getElementById('extras').innerHTML = ex;
-
   var hb = '';
-  state.cycles.slice().reverse().forEach(function(c, i){
-    hb += '<tr><td>' + (state.cycles.length - i) + '</td><td>' + (br(c.start)||'-') + '</td><td>' + br(c.end) + '</td><td>' + c.done + '/' + c.total + '</td></tr>';
-  });
+  state.cycles.slice().reverse().forEach(function(c, i){ hb += '<tr><td>' + (state.cycles.length - i) + '</td><td>' + (br(c.start)||'-') + '</td><td>' + br(c.end) + '</td><td>' + c.done + '/' + c.total + '</td></tr>'; });
   document.getElementById('hist-body').innerHTML = hb;
   document.getElementById('hist-empty').style.display = state.cycles.length ? 'none' : 'block';
+  renderLib();
+}
+
+function libRow(g, c){
+  var G = GD[g], st = c ? deckStats([c]) : null;
+  return '<div class="lib"><div class="t">' + esc(gTitle(g)) + '<small>' + esc(G ? G.sub : '') + '</small></div><div class="acts">' +
+    (G ? '<button class="chip" onclick="openGuide(\''+g+'\')">GUIA</button>' : '') +
+    (c && CD[c] ? '<button class="chip fc" onclick="openDeck([\''+c+'\'], \''+esc(gTitle(g))+'\')">CARDS · '+st.k+'/'+st.n+'</button>' : '') + '</div></div>';
+}
+function renderLib(){
+  document.getElementById('lib-sys').innerHTML = LIB_SYS.map(function(k){ return libRow(k, CD[k]?k:null); }).join('');
+  document.getElementById('lib-ops').innerHTML = LIB_OPS.map(function(p){ return libRow(p[0], p[1]); }).join('');
+  var m = missed().length; document.getElementById('missed-note').textContent = m ? m + ' card(s) marcados como “errei”.' : 'Nenhum card marcado como “errei” ainda.';
+}
+function tab(t){
+  ['prog','lib','find'].forEach(function(x){ document.getElementById('v-'+x).classList.toggle('on', x===t); document.getElementById('tab-'+x).classList.toggle('on', x===t); });
+  if (t==='find') setTimeout(function(){ document.getElementById('q').focus(); }, 50);
 }
 
 function toggleDone(id){
-  var st = S(id);
-  st.done = !st.done;
+  var st = S(id); st.done = !st.done;
   if (st.done && !st.date) st.date = today();
   if (!st.done) st.date = '';
-  if (st.done && !state.cycleStart && id.charAt(0)==='w') state.cycleStart = st.date;
+  if (st.done && !state.cycleStart) state.cycleStart = st.date;
   save(); render();
-  if (st.done && !nextSess()) toast('Programa concluído!'); else if (st.done) toast('Sessão registrada');
+  if (st.done) toast(nextSess() ? 'Sessão registrada' : 'Programa concluído!');
 }
 function toggleOpen(id){ openId = (openId===id) ? null : id; render(); }
-function setField(id, f, v){ S(id)[f] = v; if (f==='date' && v && !S(id).done){ S(id).done = true; } save(); render(); }
+function setField(id, f, v){ S(id)[f] = v; if (f==='date' && v) S(id).done = true; save(); render(); }
 function setWNote(n, v){ state.wnotes[n] = v; save(); toast('Anotação salva'); }
 
-function newCycle(){
-  var done = ALL.filter(function(s){ return S(s.id).done; }).length;
-  var msg = done < ALL.length
-    ? 'Ainda faltam ' + (ALL.length-done) + ' sessões. Arquivar este ciclo mesmo assim e recomeçar?'
-    : 'Arquivar o ciclo concluído e recomeçar a recorrência?';
-  if (!confirm(msg)) return;
-  var dates = ALL.map(function(s){ return S(s.id).date; }).filter(Boolean).sort();
-  state.cycles.push({start: state.cycleStart || dates[0] || '', end: dates[dates.length-1] || today(), done: done, total: ALL.length,
-    notes: state.wnotes, sess: state.sess});
-  var keep = {}; EXTRAS.forEach(function(x){ if (state.sess[x.id]) keep[x.id] = state.sess[x.id]; });
-  state.sess = keep; state.wnotes = {}; state.cycleStart = null; openId = null;
-  save(); render(); window.scrollTo({top:0, behavior:'smooth'}); toast('Novo ciclo iniciado');
+/* ---------- panels ---------- */
+var curGuide = null, scrollTimer = null;
+function openPanel(id){ document.getElementById(id).classList.add('on'); document.body.classList.add('locked'); }
+function closePanel(id){ document.getElementById(id).classList.remove('on'); document.body.classList.remove('locked'); document.getElementById('r-toc').classList.remove('on'); curGuide = null; render(); }
+
+function openGuide(k, anchor){
+  var G = GD[k]; if (!G) return;
+  curGuide = k;
+  document.getElementById('r-title').textContent = gTitle(k);
+  var doc = document.getElementById('r-doc');
+  doc.className = 'doc' + (state.big ? ' big' : '');
+  doc.innerHTML = '<p class="dtitle">' + esc(G.t) + '</p><p class="dsub">' + esc(G.sub) + '</p>' + G.html;
+  document.getElementById('r-toc').innerHTML = G.toc.map(function(t){ return '<a class="'+t[0]+'" href="#" onclick="goSec(\''+t[2]+'\');return false">'+esc(t[1])+'</a>'; }).join('');
+  openPanel('reader');
+  var sc = document.getElementById('r-scroll');
+  if (anchor){ setTimeout(function(){ goSec(anchor, true); }, 30); }
+  else { sc.scrollTop = 0; setTimeout(function(){ sc.scrollTop = state.pos[k] || 0; }, 30); }
+}
+function goSec(id, flash){
+  var el = document.getElementById(id), sc = document.getElementById('r-scroll');
+  document.getElementById('r-toc').classList.remove('on');
+  if (!el) return;
+  sc.scrollTop += el.getBoundingClientRect().top - sc.getBoundingClientRect().top - 10;
+  if (flash){ el.style.transition='background .6s'; el.style.background='#fde9b8'; setTimeout(function(){ el.style.background=''; }, 1400); }
+}
+function tocToggle(){ document.getElementById('r-toc').classList.toggle('on'); }
+function fontToggle(){ state.big = !state.big; document.getElementById('r-doc').classList.toggle('big', state.big); save(); }
+document.getElementById('r-doc').addEventListener('click', function(e){
+  var a = e.target.closest('a'); if (!a) return;
+  var h = a.getAttribute('href') || '';
+  if (h.charAt(0) === '#'){ e.preventDefault(); goSec(h.slice(1), true); }
+  else { a.target = '_blank'; a.rel = 'noopener'; }
+});
+document.getElementById('r-scroll').addEventListener('scroll', function(){
+  if (!curGuide) return; var k = curGuide, sc = this;
+  clearTimeout(scrollTimer); scrollTimer = setTimeout(function(){ state.pos[k] = sc.scrollTop; save(); }, 400);
+});
+
+/* ---------- flash cards ---------- */
+var D = null;
+function shuffle(a){ for (var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
+function allDecks(){ return Object.keys(CD); }
+function missed(){ var r=[]; Object.keys(CD).forEach(function(d){ CD[d].forEach(function(_,i){ if (state.fc[cardKey(d,i)]===0) r.push([d,i]); }); }); return r; }
+function openMissed(){ var m = missed(); if (!m.length){ toast('Nenhum card errado'); return; } startDeck(m, 'Revisar erros', true); }
+function openDeck(decks, title){
+  var list = []; decks.forEach(function(d){ (CD[d]||[]).forEach(function(_,i){ list.push([d,i]); }); });
+  if (!list.length){ toast('Sem flash cards'); return; }
+  startDeck(list, title, decks.length > 1);
+}
+function startDeck(list, title, rnd){
+  D = {src:list.slice(), q: rnd ? shuffle(list.slice()) : list.slice(), i:0, ok:0, bad:0, title:title, rnd:!!rnd, multi:list.some(function(x){ return x[0]!==list[0][0]; })};
+  document.getElementById('d-title').textContent = title;
+  openPanel('deck'); drawCard();
+}
+function drawCard(){
+  var b = document.getElementById('d-body');
+  if (D.i >= D.q.length){
+    var tot = D.ok + D.bad, pct = tot ? Math.round(D.ok/tot*100) : 0;
+    b.innerHTML = '<div class="fcard" style="cursor:default"><div class="score"><div class="big">'+pct+'%</div><p>'+D.ok+' acertos · '+D.bad+' erros na rodada</p></div></div>' +
+      '<div class="fcopts"><button onclick="restart(false)">Refazer tudo</button><button onclick="restart(true)">Só os errados</button><button onclick="closePanel(\'deck\')">Fechar</button></div>';
+    render(); return;
+  }
+  var c = D.q[D.i], card = CD[c[0]][c[1]], st = state.fc[cardKey(c[0],c[1])];
+  b.innerHTML = '<div class="fcmeta"><span>Card ' + (D.i+1) + ' de ' + D.q.length + '</span><span>✓ ' + D.ok + ' · ✗ ' + D.bad + '</span></div>' +
+    '<div class="bar" style="height:5px;margin-bottom:12px"><i style="width:'+Math.round(D.i/D.q.length*100)+'%"></i></div>' +
+    '<div class="fcard" id="fc" onclick="flip()">' + (D.multi ? '<div class="src">'+esc(gTitle(c[0]))+'</div>' : '') +
+    '<div class="lbl">Pergunta' + (st===1?' · já dominado':'') + (st===0?' · errou antes':'') + '</div><div class="q">' + esc(card[0]) + '</div>' +
+    '<div class="a">' + esc(card[1]) + '</div><div class="hint">toque para ver a resposta</div></div>' +
+    '<div class="grade"><button class="no" id="bno" disabled onclick="grade(0)">✗ Errei</button><button class="yes" id="byes" disabled onclick="grade(1)">✓ Acertei</button></div>' +
+    '<div class="fcopts"><button onclick="prevCard()">‹ Anterior</button><button class="'+(D.rnd?'on':'')+'" onclick="toggleShuffle()">Aleatório</button><button onclick="skipCard()">Pular ›</button></div>';
+}
+function flip(){ var f = document.getElementById('fc'); if (!f) return; f.classList.add('flip'); document.getElementById('bno').disabled = false; document.getElementById('byes').disabled = false; }
+function grade(ok){
+  var c = D.q[D.i]; state.fc[cardKey(c[0],c[1])] = ok ? 1 : 0; save();
+  if (ok) D.ok++; else { D.bad++; if (!D.retry) D.retry = []; D.retry.push(c); }
+  D.i++;
+  if (D.i >= D.q.length && D.retry && D.retry.length && !D.again){ D.q = D.q.concat(D.retry); D.again = true; D.retry = []; toast('Repetindo os que você errou'); }
+  drawCard();
+}
+function prevCard(){ if (D.i>0){ D.i--; drawCard(); } }
+function skipCard(){ D.i++; drawCard(); }
+function toggleShuffle(){ D.rnd = !D.rnd; var rest = D.q.slice(D.i); D.q = D.q.slice(0, D.i).concat(D.rnd ? shuffle(rest) : D.src.filter(function(x){ return rest.indexOf(x) >= 0; })); drawCard(); }
+function restart(onlyBad){
+  var list = onlyBad ? D.src.filter(function(c){ return state.fc[cardKey(c[0],c[1])]===0; }) : D.src;
+  if (!list.length){ toast('Nenhum errado nesta rodada'); return; }
+  startDeck(list, D.title, D.rnd);
 }
 
+/* ---------- search ---------- */
+var IDX = null;
+function buildIdx(){
+  IDX = [];
+  var tmp = document.createElement('div');
+  Object.keys(GD).forEach(function(k){
+    tmp.innerHTML = GD[k].html;
+    var sec = {id:null, name:gTitle(k)}, buf = [];
+    function flush(){ if (buf.length) IDX.push({type:'g', k:k, id:sec.id, sec:sec.name, text:buf.join(' ')}); buf = []; }
+    Array.prototype.forEach.call(tmp.children, function(el){
+      if (/^H[12]$/.test(el.tagName)){ flush(); sec = {id:el.id, name:el.textContent}; }
+      else buf.push(el.textContent.replace(/\s+/g,' '));
+    });
+    flush();
+  });
+  Object.keys(CD).forEach(function(d){ CD[d].forEach(function(c,i){ IDX.push({type:'c', k:d, i:i, sec:'Flash card', text:c[0]+' — '+c[1]}); }); });
+}
+function find(q){
+  q = q.trim(); var box = document.getElementById('find-res'), cnt = document.getElementById('find-count');
+  if (q.length < 2){ box.style.display='none'; cnt.textContent='Mínimo 2 letras.'; return; }
+  if (!IDX) buildIdx();
+  var ql = q.toLowerCase(), res = [];
+  IDX.forEach(function(e){ var p = e.text.toLowerCase().indexOf(ql); if (p >= 0) res.push([e,p]); });
+  cnt.textContent = res.length + ' resultado(s)' + (res.length > 60 ? ' — mostrando 60' : '');
+  var re = new RegExp('(' + q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + ')','ig');
+  box.innerHTML = res.slice(0,60).map(function(r){
+    var e = r[0], p = r[1], a = Math.max(0,p-70), snip = (a?'…':'') + e.text.slice(a, p+130) + '…';
+    var act = e.type==='g' ? 'openGuide(\''+e.k+'\''+(e.id?',\''+e.id+'\'':'')+')' : 'startDeck([[\''+e.k+'\','+e.i+']],\'Flash card\',false)';
+    return '<div class="hit" onclick="'+act+'"><b>'+esc(gTitle(e.k))+'</b><small>'+esc(e.sec)+'</small><p>'+esc(snip).replace(re,'<mark>$1</mark>')+'</p></div>';
+  }).join('');
+  box.style.display = res.length ? 'block' : 'none';
+}
+
+/* ---------- data ---------- */
+function newCycle(){
+  var done = ALL.filter(function(s){ return S(s.id).done; }).length;
+  var msg = done < ALL.length ? 'Ainda faltam ' + (ALL.length-done) + ' sessões. Arquivar este ciclo mesmo assim e recomeçar?' : 'Arquivar o ciclo concluído e recomeçar a recorrência?';
+  if (!confirm(msg)) return;
+  var dates = ALL.map(function(s){ return S(s.id).date; }).filter(Boolean).sort();
+  state.cycles.push({start: state.cycleStart || dates[0] || '', end: dates[dates.length-1] || today(), done: done, total: ALL.length, notes: state.wnotes, sess: state.sess});
+  state.sess = {}; state.wnotes = {}; state.cycleStart = null; openId = null;
+  if (confirm('Zerar também o placar dos flash cards (acertos/erros)?')) state.fc = {};
+  save(); render(); window.scrollTo({top:0, behavior:'smooth'}); toast('Novo ciclo iniciado');
+}
 function exportData(){
   var blob = new Blob([JSON.stringify(state, null, 1)], {type:'application/json'});
-  var a = document.createElement('a');
-  a.href = URL.createObjectURL(blob); a.download = 'G550_estudos_backup_' + today() + '.json';
+  var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'G550_estudos_backup_' + today() + '.json';
   document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 500);
 }
 function importData(inp){
@@ -383,19 +620,15 @@ function importData(inp){
   r.onload = function(){
     try{ var s = JSON.parse(r.result); if (!s || !s.sess) throw 0;
       if (!confirm('Substituir os dados atuais pelo backup?')) return;
-      state = s; load2(); save(); render(); toast('Backup importado');
+      state = s; fix(); save(); render(); toast('Backup importado');
     }catch(e){ toast('Arquivo inválido'); }
     inp.value = '';
   };
   r.readAsText(f);
 }
-function load2(){ if(!state.cycles) state.cycles=[]; if(!state.wnotes) state.wnotes={}; }
 
 load(); render();
-
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', function(){ navigator.serviceWorker.register('sw.js').catch(function(){}); });
-}
+if ('serviceWorker' in navigator) { window.addEventListener('load', function(){ navigator.serviceWorker.register('sw.js').catch(function(){}); }); }
 </script>
 </body>
 </html>
