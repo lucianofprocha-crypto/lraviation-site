@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>G550 Study Program - Estudos</title>
+<title>Study Guide - G550</title>
 <style>
   :root{
     --navy:#1B2A4A; --accent:#0B5A8A; --gray:#5b5f66; --line:#e2e5ea;
@@ -177,6 +177,17 @@
   .score{text-align:center; padding:30px 10px;}
   .score .big{font-size:44px; font-weight:800; color:var(--navy);}
 
+  .chip.qz{background:#e9f3ec; color:var(--green);}
+  .chip.off{opacity:.45;}
+  .qopt{display:block; width:100%; text-align:left; padding:13px 14px; margin-top:10px; border:1px solid var(--line); border-radius:10px; background:#fff; font:500 16px -apple-system,sans-serif; color:#1c1f24; cursor:pointer; line-height:1.4;}
+  .qopt b{color:var(--accent); margin-right:8px;}
+  .qopt.right{background:var(--green-bg); border-color:var(--green); color:var(--green);}
+  .qopt.wrong{background:var(--red-bg); border-color:var(--red); color:var(--red);}
+  .qopt:disabled{cursor:default;}
+  .qref{font-size:12px; color:var(--gray); margin-top:12px;}
+  .qmenu .row{display:flex; align-items:center; gap:10px; padding:12px 0; border-top:1px solid var(--line);}
+  .qmenu .row:first-child{border-top:none;}
+  .qmenu .row .t{flex:1; font-size:14.5px; font-weight:600;} .qmenu .row .t small{display:block; font-weight:400; color:var(--gray); font-size:12px;}
   .toast{position:fixed; left:50%; bottom:calc(24px + env(safe-area-inset-bottom)); transform:translateX(-50%) translateY(140px);
     background:var(--navy); color:#fff; font-size:13.5px; padding:10px 16px; border-radius:20px; transition:transform .25s; z-index:40;}
   .toast.show{transform:translateX(-50%) translateY(0);}
@@ -196,7 +207,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="G550 Estudos">
+<meta name="apple-mobile-web-app-title" content="Study Guide">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" href="icon-192.png">
 <script src="content.js"></script>
@@ -205,8 +216,8 @@
 <div class="wrap">
 
   <div class="header">
-    <h1>G550 Study Program</h1>
-    <p>Recorrência em 5 semanas · 21 study guides · 401 flash cards</p>
+    <h1>Study Guide</h1>
+    <p>Gulfstream G550 · recorrência em 5 semanas · guias, flash cards e questionários</p>
   </div>
 
   <div class="tabs no-print">
@@ -224,6 +235,7 @@
         <div class="stat"><div class="label">Horas estudadas</div><div class="value" id="st-hrs">-</div></div>
         <div class="stat"><div class="label">Progresso</div><div class="value" id="st-pct">-</div></div>
         <div class="stat"><div class="label">Flash cards dominados</div><div class="value" id="st-fc">-</div></div>
+        <div class="stat"><div class="label">Questionário (acertos)</div><div class="value" id="st-qz">-</div></div>
       </div>
       <div class="bar" id="bar-all"><i style="width:0"></i></div>
       <div class="weeks-mini" id="weeks-mini"></div>
@@ -245,6 +257,7 @@
         <button class="btn sec" onclick="exportData()">Exportar backup</button>
         <button class="btn sec" onclick="document.getElementById('imp').click()">Importar backup</button>
       </div>
+      <input type="file" id="imp-pack" accept="application/json,.json" style="display:none" onchange="importPack(this)">
       <input type="file" id="imp" accept="application/json,.json" style="display:none" onchange="importData(this)">
       <div class="note">Progresso, notas e resultados dos flash cards ficam salvos só neste iPad. Exporte um backup de vez em quando.</div>
     </div>
@@ -254,6 +267,7 @@
   <div class="view" id="v-lib">
     <div class="card"><h2>Sistemas <span class="count">Guia · Flash cards</span></h2><div id="lib-sys"></div></div>
     <div class="card"><h2>Operações e performance</h2><div id="lib-ops"></div></div>
+    <div class="card"><h2>Questionários <span class="count" id="pack-st"></span></h2><div id="lib-quiz"></div></div>
     <div class="card"><h2>Revisão geral</h2>
       <div class="btns">
         <button class="btn" onclick="openDeck(allDecks(), 'Todos os flash cards')">Todos os cards (aleatório)</button>
@@ -278,12 +292,13 @@
       <li><b>Programa:</b> cada sessão tem os botões <span class="chip">GUIA</span> (abre o study guide) e <span class="chip fc">CARDS</span> (flash cards). Marque o quadrado ao terminar — a data entra sozinha; o ✎ ajusta data e observações.</li>
       <li><b>Flash cards:</b> toque no card para ver a resposta e marque <i>Errei</i> ou <i>Acertei</i>. Os que você errou voltam no fim da rodada e ficam em “Só os que errei”. Os dias de Self Check juntam os cards da semana.</li>
       <li><b>Guia:</b> o botão <i>Seções</i> mostra o índice; <i>A±</i> aumenta a letra. O app lembra onde você parou em cada guia.</li>
+      <li><b>Quiz:</b> cada capítulo tem questionário de múltipla escolha (Self Check, com gabarito) e perguntas abertas (Systems Review, toque para ver a resposta). Abra pelo botão <span class="chip qz">QUIZ</span>, pelo botão Quiz no guia ou pela Biblioteca. Os questionários vêm do arquivo <b>quiz-pack.json</b>, importado uma vez na Biblioteca.</li>
       <li>Tudo funciona offline depois do primeiro acesso.</li>
     </ul>
   </details>
 
   <div class="footer">
-    Programa baseado no “Programa de estudos G550” (5 semanas) — Personal Records. Conteúdo: study guides e flash cards pessoais (Study Guides – Improved).<br>
+    Programa baseado no “Programa de estudos G550” (5 semanas) — Personal Records. Conteúdo: study guides e flash cards pessoais (Study Guides – Improved). Questionários: pacote privado importado no aparelho, não distribuído com o app.<br>
     Material de estudo pessoal — não é material oficial da Gulfstream nem de centro de treinamento, e não tem afiliação com eles.
     Não substitui o AFM/AOM, os manuais do operador nem o treinamento aprovado — em caso de divergência, vale sempre a documentação oficial.<br>
     LR Aviation · FlightOps Companion
@@ -298,9 +313,19 @@
     <div class="pt" id="r-title"></div>
     <button onclick="fontToggle()">A±</button>
     <button onclick="tocToggle()">Seções</button>
+    <button id="r-quiz" onclick="openQuizMenu(QMAP[curGuide], gTitle(curGuide))">Quiz</button>
   </div>
   <div class="toc" id="r-toc"></div>
   <div class="pscroll" id="r-scroll"><div class="doc" id="r-doc"></div></div>
+</div>
+
+<!-- QUIZ -->
+<div class="panel" id="quiz">
+  <div class="pbar">
+    <button onclick="quizBack()">‹ Voltar</button>
+    <div class="pt" id="q-title"></div>
+  </div>
+  <div class="pscroll"><div class="fcwrap" id="q-body"></div></div>
 </div>
 
 <!-- FLASH CARDS -->
@@ -342,32 +367,58 @@ var WEEKS = [
   {n:4, focus:'Ice/Rain Protection, Oxygen, Water & Waste, Avionics', s:[
     {t:'Ice and Rain Protection', g:['ice-and-rain-protection'], c:['ice-and-rain-protection']},
     {t:'Oxygen', g:['oxygen'], c:['oxygen']},
-    {t:'Water and Waste', g:['cold-weather-ops'], r:1},
-    {t:'Avionics'},
+    {t:'Water and Waste', g:['cold-weather-ops'], r:1, q:['x-water']},
+    {t:'Avionics', q:['x-avionics']},
     {t:'Flash Cards/Self Check', self:1}]},
   {n:5, focus:'Stalls, High/Hot/Heavy, Cold Weather, Low Vis, Fires, Windshear, Performance', s:[
-    {t:'Stalls, Unusual Attitude'},
+    {t:'Stalls, Unusual Attitude', q:['x-sops']},
     {t:'High, Hot and Heavy', g:['driftdown'], c:['high-hot-heavy']},
     {t:'Cold Weather', g:['cold-weather-ops'], c:['cold-weather-ops']},
     {t:'Low Visibility', g:['efvs-ops'], c:['efvs-ops']},
     {t:'Fires', g:['fire-protection'], c:['fire-protection']},
-    {t:'Windshear'},
-    {t:'Performance', g:['flex-takeoff','driftdown','aircraft-general-and-performance'], c:['aircraft-general-and-performance','high-hot-heavy']}]}
+    {t:'Windshear', q:['x-sops']},
+    {t:'Performance', g:['flex-takeoff','driftdown','aircraft-general-and-performance'], c:['aircraft-general-and-performance','high-hot-heavy'], q:['x-perf']}]}
 ];
 var LIB_SYS = ['aircraft-general-and-performance','electrical','apu','fuel','hydraulic','flight-controls','fire-protection','powerplant','landing-gear-and-brakes','pneumatic','air-conditioning','ice-and-rain-protection','oxygen','pressurization','door-system','lighting-system','limitations'];
+var PACK_KEY = 'g550_quiz_pack', PK = null, SCI = {}, SRI = {};
+var QMAP = {
+ 'aircraft-general-and-performance': {sc:['SC1-aircraft-general'], sr:['SR-aircraft-general','SR-miscellaneous']},
+ 'electrical': {sc:['SC2-electrical'], sr:['SR-electrical']},
+ 'lighting-system': {sc:['SC2-lighting'], sr:['SR-lighting']},
+ 'fuel': {sc:['SC2-fuel'], sr:['SR-fuel-system']},
+ 'fire-protection': {sc:['SC2-fire-protection'], sr:['SR-fire-protection']},
+ 'apu': {sc:['SC3-apu'], sr:['SR-apu']},
+ 'powerplant': {sc:['SC3-powerplant'], sr:['SR-powerplant']},
+ 'hydraulic': {sc:['SC3-hydraulics'], sr:['SR-hydraulics']},
+ 'landing-gear-and-brakes': {sc:['SC4-landing-gear-and-brakes'], sr:['SR-landing-gear-brakes']},
+ 'flight-controls': {sc:['SC4-flight-controls'], sr:['SR-flight-controls']},
+ 'pressurization': {sc:['SC4-pressurization'], sr:['SR-pressurization-oxygen']},
+ 'air-conditioning': {sc:['SC4-air-conditioning'], sr:['SR-air-conditioning']},
+ 'pneumatic': {sc:['SC4-pneumatics'], sr:['SR-pneumatics']},
+ 'ice-and-rain-protection': {sc:['SC5-ice-and-rain'], sr:['SR-ice-rain-protection']},
+ 'oxygen': {sc:['SC5-oxygen','SC5-emergency-equipment'], sr:['SR-pressurization-oxygen']},
+ 'efvs-ops': {sc:['SC7-hud-evs','SC7-synthetic-vision-system-svs'], sr:['SR-hud-evs']},
+ 'flex-takeoff': {sc:['SC6-flight-planning-and-performance'], sr:['SR-performance']},
+ 'x-avionics': {sc:['SC1-avionics','SC2-auto-flight','SC1-master-warning'], sr:['SR-avionics','SR-master-warning']},
+ 'x-water': {sc:['SC5-water-and-waste'], sr:[]},
+ 'x-sops': {sc:['SC8-sops-and-maneuvers'], sr:[]},
+ 'x-perf': {sc:['SC6-flight-planning-and-performance','SC6-weight-and-balance'], sr:['SR-performance','SR-weight-balance']}
+};
 var LIB_OPS = [['cold-weather-ops','cold-weather-ops'],['efvs-ops','efvs-ops'],['driftdown','high-hot-heavy'],['flex-takeoff',null]];
 var HRS = 2, ALL = [];
 WEEKS.forEach(function(w){
   var wc = [];
   w.s.forEach(function(s,i){ s.id='w'+w.n+'d'+(i+1); s.w=w.n; s.d=i+1; ALL.push(s); if(!s.self && s.c) wc = wc.concat(s.c); });
   w.s.forEach(function(s){ if (s.self) s.c = wc.filter(function(x,i){ return wc.indexOf(x)===i; }); });
+  var wq = []; w.s.forEach(function(s){ if (!s.self) wq = wq.concat(s.q || s.g || []); });
+  w.s.forEach(function(s){ if (s.self) s.q = wq; });
 });
 
-var state = {sess:{}, wnotes:{}, cycles:[], cycleStart:null, fc:{}, pos:{}, big:false};
+var state = {sess:{}, wnotes:{}, cycles:[], cycleStart:null, fc:{}, pos:{}, qz:{}, qs:{}, big:false};
 var openId = null;
 
 function load(){ try{ var s = JSON.parse(localStorage.getItem(KEY)); if (s && s.sess) state = s; }catch(e){} fix(); }
-function fix(){ ['sess','wnotes','fc','pos'].forEach(function(k){ if(!state[k]) state[k]={}; }); if(!state.cycles) state.cycles=[]; }
+function fix(){ ['sess','wnotes','fc','pos','qz','qs'].forEach(function(k){ if(!state[k]) state[k]={}; }); if(!state.cycles) state.cycles=[]; }
 function save(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){ toast('Não foi possível salvar'); } }
 function S(id){ if(!state.sess[id]) state.sess[id] = {done:false, date:'', note:''}; return state.sess[id]; }
 function today(){ var d = new Date(); return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
@@ -375,7 +426,7 @@ function pad(n){ return (n<10?'0':'')+n; }
 function br(iso){ if(!iso) return ''; var p = iso.split('-'); return p[2]+'/'+p[1]+'/'+p[0]; }
 function esc(t){ return String(t==null?'':t).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
 function toast(m){ var t = document.getElementById('toast'); t.textContent = m; t.classList.add('show'); clearTimeout(t._h); t._h = setTimeout(function(){ t.classList.remove('show'); }, 1800); }
-function gTitle(k){ return GD[k] ? GD[k].t.replace(/ Study Guide$/,'').replace(/ Guide$/,'') : k; }
+function gTitle(k){ if (SRI[k]) return SRI[k].t + ' (Systems Review)'; return GD[k] ? GD[k].t.replace(/ Study Guide$/,'').replace(/ Guide$/,'') : k; }
 function cardKey(deck, i){ return deck + ':' + i; }
 function deckStats(decks){ var n=0,k=0; decks.forEach(function(d){ (CD[d]||[]).forEach(function(_,i){ n++; if (state.fc[cardKey(d,i)]===1) k++; }); }); return {n:n,k:k}; }
 
@@ -385,9 +436,12 @@ function matButtons(s){
   var h = '';
   (s.g||[]).forEach(function(g){ if (GD[g]) h += '<button class="chip'+(s.r?' rel':'')+'" onclick="openGuide(\''+g+'\')">GUIA · '+esc(gTitle(g).replace(/ System$/,''))+'</button>'; });
   if (s.c && s.c.length){ var st = deckStats(s.c); h += '<button class="chip fc" onclick="openSess(\''+s.id+'\')">CARDS · '+st.k+'/'+st.n+'</button>'; }
+  var qs = quizSpec(s.q || s.g || []);
+  if (qs.sc.length || qs.sr.length){ var qn = quizCount(qs); h += '<button class="chip qz'+(PK?'':' off')+'" onclick="openSessQuiz(\''+s.id+'\')">QUIZ'+(PK? ' · '+qn:'')+'</button>'; }
   if (!h) h = '<span class="nomat">sem material pronto — estudar pelo AOM/curso</span>';
   return h;
 }
+function openSessQuiz(id){ var s = ALL.filter(function(x){ return x.id===id; })[0]; openQuizMenu(quizSpec(s.q || s.g || []), s.t + (s.self ? ' · Semana '+s.w : '')); }
 function openSess(id){ var s = ALL.filter(function(x){ return x.id===id; })[0]; openDeck(s.c, s.t + (s.self ? ' · Semana '+s.w : '')); }
 
 function sessHTML(s, isNext){
@@ -416,6 +470,7 @@ function render(){
   document.getElementById('st-hrs').textContent = (done.length*HRS) + ' / ' + (ALL.length*HRS) + ' h';
   document.getElementById('st-pct').textContent = pct + '%';
   var fs = deckStats(Object.keys(CD)); document.getElementById('st-fc').textContent = fs.k + ' / ' + fs.n;
+  if (PK){ var q1 = qStats(Object.keys(SCI), SCI), q2 = qStats(Object.keys(SRI), SRI); document.getElementById('st-qz').textContent = (q1.k+q2.k) + ' / ' + (q1.n+q2.n); } else document.getElementById('st-qz').textContent = '—';
   var ba = document.getElementById('bar-all'); ba.firstChild.style.width = pct + '%'; ba.classList.toggle('done', pct===100);
   document.getElementById('cycle-lbl').textContent = 'Ciclo ' + (state.cycles.length+1) + (state.cycleStart ? ' · desde ' + br(state.cycleStart) : '');
   var wm = '';
@@ -456,6 +511,7 @@ function libRow(g, c){
     (c && CD[c] ? '<button class="chip fc" onclick="openDeck([\''+c+'\'], \''+esc(gTitle(g))+'\')">CARDS · '+st.k+'/'+st.n+'</button>' : '') + '</div></div>';
 }
 function renderLib(){
+  renderQuizLib();
   document.getElementById('lib-sys').innerHTML = LIB_SYS.map(function(k){ return libRow(k, CD[k]?k:null); }).join('');
   document.getElementById('lib-ops').innerHTML = LIB_OPS.map(function(p){ return libRow(p[0], p[1]); }).join('');
   var m = missed().length; document.getElementById('missed-note').textContent = m ? m + ' card(s) marcados como “errei”.' : 'Nenhum card marcado como “errei” ainda.';
@@ -480,7 +536,7 @@ function setWNote(n, v){ state.wnotes[n] = v; save(); toast('Anotação salva');
 /* ---------- panels ---------- */
 var curGuide = null, scrollTimer = null;
 function openPanel(id){ document.getElementById(id).classList.add('on'); document.body.classList.add('locked'); }
-function closePanel(id){ document.getElementById(id).classList.remove('on'); document.body.classList.remove('locked'); document.getElementById('r-toc').classList.remove('on'); curGuide = null; render(); }
+function closePanel(id){ if (id==='quiz'){ QM = null; QMENU = null; } document.getElementById(id).classList.remove('on'); document.body.classList.remove('locked'); document.getElementById('r-toc').classList.remove('on'); curGuide = null; render(); }
 
 function openGuide(k, anchor){
   var G = GD[k]; if (!G) return;
@@ -490,6 +546,8 @@ function openGuide(k, anchor){
   doc.className = 'doc' + (state.big ? ' big' : '');
   doc.innerHTML = '<p class="dtitle">' + esc(G.t) + '</p><p class="dsub">' + esc(G.sub) + '</p>' + G.html;
   document.getElementById('r-toc').innerHTML = G.toc.map(function(t){ return '<a class="'+t[0]+'" href="#" onclick="goSec(\''+t[2]+'\');return false">'+esc(t[1])+'</a>'; }).join('');
+  var qm = QMAP[k]; document.getElementById('r-quiz').style.display = qm ? '' : 'none';
+  if (qm){ var qn = PK ? quizCount(qm) : 0; doc.insertAdjacentHTML('beforeend', '<h1>Questionário do capítulo</h1><div class="nbox"><p>' + (PK ? qn + ' questões (Self Check + Systems Review) sobre este capítulo.' : 'Importe o quiz-pack.json na Biblioteca para liberar o questionário.') + '</p><p><button class="btn" style="max-width:260px" onclick="openQuizMenu(QMAP[curGuide], gTitle(curGuide))">Abrir questionário</button></p></div>'); }
   openPanel('reader');
   var sc = document.getElementById('r-scroll');
   if (anchor){ setTimeout(function(){ goSec(anchor, true); }, 30); }
@@ -539,18 +597,18 @@ function drawCard(){
       '<div class="fcopts"><button onclick="restart(false)">Refazer tudo</button><button onclick="restart(true)">Só os errados</button><button onclick="closePanel(\'deck\')">Fechar</button></div>';
     render(); return;
   }
-  var c = D.q[D.i], card = CD[c[0]][c[1]], st = state.fc[cardKey(c[0],c[1])];
+  var c = D.q[D.i], card = cardOf(c), st = SRI[c[0]] ? state.qz[c[0]+':'+c[1]] : state.fc[cardKey(c[0],c[1])];
   b.innerHTML = '<div class="fcmeta"><span>Card ' + (D.i+1) + ' de ' + D.q.length + '</span><span>✓ ' + D.ok + ' · ✗ ' + D.bad + '</span></div>' +
     '<div class="bar" style="height:5px;margin-bottom:12px"><i style="width:'+Math.round(D.i/D.q.length*100)+'%"></i></div>' +
     '<div class="fcard" id="fc" onclick="flip()">' + (D.multi ? '<div class="src">'+esc(gTitle(c[0]))+'</div>' : '') +
     '<div class="lbl">Pergunta' + (st===1?' · já dominado':'') + (st===0?' · errou antes':'') + '</div><div class="q">' + esc(card[0]) + '</div>' +
-    '<div class="a">' + esc(card[1]) + '</div><div class="hint">toque para ver a resposta</div></div>' +
+    '<div class="a" style="white-space:pre-line">' + esc(card[1]) + '</div><div class="hint">toque para ver a resposta</div></div>' +
     '<div class="grade"><button class="no" id="bno" disabled onclick="grade(0)">✗ Errei</button><button class="yes" id="byes" disabled onclick="grade(1)">✓ Acertei</button></div>' +
     '<div class="fcopts"><button onclick="prevCard()">‹ Anterior</button><button class="'+(D.rnd?'on':'')+'" onclick="toggleShuffle()">Aleatório</button><button onclick="skipCard()">Pular ›</button></div>';
 }
 function flip(){ var f = document.getElementById('fc'); if (!f) return; f.classList.add('flip'); document.getElementById('bno').disabled = false; document.getElementById('byes').disabled = false; }
 function grade(ok){
-  var c = D.q[D.i]; state.fc[cardKey(c[0],c[1])] = ok ? 1 : 0; save();
+  var c = D.q[D.i]; if (SRI[c[0]]) state.qz[c[0]+':'+c[1]] = ok ? 1 : 0; else state.fc[cardKey(c[0],c[1])] = ok ? 1 : 0; save();
   if (ok) D.ok++; else { D.bad++; if (!D.retry) D.retry = []; D.retry.push(c); }
   D.i++;
   if (D.i >= D.q.length && D.retry && D.retry.length && !D.again){ D.q = D.q.concat(D.retry); D.again = true; D.retry = []; toast('Repetindo os que você errou'); }
@@ -560,10 +618,140 @@ function prevCard(){ if (D.i>0){ D.i--; drawCard(); } }
 function skipCard(){ D.i++; drawCard(); }
 function toggleShuffle(){ D.rnd = !D.rnd; var rest = D.q.slice(D.i); D.q = D.q.slice(0, D.i).concat(D.rnd ? shuffle(rest) : D.src.filter(function(x){ return rest.indexOf(x) >= 0; })); drawCard(); }
 function restart(onlyBad){
-  var list = onlyBad ? D.src.filter(function(c){ return state.fc[cardKey(c[0],c[1])]===0; }) : D.src;
+  var list = onlyBad ? D.src.filter(function(c){ return (SRI[c[0]] ? state.qz[c[0]+':'+c[1]] : state.fc[cardKey(c[0],c[1])])===0; }) : D.src;
   if (!list.length){ toast('Nenhum errado nesta rodada'); return; }
   startDeck(list, D.title, D.rnd);
 }
+
+/* ---------- questionários (pacote privado) ---------- */
+function setPack(pk){
+  PK = pk; SCI = {}; SRI = {};
+  if (!pk) return;
+  (pk.sc||[]).forEach(function(x){ SCI[x.id] = x; });
+  (pk.sr||[]).forEach(function(x){ SRI[x.id] = x; });
+}
+function loadPack(){
+  try{ var r = localStorage.getItem(PACK_KEY); if (r) setPack(JSON.parse(r)); }catch(e){}
+  if (!PK && location.protocol.indexOf('http')===0){
+    fetch('quiz-pack.json', {cache:'no-store'}).then(function(r){ return r.ok ? r.json() : null; }).then(function(j){
+      if (j && j.sc){ try{ localStorage.setItem(PACK_KEY, JSON.stringify(j)); }catch(e){} setPack(j); IDX = null; render(); }
+    }).catch(function(){});
+  }
+}
+function importPack(inp){
+  var f = inp.files[0]; if (!f) return;
+  var r = new FileReader();
+  r.onload = function(){
+    try{ var j = JSON.parse(r.result); if (!j || !j.sc || !j.sr) throw 0;
+      localStorage.setItem(PACK_KEY, JSON.stringify(j)); setPack(j); IDX = null; render(); toast('Questionários importados');
+    }catch(e){ toast('Arquivo de questionário inválido'); }
+    inp.value = '';
+  };
+  r.readAsText(f);
+}
+function removePack(){ if (!confirm('Remover os questionários deste iPad? (o placar é mantido)')) return; try{ localStorage.removeItem(PACK_KEY); }catch(e){} setPack(null); IDX = null; render(); }
+function quizSpec(keys){
+  var sc = [], sr = [];
+  (keys||[]).forEach(function(k){ var m = QMAP[k]; if (!m) return; m.sc.forEach(function(x){ if (sc.indexOf(x)<0) sc.push(x); }); m.sr.forEach(function(x){ if (sr.indexOf(x)<0) sr.push(x); }); });
+  return {sc:sc, sr:sr};
+}
+function quizCount(sp){ var n=0; sp.sc.forEach(function(x){ if (SCI[x]) n += SCI[x].items.length; }); sp.sr.forEach(function(x){ if (SRI[x]) n += SRI[x].items.length; }); return n; }
+function qStats(ids, src){ var n=0,k=0; ids.forEach(function(id){ var S = src[id]; if (!S) return; S.items.forEach(function(_,i){ n++; if (state.qz[id+':'+i]===1) k++; }); }); return {n:n,k:k}; }
+var QM = null, QMENU = null;
+function packMissingHTML(){
+  return '<div class="fcard" style="cursor:default"><div class="lbl">Questionários não instalados</div>' +
+    '<p style="margin:0 0 12px;line-height:1.5">Os questionários (Self Check e Systems Review) ficam num arquivo separado, <b>quiz-pack.json</b>, que não vai para o site. Coloque o arquivo no iCloud Drive (ou envie por AirDrop) e importe uma vez — depois funciona offline.</p>' +
+    '<button class="btn" style="flex:none;width:100%" onclick="document.getElementById(\'imp-pack\').click()">Importar quiz-pack.json</button></div>';
+}
+function openQuizMenu(sp, title){
+  sp = sp || {sc:[], sr:[]};
+  QMENU = {sp:sp, title:title};
+  document.getElementById('q-title').textContent = 'Quiz · ' + title;
+  var b = document.getElementById('q-body');
+  if (!PK){ b.innerHTML = packMissingHTML(); openPanel('quiz'); return; }
+  var h = '<div class="card qmenu" style="margin-bottom:14px">';
+  var scIds = sp.sc.filter(function(x){ return SCI[x]; }), srIds = sp.sr.filter(function(x){ return SRI[x]; });
+  if (scIds.length){
+    var st = qStats(scIds, SCI), last = state.qs['sc:'+scIds.join(',')];
+    h += '<div class="row"><div class="t">Múltipla escolha — Self Check<small>' + st.n + ' questões · acertadas ' + st.k + (last ? ' · última rodada ' + last.p + '% (' + br(last.d).slice(0,5) + ')' : '') + '</small></div>' +
+      '<button class="btn" style="flex:0 0 auto" onclick="startMCQ(QMENU.sp.sc, QMENU.title, false)">Iniciar</button></div>';
+  }
+  if (srIds.length){
+    var st2 = qStats(srIds, SRI);
+    h += '<div class="row"><div class="t">Perguntas abertas — Systems Review<small>' + st2.n + ' perguntas · acertadas ' + st2.k + '</small></div>' +
+      '<button class="btn" style="flex:0 0 auto" onclick="openSR(QMENU.sp.sr, QMENU.title)">Iniciar</button></div>';
+  }
+  if (!scIds.length && !srIds.length) h += '<div class="note">Não há questionário para este capítulo.</div>';
+  h += '</div>';
+  if (scIds.length + srIds.length > 1){
+    h += '<div class="card qmenu"><h2>Por seção</h2>';
+    scIds.forEach(function(id){ var S = SCI[id], st = qStats([id], SCI); h += '<div class="row"><div class="t">' + esc(S.t) + '<small>Self Check ' + S.sc.replace('SC','') + ' · ' + st.k + '/' + st.n + '</small></div><button class="chip qz" onclick="startMCQ([\'' + id + '\'], \'' + esc(S.t) + '\', false)">MÚLTIPLA</button></div>'; });
+    srIds.forEach(function(id){ var S = SRI[id], st = qStats([id], SRI); h += '<div class="row"><div class="t">' + esc(S.t) + '<small>Systems Review · ' + st.k + '/' + st.n + '</small></div><button class="chip" onclick="openSR([\'' + id + '\'], \'' + esc(S.t) + '\')">ABERTAS</button></div>'; });
+    h += '</div>';
+  }
+  b.innerHTML = h; openPanel('quiz');
+}
+function quizBack(){ if (QM && QMENU){ QM = null; openQuizMenu(QMENU.sp, QMENU.title); } else { QM = null; closePanel('quiz'); } }
+function startMCQ(ids, title, onlyBad){
+  var list = [];
+  ids.forEach(function(id){ var S = SCI[id]; if (!S) return; S.items.forEach(function(_,i){ if (!onlyBad || state.qz[id+':'+i]===0) list.push([id,i]); }); });
+  if (!list.length){ toast(onlyBad ? 'Nenhuma errada' : 'Sem questões'); return; }
+  QM = {ids:ids, list:list, i:0, ok:0, bad:0, title:title, done:false};
+  if (!QMENU) QMENU = {sp:{sc:ids, sr:[]}, title:title};
+  document.getElementById('q-title').textContent = title;
+  if (!document.getElementById('quiz').classList.contains('on')) openPanel('quiz');
+  drawMCQ();
+}
+function drawMCQ(){
+  var b = document.getElementById('q-body');
+  if (QM.i >= QM.list.length){
+    var tot = QM.ok + QM.bad, pct = tot ? Math.round(QM.ok/tot*100) : 0;
+    state.qs['sc:'+QM.ids.join(',')] = {p:pct, d:today()}; save();
+    b.innerHTML = '<div class="fcard" style="cursor:default"><div class="score"><div class="big">'+pct+'%</div><p>'+QM.ok+' certas · '+QM.bad+' erradas</p></div></div>' +
+      '<div class="fcopts"><button onclick="startMCQ(QM.ids, QM.title, false)">Refazer</button><button onclick="startMCQ(QM.ids, QM.title, true)">Só as erradas</button><button onclick="quizBack()">Voltar ao menu</button></div>';
+    return;
+  }
+  var c = QM.list[QM.i], S = SCI[c[0]], it = S.items[c[1]], prev = state.qz[c[0]+':'+c[1]];
+  var h = '<div class="fcmeta"><span>Questão ' + (QM.i+1) + ' de ' + QM.list.length + '</span><span>✓ ' + QM.ok + ' · ✗ ' + QM.bad + '</span></div>' +
+    '<div class="bar" style="height:5px;margin-bottom:12px"><i style="width:'+Math.round(QM.i/QM.list.length*100)+'%"></i></div>' +
+    '<div class="fcard" style="cursor:default"><div class="src">' + esc(S.t) + ' · Self Check ' + S.sc.replace('SC','') + ' #' + (c[1]+1) + (prev===0?' · errou antes':'') + '</div><div class="q">' + esc(it.q) + '</div>';
+  it.o.forEach(function(o, j){ h += '<button class="qopt" id="qo'+j+'" onclick="answerMCQ('+j+')"><b>' + 'ABCD'[j] + '</b>' + esc(o) + '</button>'; });
+  h += '<div class="qref" id="qref" style="display:none">' + (it.ref ? 'Ref: ' + esc(it.ref) : '') + '</div></div>' +
+    '<div class="fcopts"><button onclick="if(QM.i>0){QM.i--;drawMCQ();}">‹ Anterior</button><button id="qnext" onclick="QM.i++;drawMCQ()">Pular ›</button></div>';
+  b.innerHTML = h;
+  document.querySelector('#quiz .pscroll').scrollTop = 0;
+}
+function answerMCQ(j){
+  var c = QM.list[QM.i], it = SCI[c[0]].items[c[1]], ok = (j === it.a);
+  for (var k=0; k<it.o.length; k++){ var el = document.getElementById('qo'+k); el.disabled = true; if (k===it.a) el.classList.add('right'); else if (k===j) el.classList.add('wrong'); }
+  document.getElementById('qref').style.display = 'block';
+  state.qz[c[0]+':'+c[1]] = ok ? 1 : 0; save();
+  if (ok) QM.ok++; else QM.bad++;
+  var n = document.getElementById('qnext'); n.textContent = 'Próxima ›'; n.classList.add('on');
+}
+function openSR(ids, title){
+  var list = []; ids.forEach(function(id){ if (SRI[id]) SRI[id].items.forEach(function(_,i){ list.push([id,i]); }); });
+  if (!list.length){ toast('Sem perguntas'); return; }
+  startDeck(list, title + ' · abertas', false);
+}
+function renderQuizLib(){
+  var el = document.getElementById('lib-quiz'); if (!el) return;
+  document.getElementById('pack-st').textContent = PK ? 'instalados' : 'não instalados';
+  if (!PK){ el.innerHTML = '<div class="note" style="margin-top:0">Self Check (múltipla escolha) e Systems Review (perguntas abertas) ficam num arquivo separado, <b>quiz-pack.json</b>, que não é publicado no site.</div><div class="btns" style="margin-top:12px"><button class="btn" onclick="document.getElementById(\'imp-pack\').click()">Importar quiz-pack.json</button></div>'; return; }
+  var h = '<div class="qmenu">';
+  var groups = {}; PK.sc.forEach(function(S){ (groups[S.sc] = groups[S.sc] || []).push(S.id); });
+  Object.keys(groups).forEach(function(g){
+    var st = qStats(groups[g], SCI);
+    h += '<div class="row"><div class="t">Self Check ' + g.replace('SC','') + '<small>' + groups[g].map(function(id){ return SCI[id].t; }).join(' · ') + ' — ' + st.k + '/' + st.n + '</small></div><button class="chip qz" onclick="QMENU=null;startMCQ([\'' + groups[g].join('\',\'') + '\'], \'Self Check ' + g.replace('SC','') + '\', false)">MÚLTIPLA</button></div>';
+  });
+  var srAll = PK.sr.map(function(S){ return S.id; }), st2 = qStats(srAll, SRI);
+  h += '<div class="row"><div class="t">Systems Review — todas<small>' + PK.sr.length + ' seções · ' + st2.k + '/' + st2.n + '</small></div><button class="chip" onclick="startDeck(allSR(), \'Systems Review\', true)">ALEATÓRIO</button></div>';
+  h += '</div><div class="btns" style="margin-top:12px"><button class="btn sec" onclick="document.getElementById(\'imp-pack\').click()">Atualizar pacote</button><button class="btn sec" onclick="removePack()">Remover</button></div>';
+  el.innerHTML = h;
+}
+function startMCQOne(id, i){ QM = {ids:[id], list:[[id,i]], i:0, ok:0, bad:0, title:SCI[id].t}; document.getElementById('q-title').textContent = SCI[id].t; openPanel('quiz'); drawMCQ(); }
+function allSR(){ var l=[]; PK.sr.forEach(function(S){ S.items.forEach(function(_,i){ l.push([S.id,i]); }); }); return l; }
+function cardOf(c){ if (SRI[c[0]]){ var it = SRI[c[0]].items[c[1]]; return [it.q, it.a]; } return CD[c[0]][c[1]]; }
 
 /* ---------- search ---------- */
 var IDX = null;
@@ -581,6 +769,8 @@ function buildIdx(){
     flush();
   });
   Object.keys(CD).forEach(function(d){ CD[d].forEach(function(c,i){ IDX.push({type:'c', k:d, i:i, sec:'Flash card', text:c[0]+' — '+c[1]}); }); });
+  if (PK){ PK.sc.forEach(function(S){ S.items.forEach(function(it,i){ IDX.push({type:'m', k:S.id, i:i, t:S.t, sec:'Self Check '+S.sc.replace('SC',''), text:it.q+' — '+it.o.join(' / ')}); }); });
+    PK.sr.forEach(function(S){ S.items.forEach(function(it,i){ IDX.push({type:'r', k:S.id, i:i, t:S.t, sec:'Systems Review', text:it.q+' — '+it.a}); }); }); }
 }
 function find(q){
   q = q.trim(); var box = document.getElementById('find-res'), cnt = document.getElementById('find-count');
@@ -592,8 +782,8 @@ function find(q){
   var re = new RegExp('(' + q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + ')','ig');
   box.innerHTML = res.slice(0,60).map(function(r){
     var e = r[0], p = r[1], a = Math.max(0,p-70), snip = (a?'…':'') + e.text.slice(a, p+130) + '…';
-    var act = e.type==='g' ? 'openGuide(\''+e.k+'\''+(e.id?',\''+e.id+'\'':'')+')' : 'startDeck([[\''+e.k+'\','+e.i+']],\'Flash card\',false)';
-    return '<div class="hit" onclick="'+act+'"><b>'+esc(gTitle(e.k))+'</b><small>'+esc(e.sec)+'</small><p>'+esc(snip).replace(re,'<mark>$1</mark>')+'</p></div>';
+    var act = e.type==='m' ? 'QMENU=null;QM=null;startMCQOne(\''+e.k+'\','+e.i+')' : e.type==='r' ? 'startDeck([[\''+e.k+'\','+e.i+']],\'Systems Review\',false)' : e.type==='g' ? 'openGuide(\''+e.k+'\''+(e.id?',\''+e.id+'\'':'')+')' : 'startDeck([[\''+e.k+'\','+e.i+']],\'Flash card\',false)';
+    return '<div class="hit" onclick="'+act+'"><b>'+esc(e.t || gTitle(e.k))+'</b><small>'+esc(e.sec)+'</small><p>'+esc(snip).replace(re,'<mark>$1</mark>')+'</p></div>';
   }).join('');
   box.style.display = res.length ? 'block' : 'none';
 }
@@ -606,7 +796,7 @@ function newCycle(){
   var dates = ALL.map(function(s){ return S(s.id).date; }).filter(Boolean).sort();
   state.cycles.push({start: state.cycleStart || dates[0] || '', end: dates[dates.length-1] || today(), done: done, total: ALL.length, notes: state.wnotes, sess: state.sess});
   state.sess = {}; state.wnotes = {}; state.cycleStart = null; openId = null;
-  if (confirm('Zerar também o placar dos flash cards (acertos/erros)?')) state.fc = {};
+  if (confirm('Zerar também o placar dos flash cards e questionários?')){ state.fc = {}; state.qz = {}; state.qs = {}; }
   save(); render(); window.scrollTo({top:0, behavior:'smooth'}); toast('Novo ciclo iniciado');
 }
 function exportData(){
@@ -627,7 +817,7 @@ function importData(inp){
   r.readAsText(f);
 }
 
-load(); render();
+load(); loadPack(); render();
 if ('serviceWorker' in navigator) { window.addEventListener('load', function(){ navigator.serviceWorker.register('sw.js').catch(function(){}); }); }
 </script>
 </body>

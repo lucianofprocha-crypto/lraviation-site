@@ -1,13 +1,21 @@
 {
-  "name": "G550 Study Program",
-  "short_name": "G550 Estudos",
+  "name": "Study Guide – G550",
+  "short_name": "Study Guide",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "background_color": "#f5f7fa",
   "theme_color": "#1B2A4A",
   "icons": [
-    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" }
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
   ]
 }
