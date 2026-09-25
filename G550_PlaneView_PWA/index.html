@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="PlaneView">
+<meta name="theme-color" content="#1B2A4A">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-180.png">
+<title>G550 PlaneView Trainer</title>
+<style>
+:root{
+  --navy:#1B2A4A; --accent:#0B5A8A; --gray:#5b5f66; --line:#e2e5ea;
+  --bg:#f5f7fa; --card:#ffffff; --amber:#E8A33D; --amber-dk:#a15c00; --amber-bg:#fdf3e3;
+  --green:#1b7a3d; --green-bg:#e7f5ec; --green-line:#bfe3cc;
+  --red:#b71c1c; --red-bg:#fdeceb; --red-line:#f3c4c0; --soft:#f7f9fb; --ink:#1c1f24;
+  --blue-bg:#eef5fa; --blue-line:#cfe0ec;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --navy:#cfe0f5; --accent:#5fb0e8; --gray:#9aa3ad; --line:#2c333d;
+    --bg:#12161c; --card:#1a2029; --amber:#E8A33D; --amber-dk:#f0b860; --amber-bg:#2e2515;
+    --green:#5fcf8a; --green-bg:#15291d; --green-line:#24503a;
+    --red:#ff8a80; --red-bg:#2e1716; --red-line:#5a2a27; --soft:#20262f; --ink:#e6e9ee;
+    --blue-bg:#16232f; --blue-line:#264158;
+  }
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+html,body{overscroll-behavior-y:none;}
+body{margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; background:var(--bg); color:var(--ink);
+  padding:calc(22px + env(safe-area-inset-top)) 16px calc(60px + env(safe-area-inset-bottom));}
+.wrap{max-width:1200px; margin:0 auto;}
+.header{text-align:center; margin-bottom:14px;}
+.header h1{font-size:22px; margin:0 0 4px; color:var(--navy);}
+.header p{font-size:13px; color:var(--gray); margin:0;}
+.tabs{display:flex; gap:6px; background:var(--soft); border:1px solid var(--line); padding:4px; border-radius:10px; margin:0 auto 18px; max-width:520px; position:sticky; top:calc(6px + env(safe-area-inset-top)); z-index:5;}
+.tabs button{flex:1; border:none; background:none; padding:10px 6px; border-radius:7px; font:600 14px -apple-system,sans-serif; color:var(--gray); cursor:pointer;}
+.tabs button.on{background:var(--card); color:var(--navy); box-shadow:0 1px 3px rgba(0,0,0,.12);}
+.view{display:none;} .view.on{display:block;}
+.card{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px 18px; margin-bottom:14px;}
+.card h2{font-size:13.5px; text-transform:uppercase; letter-spacing:.04em; color:var(--accent); margin:0 0 10px; display:flex; gap:10px; align-items:center; flex-wrap:wrap;}
+.card h2 .r{margin-left:auto; text-transform:none; letter-spacing:0; font-weight:600; color:var(--gray); font-size:12px;}
+.card h3{font-size:15px; margin:14px 0 6px; color:var(--navy);}
+.card p,.card li{font-size:14.5px; line-height:1.5;}
+.card ul{padding-left:20px; margin:6px 0;}
+.muted{color:var(--gray); font-size:12.5px;}
+.key{background:var(--amber-bg); border-left:4px solid var(--amber); border-radius:6px; padding:10px 12px; font-size:14px; margin:10px 0; line-height:1.5;}
+.btn{border:none; background:var(--accent); color:#fff; font:700 14px -apple-system,sans-serif; padding:11px 16px; border-radius:8px; cursor:pointer;}
+.btn.sec{background:var(--soft); color:var(--accent); border:1px solid var(--line);}
+.row{display:flex; gap:10px; flex-wrap:wrap; align-items:center;}
+.chips{display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px;}
+.chip{border:1px solid var(--line); background:var(--card); color:var(--gray); border-radius:999px; padding:7px 13px; font:600 13px -apple-system,sans-serif; cursor:pointer;}
+.chip.on{background:var(--accent); border-color:var(--accent); color:#fff;}
+.seg{display:inline-flex; background:var(--soft); border:1px solid var(--line); border-radius:9px; padding:3px; gap:3px;}
+.seg button{border:none; background:none; padding:8px 14px; border-radius:7px; font:700 13.5px -apple-system,sans-serif; color:var(--gray); cursor:pointer;}
+.seg button.on{background:var(--card); color:var(--navy); box-shadow:0 1px 3px rgba(0,0,0,.12);}
+label.tg{display:flex; align-items:center; gap:8px; font-size:14px; cursor:pointer;}
+label.tg input{width:20px; height:20px; accent-color:var(--accent);}
+
+/* panel */
+.pgrid{display:grid; grid-template-columns: minmax(0,1.55fr) minmax(300px,1fr); gap:14px; align-items:start;}
+@media (max-width:900px){ .pgrid{grid-template-columns:1fr;} }
+.deck{background:#e9ecf0; border-radius:12px; border:1px solid var(--line); padding:6px; }
+@media (prefers-color-scheme: dark){ .deck{background:#0d1116;} }
+.deck svg{width:100%; height:auto; display:block; touch-action:manipulation;}
+svg .hit{cursor:pointer;}
+svg .hit:hover .frame, svg .hit.sel .frame{stroke:#0B5A8A; stroke-width:4;}
+svg .lbl{font-family:-apple-system,Helvetica,Arial,sans-serif; pointer-events:none;}
+svg .glow{filter:url(#gl);}
+.failbar{display:flex; gap:6px; flex-wrap:wrap; margin-top:10px; background:#23272e; padding:8px; border-radius:10px;}
+.failbar span{color:#aeb6c0; font:700 11px -apple-system,sans-serif; align-self:center; margin-right:4px; letter-spacing:.05em;}
+.failbar button{flex:1; min-width:58px; border:none; background:#353b45; color:#e8ecf1; font:800 13px -apple-system,sans-serif; padding:10px 6px; border-radius:7px; cursor:pointer;}
+.failbar button.on{background:var(--amber); color:#2a1a00;}
+.failbar button.rst{background:#4a515c;}
+.cas{background:#000; border:6px solid #3b4049; border-radius:8px; min-height:120px; padding:8px 10px; font:600 14px/1.35 Menlo,Consolas,monospace;}
+.cas div.a{color:#f5c518;} .cas div.c{color:#35c4e8;} .cas .none{color:#4a5a66;}
+.fitems{list-style:none; padding:0; margin:0;}
+.fitems li{padding:6px 0; border-bottom:1px solid var(--line); font-size:14.5px;}
+.fitems li i{color:var(--gray); font-size:13px;}
+.fitems li:last-child{border-bottom:none;}
+.proc{display:inline-flex; gap:4px;}
+.proc b{background:var(--ink); color:var(--card); border-radius:50%; width:22px; height:22px; display:inline-flex; align-items:center; justify-content:center; font-size:12px;}
+.kv{display:grid; grid-template-columns:auto 1fr; gap:4px 12px; font-size:14.5px;}
+.kv dt{color:var(--gray); font-weight:600;} .kv dd{margin:0; font-weight:700;}
+.pill{display:inline-block; background:var(--blue-bg); border:1px solid var(--blue-line); color:var(--accent); border-radius:6px; padding:2px 7px; font-size:12.5px; font-weight:700; margin:2px 3px 2px 0;}
+.hidden-blur{filter:blur(6px); user-select:none; pointer-events:none;}
+
+/* drill */
+.q{font-size:17px; font-weight:600; line-height:1.45; margin:4px 0 14px; color:var(--navy);}
+.opts{display:grid; gap:8px;}
+.opt{text-align:left; border:1.5px solid var(--line); background:var(--card); color:var(--ink); border-radius:10px; padding:13px 14px; font:600 15px -apple-system,sans-serif; cursor:pointer;}
+.opt.ok{border-color:var(--green); background:var(--green-bg);}
+.opt.bad{border-color:var(--red); background:var(--red-bg);}
+.fb{margin-top:12px; font-size:14px; line-height:1.5;}
+.stat{display:flex; gap:16px; flex-wrap:wrap; font-size:13px; color:var(--gray);}
+.stat b{color:var(--navy); font-size:15px;}
+.caslist{background:#000; border-radius:8px; padding:8px 10px; font:600 14px/1.35 Menlo,monospace; margin-bottom:12px;}
+.caslist .a{color:#f5c518;} .caslist .c{color:#35c4e8;}
+.pgrid2{display:grid; grid-template-columns:repeat(auto-fill,minmax(190px,1fr)); gap:7px;}
+.pi{border:1.5px solid var(--line); border-radius:9px; padding:9px 10px; font:600 13.5px -apple-system,sans-serif; background:var(--card); color:var(--ink); text-align:left; cursor:pointer;}
+.pi.on{border-color:var(--accent); background:var(--blue-bg);}
+.pi.hit{border-color:var(--green); background:var(--green-bg);}
+.pi.miss{border-color:var(--red); background:var(--red-bg); border-style:dashed;}
+.pi.fp{border-color:var(--amber); background:var(--amber-bg); text-decoration:line-through;}
+.legend{display:flex; gap:12px; flex-wrap:wrap; font-size:12.5px; color:var(--gray); margin:8px 0;}
+.legend i{display:inline-block; width:12px; height:12px; border-radius:3px; vertical-align:-1px; margin-right:4px; border:2px solid;}
+
+/* tables */
+.tw{overflow-x:auto; -webkit-overflow-scrolling:touch;}
+table{border-collapse:collapse; width:100%; font-size:14px;}
+th,td{border-bottom:1px solid var(--line); padding:7px 8px; text-align:left; vertical-align:top;}
+th{font-size:12px; text-transform:uppercase; letter-spacing:.03em; color:var(--gray); background:var(--soft);}
+td.c,th.c{text-align:center;}
+.mx td.c{font-size:16px; color:var(--accent); font-weight:800;}
+.mx td:first-child{white-space:nowrap; font-weight:600;}
+.sec{color:var(--red); font-weight:700;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <h1>G550 PlaneView Trainer</h1>
+    <p>MAU / MRC failures · power sources · circuit breakers — G450/G550 Cert G Enhanced Nav</p>
+  </div>
+  <div class="tabs">
+    <button data-v="panel" class="on">Panel</button>
+    <button data-v="drill">Drill</button>
+    <button data-v="ref">Reference</button>
+  </div>
+
+  <section id="v-panel" class="view on">
+    <div class="pgrid">
+      <div>
+        <div class="row" style="margin-bottom:10px">
+          <div class="seg" id="layer">
+            <button data-l="pw" class="on">Power sources</button>
+            <button data-l="cb">Circuit breakers</button>
+            <button data-l="none">Clean</button>
+          </div>
+          <label class="tg" style="margin-left:auto"><input type="checkbox" id="hideFx"> Quiz me (hide failed items)</label>
+        </div>
+        <div class="deck" id="deck"></div>
+        <div class="failbar" id="failbar"><span>CLICK TO FAIL</span></div>
+      </div>
+      <div id="side"></div>
+    </div>
+  </section>
+
+  <section id="v-drill" class="view">
+    <div class="card">
+      <h2>Drill mode <span class="r" id="dstat"></span></h2>
+      <div class="chips" id="dmodes"></div>
+      <div class="muted" id="dmdesc"></div>
+    </div>
+    <div class="card" id="qcard"></div>
+  </section>
+
+  <section id="v-ref" class="view" ></section>
+</div>
+<script>
+// ===== Data transcribed from "PlaneView Source Guide – G450/G550 Cert G Enhanced Nav" (Planeview MAU Brief, Rev 1.2) =====
+// pw = power source(s), cb = circuit breaker(s). For DU2/DU3 the first entry is PRI, second SEC.
+const COMP = {
+  DCL:  {n:'Display Controller (L)', s:'DC L',   pw:['L ESS DC'], cb:['LEER G-9']},
+  FGP:  {n:'Flight Guidance Panel 1', s:'FLT GDNC PNL 1', pw:['L ESS DC'], cb:['LEER G-8']},
+  DCR:  {n:'Display Controller (R)', s:'DC R',   pw:['R ESS DC'], cb:['REER C-2']},
+  DU1:  {n:'DU 1', s:'DU1', pw:['L ESS DC'], cb:['POP B-5']},
+  DU2:  {n:'DU 2', s:'DU2', pw:['L MAIN DC','L ESS DC'], cb:['POP B-6','POP B-7'], ps:true},
+  DU3:  {n:'DU 3', s:'DU3', pw:['R MAIN DC','R ESS DC'], cb:['CPOP B-6','CPOP B-7'], ps:true},
+  DU4:  {n:'DU 4', s:'DU4', pw:['R ESS DC'], cb:['CPOP B-5']},
+  AGM1: {n:'AGM 1 (Advanced Graphics Module)', s:'AGM 1', pw:['MAU 3B'], cb:['POP A-5','CPOP A-5'], agm:1},
+  AGM2: {n:'AGM 2 (Advanced Graphics Module)', s:'AGM 2', pw:['MAU 3A'], cb:['POP A-6','CPOP A-6'], agm:1},
+  AGM3: {n:'AGM 3 (Advanced Graphics Module)', s:'AGM 3', pw:['MAU 2A'], cb:['POP A-8','CPOP A-8'], agm:1},
+  AGM4: {n:'AGM 4 (Advanced Graphics Module)', s:'AGM 4', pw:['MAU 1B'], cb:['POP A-9','CPOP A-9'], agm:1},
+  OUL:  {n:'Outboard unit L (beside DU1)', s:'L outbd', pw:['ESS FLT INST'], cb:['POP B-4']},
+  OUR:  {n:'Outboard unit R (beside DU4)', s:'R outbd', pw:['ESS FLT INST'], cb:['CPOP B-4']},
+  YD1:  {n:'Yaw Damper 1', s:'Yaw Damp 1', pw:['ESS DC'], cb:['POP D-6']},
+  YD2:  {n:'Yaw Damper 2', s:'Yaw Damp 2', pw:['ESS DC'], cb:['CPOP D-6']},
+  STBY: {n:'FLT INSTR item (center lower panel)', s:'FLT INSTR', pw:['FLT INSTR DC'], cb:['POP E-9','CPOP D-9']},
+  CCDL: {n:'L CCD (Cursor Control Device)', s:'L CCD', pw:['L ESS DC'], cb:['POP B-10']},
+  CCDR: {n:'R CCD (Cursor Control Device)', s:'R CCD', pw:['R ESS DC'], cb:['CPOP B-10']},
+  MCDU1:{n:'MCDU 1', s:'MCDU 1', pw:['EMER DC'], cb:['POP D-7']},
+  MCDU2:{n:'MCDU 2', s:'MCDU 2', pw:['R MAIN DC'], cb:['CPOP D-7']},
+  MCDU3:{n:'MCDU 3', s:'MCDU 3', pw:['EMER DC'], cb:['POP E-7']},
+  IRU1: {n:'IRU 1', s:'IRU1', pw:['ESS DC'], cb:['LEER H-10']},
+  IRU2: {n:'IRU 2', s:'IRU2', pw:['R MAIN DC'], cb:['REER D-1']},
+  IRU3: {n:'IRU 3', s:'IRU3', pw:['EMER DC'], cb:['LEER H-8']},
+  LPL:  {n:'Pedestal lower panel L', s:'Lower L', pw:['L MAIN DC'], cb:['POP E-8']},
+  LPR:  {n:'Pedestal lower panel R', s:'Lower R', pw:['R MAIN DC'], cb:['CPOP E-8']},
+};
+
+// MAU channels: [PRI power, PRI CB, SEC power, SEC CB]
+const MAU = [
+  {ch:'1A', pri:['ESS DC','POP A-10'],  sec:['R MAIN DC','CPOP A-10']},
+  {ch:'1B', pri:['ESS DC','CPOP A-9'],  sec:['L MAIN DC','POP A-9']},
+  {ch:'2A', pri:['R MAIN DC','CPOP A-8'], sec:['L MAIN DC','POP A-8']},
+  {ch:'2B', pri:['ESS DC','CPOP A-7'],  sec:['L MAIN DC','POP A-7']},
+  {ch:'3A', pri:['L MAIN DC','POP A-6'], sec:['R MAIN DC','CPOP A-6']},
+  {ch:'3B', pri:['ESS DC','POP A-5'],   sec:['R MAIN DC','CPOP A-5']},
+];
+const TONE = [{n:'MAU #1 Tone Gen', pw:'ESS DC', cb:'POP D-8'}, {n:'MAU #2 Tone Gen', pw:'ESS DC', cb:'CPOP D-8'}];
+
+// Failed items: [canonical key, displayed note]
+const FAIL = {
+ '1A':{t:'MAU 1A Channel Fail', proc:[1,7,8],
+   it:[['L-ACS / BAS','Default Mode'],['ADS 1',''],['FGC 1','AP/YD Mon, FD, Trim Ctrl, Stall Barr'],['AT 1',''],['APM 1',''],['CMF 1','Datalink'],['CMS 1',''],['EVM','G450 only'],['MCDU control of FMS 1',''],['Monitor / Warning 1','FWC'],['Radio Tuning 1',''],['Thrust Reversers','G450'],['Touchdown Protect','G450'],['Wx Control 1',''],['EVS - HUD','VGS only'],['AC/DC Synoptic Errors','']],
+   cas:[['AP 1 Fail','a'],['MAU 1A Fail','a'],['Stick Push 1 Fail','a'],['Yaw Damper 1 Fail','a'],['Elevator Trim 1 Fail','a'],['L BAS Default Mode','c'],['L ACS Default Mode','c'],['ASCB Fail','c'],['L Engine Backup AirData','c'],['Stick Shake 1 Fail','c'],['CMF 1 Fail','c'],['FWC 1 Fail','c'],['A/T 1 Fail','c'],['L-R Engine Maintenance 150','c']],
+   x:[], glow:['DU1','DU4','MCDU1','LPL'], mcdu:{MCDU1:'MCDU CTL\nFMS 1 LOST'}},
+ '1B':{t:'MAU 1B Channel Fail', proc:[2],
+   it:[['AGM 4',''],['Charts',''],['CMC',''],['FMS 1',''],['TOLD 1','']],
+   cas:[['MAU 1B Fail','a'],['AGM 4 Fail','c'],['Database Config','c'],['ASCB Fail','c'],['FMS 1 Fail','c'],['L-R Engine Maintenance LTD','c']],
+   x:['DU4'], glow:['DU2','DU3','MCDU1','FGP'], mcdu:{MCDU1:'FMS 1\nUNAVAILABLE'}},
+ '2A':{t:'MAU 2A Channel Fail', proc:[3],
+   it:[['AGM 3',''],['Charts',''],['EGPWM 2','RAAS 2'],['FMS 2',''],['GPS 2','Control of FMS 2'],['MAP Copilot',''],['TOLD 2',''],['SVS','']],
+   cas:[['MAU 2A Fail','a'],['AGM 3 Fail','c'],['GPS 2 Fail','c'],['Database Config','c'],['ASCB Fail','c'],['FMS 2 Fail','c'],['EGPWM SYS 2 Fail','c'],['RAAS 2 Fail','c']],
+   x:['DU3'], glow:['DU2','DCR','MCDU2'], mcdu:{MCDU2:'FMS 2\nUNAVAILABLE'}},
+ '2B':{t:'MAU 2B Channel Fail', proc:[4,9,10],
+   it:[['R-ACS / BAS','Default Mode'],['ADS 2',''],['FGC 2','AP/YD Mon, FD, Trim Ctrl, Stall Barr'],['AT 2',''],['APM 2',''],['CMF 2','Datalink'],['CMS 2',''],['FDR',''],['MCDU control of FMS 2',''],['Monitor / Warning 2','FWC (source lists "Monitor / Warning (FWC)")'],['AC/DC Synoptic Errors',''],['Radio Tuning 2',''],['Thrust Reversers','G450'],['Touchdown Protect','G450'],['Wx Control 2',''],['Video R','']],
+   cas:[['AP 2 Fail','a'],['MAU 2B Fail','a'],['Yaw Damper 2 Fail','a'],['Stick Push 2 Fail','a'],['Elevator Trim 2 Fail','a'],['R BAS Default Mode','c'],['R ACS Default Mode','c'],['ASCB Fail','c'],['Stick Shake 2 Fail','c'],['FWC 2 Fail','c'],['L-R Engine Maintenance 150','c'],['R Engine Backup AirData','c'],['CMF 2 Fail','c'],['A/T 2 Fail','c'],['CPCS Maintenance Required','c']],
+   x:[], glow:['DU1','DU4','MCDU2','LPR'], mcdu:{MCDU2:'MCDU CTL\nFMS 2 LOST'}},
+ '3A':{t:'MAU 3A Channel Fail', proc:[5],
+   it:[['AGM 2',''],['Charts',''],['Checklist',''],['MAP Pilot',''],['ADS 3 - Altimeter Setting','']],
+   cas:[['MAU 3A Fail','a'],['AGM 2 Fail','c'],['BAROSET 3 Fail','c'],['ASCB Fail','c']],
+   x:['DU2'], glow:['DU3'], mcdu:{}},
+ '3B':{t:'MAU 3B Channel Fail', proc:[6],
+   it:[['ADS 3',''],['AGM 1',''],['Charts',''],['EGPWM 1','RAAS 1'],['FMS 3',''],['GPS 1',''],['MCDU control of FMS 3',''],['Radio Tuning 3','BKUP RADIO displayed on MCDU 3'],['TOLD 3',''],['Video 1','']],
+   cas:[['MAU 3B Fail','a'],['AGM 1 Fail','c'],['GPS 1 Fail','c'],['Database Config','c'],['ASCB Fail','c'],['FMS 3 Fail','c'],['EGPWM SYS 1 Fail','c'],['RAAS 1 Fail','c'],['L Engine Maintenance 150','c']],
+   x:['DU1'], pfdOn:'DU2', glow:['DU2','DU3','MCDU3'], mcdu:{MCDU3:'BKUP RADIO'}},
+ 'MRC1':{t:'MRC 1 Fail - NIM 1', proc:[],
+   it:[['MRC 1',''],['APM 3',''],['TCAS',''],['ASCB',''],['NIM 1','Network Interface Module: SELCAL, VHF 1, NAV 1, ADF 1, Marker Beacon, Dual Mic Bus 1, Audio Bus 1 & 3']],
+   cas:[['MRC 1 Fail','a'],['ASCB Fail','c']],
+   x:[], glow:['DU3','MCDU3'], mcdu:{}},
+ 'MRC2':{t:'MRC 2 Fail - NIM 2', proc:[],
+   it:[['MRC 2',''],['APM 4',''],['ASCB',''],['NIM 2','Network Interface Module: SELCAL, VHF 2, NAV 2, ADF 2, Marker Beacon, Dual Mic Bus 2, Audio Bus 2 & 4']],
+   cas:[['MRC 2 Fail','c'],['ASCB Fail','c']],
+   x:[], glow:['DU3','MCDU3'], mcdu:{}},
+};
+const CHS = ['1A','1B','2A','2B','3A','3B','MRC1','MRC2'];
+const CHN = c => c.startsWith('MRC') ? 'MRC '+c.slice(3) : 'MAU '+c;
+const BUSES = ['L ESS DC','R ESS DC','ESS DC','L MAIN DC','R MAIN DC','EMER DC','FLT INSTR DC','ESS FLT INST'];
+
+// ===================== helpers =====================
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const rnd = a => a[Math.floor(Math.random()*a.length)];
+const shuffle = a => { a = a.slice(); for (let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a; };
+const LS = {
+  get(k,d){ try{ const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; }catch(e){ return d; } },
+  set(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+};
+const itemLabel = ([k,n]) => n ? `${k} (${n})` : k;
+
+// ===================== state =====================
+const S = { layer: LS.get('pv_layer','pw'), fail: null, sel: null, reveal: false };
+
+// ===================== tabs =====================
+document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => {
+  document.querySelectorAll('.tabs button').forEach(x => x.classList.toggle('on', x === b));
+  document.querySelectorAll('.view').forEach(v => v.classList.toggle('on', v.id === 'v-' + b.dataset.v));
+  LS.set('pv_tab', b.dataset.v);
+  window.scrollTo(0,0);
+});
+
+// ===================== SVG geometry =====================
+const G = {
+  DCL:[205,34,170,52], FGP:[385,34,230,52], DCR:[625,34,170,52],
+  DU1:[110,108,190,150], DU2:[305,108,190,150], DU3:[500,108,190,150], DU4:[695,108,190,150],
+  AGM1:[110,262,190,44], AGM2:[305,262,190,44], AGM3:[500,262,190,44], AGM4:[695,262,190,44],
+  OUL:[74,140,32,84], OUR:[894,140,32,84],
+  YD1:[276,316,138,28], YD2:[276,348,138,28],
+  STBY:[420,312,160,64],
+  CCDL:[10,318,130,84], CCDR:[860,318,130,84],
+  MCDU1:[310,400,120,150], MCDU2:[570,400,120,150], MCDU3:[440,556,120,150],
+  IRU1:[440,400,120,22], IRU2:[440,423,120,22], IRU3:[440,446,120,22],
+  LPL:[310,650,120,50], LPR:[570,650,120,50],
+};
+
+function pfd(x,y,w,h){
+  const hz = y + h*0.52;
+  return `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="#101418"/>
+  <rect x="${x+30}" y="${y+6}" width="${w-60}" height="${hz-y-6}" fill="#3f86cf"/>
+  <rect x="${x+30}" y="${hz}" width="${w-60}" height="${y+h*0.78-hz}" fill="#8b5a2b"/>
+  <line x1="${x+30}" y1="${hz}" x2="${x+w-30}" y2="${hz}" stroke="#fff" stroke-width="1.5"/>
+  <path d="M${x+w/2-26} ${hz+2} h18 l8 8 l8 -8 h18" stroke="#f5c518" stroke-width="3" fill="none"/>
+  <rect x="${x+6}" y="${y+14}" width="20" height="${h*0.6}" fill="#39414b"/>
+  <rect x="${x+w-26}" y="${y+14}" width="20" height="${h*0.6}" fill="#39414b"/>
+  <path d="M${x+40} ${y+h-6} a${w/2-40} 30 0 0 1 ${w-80} 0" fill="#22313d" stroke="#8fa3b3"/>`;
+}
+function mfd(x,y,w,h){
+  return `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="#0c1310"/>
+  <circle cx="${x+w*0.42}" cy="${y+h*0.55}" r="${h*0.36}" fill="none" stroke="#5fcf8a" stroke-width="1.5"/>
+  <circle cx="${x+w*0.42}" cy="${y+h*0.55}" r="${h*0.18}" fill="none" stroke="#5fcf8a" stroke-dasharray="4 4"/>
+  <path d="M${x+w*0.42} ${y+h*0.55} l40 -35 l30 -10" stroke="#e05bd8" stroke-width="2" fill="none"/>
+  <rect x="${x+w*0.72}" y="${y+8}" width="${w*0.24}" height="${h-16}" fill="#1c232b" stroke="#48525e"/>
+  ${[0,1,2,3,4].map(i=>`<rect x="${x+w*0.74}" y="${y+16+i*24}" width="${w*0.2}" height="8" fill="#586572"/>`).join('')}`;
+}
+function xdisp(x,y,w,h){
+  return `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="#000"/>
+  <line x1="${x+4}" y1="${y+4}" x2="${x+w-4}" y2="${y+h-4}" stroke="#e53935" stroke-width="3"/>
+  <line x1="${x+w-4}" y1="${y+4}" x2="${x+4}" y2="${y+h-4}" stroke="#e53935" stroke-width="3"/>`;
+}
+function mcdu(id){
+  const [x,y,w,h] = G[id];
+  const f = S.fail && FAIL[S.fail];
+  const msg = f && f.mcdu[id];
+  const sx=x+10, sy=y+10, sw=w-20, sh=64;
+  let scr = `<rect x="${sx}" y="${sy}" width="${sw}" height="${sh}" fill="#050807" stroke="#48525e"/>`;
+  if (msg) {
+    scr += msg.split('\n').map((l,i)=>`<text x="${sx+sw/2}" y="${sy+26+i*18}" text-anchor="middle" font-size="12" font-family="Menlo,monospace" fill="#f5f5f5" font-weight="700">${esc(l)}</text>`).join('');
+  } else {
+    for (let i=0;i<5;i++) scr += `<rect x="${sx+6}" y="${sy+7+i*11}" width="${sw*(i%2?0.5:0.8)}" height="5" fill="${i===0?'#5fb0e8':'#5fcf8a'}" opacity=".8"/>`;
+  }
+  let keys=''; for (let r=0;r<5;r++) for (let c=0;c<6;c++) keys += `<rect x="${x+10+c*17}" y="${y+84+r*12}" width="13" height="8" rx="1.5" fill="#6b747f"/>`;
+  return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="6" fill="#2a3038"/>${scr}${keys}`;
+}
+
+function drawDeck(){
+  const f = S.fail && FAIL[S.fail];
+  const L = S.layer;
+  let s = `<svg viewBox="0 0 1000 715" xmlns="http://www.w3.org/2000/svg">
+  <defs><filter id="gl" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="7"/></filter></defs>
+  <path d="M60 112 Q60 16 190 14 L810 14 Q940 16 940 112 Z" fill="#2b3038"/>
+  <rect x="70" y="96" width="860" height="286" rx="10" fill="#3a4250"/>
+  <path d="M8 300 q-6 60 30 110 M992 300 q6 60 -30 110" stroke="#2b3038" stroke-width="14" fill="none" stroke-linecap="round"/>
+  <rect x="300" y="392" width="400" height="318" rx="8" fill="#3a4250"/>
+  <circle cx="660" cy="344" r="24" fill="#20252c" stroke="#8a939d" stroke-width="2"/>
+  <rect x="600" y="316" width="30" height="56" rx="3" fill="#20252c"/>
+  <rect x="455" y="478" width="30" height="66" rx="4" fill="#9aa3ad"/><rect x="515" y="478" width="30" height="66" rx="4" fill="#9aa3ad"/>
+  <rect x="330" y="560" width="80" height="80" rx="4" fill="#2a3038"/><rect x="590" y="560" width="80" height="80" rx="4" fill="#2a3038"/>
+  <text x="370" y="604" text-anchor="middle" font-size="11" fill="#9aa3ad" font-family="Helvetica">SPEED BRK</text>
+  <text x="630" y="604" text-anchor="middle" font-size="11" fill="#9aa3ad" font-family="Helvetica">FLAP</text>`;
+  // glows
+  if (f) f.glow.concat(f.x).forEach(id => { const [x,y,w,h]=G[id]; s += `<rect class="glow" x="${x-4}" y="${y-4}" width="${w+8}" height="${h+8}" rx="8" fill="none" stroke="#ffb300" stroke-width="10" opacity=".85"/>`; });
+  // glareshield controllers
+  ['DCL','FGP','DCR'].forEach(id => { const [x,y,w,h]=G[id];
+    s += `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="4" fill="#20252c"/>`;
+    for (let i=0;i<Math.floor(w/22);i++) s += `<rect x="${x+8+i*22}" y="${y+10}" width="14" height="${h-20}" rx="2" fill="#56606b"/>`;
+  });
+  // DUs
+  ['DU1','DU2','DU3','DU4'].forEach(id => { const [x,y,w,h]=G[id];
+    if (f && f.x.includes(id)) s += xdisp(x,y,w,h);
+    else if ((id==='DU1'||id==='DU4') || (f && f.pfdOn===id)) s += pfd(x,y,w,h);
+    else s += mfd(x,y,w,h);
+  });
+  ['AGM1','AGM2','AGM3','AGM4'].forEach(id => { const [x,y,w,h]=G[id];
+    const dead = f && f.it.some(i => i[0] === COMP[id].s);
+    s += `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="3" fill="${dead?'#5a1f1f':'#2a3038'}"/>`; });
+  ['OUL','OUR'].forEach(id => { const [x,y,w,h]=G[id]; s += `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="3" fill="#20252c"/><circle cx="${x+w/2}" cy="${y+h/2}" r="10" fill="#56606b"/>`; });
+  ['YD1','YD2'].forEach(id => { const [x,y,w,h]=G[id]; s += `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="3" fill="#20252c"/>`; });
+  { const [x,y,w,h]=G.STBY; s += `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="4" fill="#20252c"/><circle cx="${x+w-30}" cy="${y+h/2}" r="18" fill="#3f86cf"/><rect x="${x+w-48}" y="${y+h/2}" width="36" height="18" fill="#8b5a2b"/>`; }
+  ['CCDL','CCDR'].forEach(id => { const [x,y,w,h]=G[id]; s += `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="14" fill="#2b3038"/><circle cx="${x+w/2}" cy="${y+h/2}" r="16" fill="#56606b"/>`; });
+  ['MCDU1','MCDU2','MCDU3'].forEach(id => s += mcdu(id));
+  { s += `<rect x="440" y="400" width="120" height="68" rx="3" fill="#20252c"/>`; }
+  ['LPL','LPR'].forEach(id => { const [x,y,w,h]=G[id]; s += `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="3" fill="#2a3038"/>`;
+    for (let i=0;i<5;i++) s += `<circle cx="${x+16+i*22}" cy="${y+h/2}" r="7" fill="#6b747f"/>`; });
+
+  // labels + hit areas
+  Object.keys(G).forEach(id => {
+    const c = COMP[id]; const [x,y,w,h] = G[id];
+    let lines = [];
+    if (L === 'pw') lines = c.ps ? [[c.pw[0]+' (PRI)',0],[c.pw[1]+' (SEC)',1]] : [[c.pw.join(', '),0]];
+    if (L === 'cb') lines = c.ps ? [[c.cb[0]+' (PRI)',0],[c.cb[1]+' (SEC)',1]] : [[c.cb.join(', '),0]];
+    const small = h < 30 || w < 40;
+    const sel = S.sel === id ? ' sel' : '';
+    s += `<g class="hit${sel}" data-id="${id}">`;
+    if (L !== 'none' && !small) {
+      const bh = 22 + lines.length*18;
+      const by = id.startsWith('DU') ? y+6 : id.startsWith('MCDU') ? y+h-bh-8 : y + (h-bh)/2;
+      const bw = Math.min(w-8, 180);
+      s += `<rect x="${x+(w-bw)/2}" y="${by}" width="${bw}" height="${bh}" rx="4" fill="rgba(255,255,255,.86)"/>`;
+      s += `<text class="lbl" x="${x+w/2}" y="${by+17}" text-anchor="middle" font-size="17" font-weight="800" fill="#111">${esc(c.s)}</text>`;
+      lines.forEach(([t,sec],i) => s += `<text class="lbl" x="${x+w/2}" y="${by+36+i*18}" text-anchor="middle" font-size="${t.length>20?13.5:15.5}" fill="${sec?'#c62828':'#111'}" font-weight="${sec?700:500}">${esc(t)}</text>`);
+    } else if (L !== 'none' && (id==='OUL'||id==='OUR')) {
+      const t = (lines[0]||[''])[0];
+      s += `<rect x="${x+2}" y="${y+2}" width="${w-4}" height="${h-4}" rx="3" fill="rgba(255,255,255,.86)"/>`;
+      s += `<text class="lbl" transform="translate(${x+w/2+5},${y+h/2}) rotate(-90)" text-anchor="middle" font-size="12" font-weight="700" fill="#111">${esc(t)}</text>`;
+    } else if (L !== 'none' && small) {
+      // tiny rows (IRUs, yaw dampers): single line
+      const t = c.s + ' · ' + (lines[0]||[''])[0];
+      s += `<rect x="${x+2}" y="${y+2}" width="${w-4}" height="${h-4}" rx="3" fill="rgba(255,255,255,.86)"/>`;
+      s += `<text class="lbl" x="${x+w/2}" y="${y+h/2+4.5}" text-anchor="middle" font-size="${t.length>19?11.5:13}" font-weight="700" fill="#111">${esc(t)}</text>`;
+    } else if (!id.startsWith('DU') && !id.startsWith('MCDU')) {
+      s += `<text class="lbl" x="${x+w/2}" y="${y+h/2+5}" text-anchor="middle" font-size="${small?11:13}" font-weight="700" fill="#dfe5ec">${esc(c.s)}</text>`;
+    }
+    s += `<rect class="frame" x="${x}" y="${y}" width="${w}" height="${h}" rx="4" fill="transparent" stroke="${L==='none'?'transparent':'#d32f2f'}" stroke-width="2"/></g>`;
+  });
+  s += `</svg>`;
+  $('#deck').innerHTML = s;
+  $('#deck').querySelectorAll('.hit').forEach(g => g.onclick = () => { S.sel = (S.sel === g.dataset.id ? null : g.dataset.id); drawDeck(); drawSide(); });
+}
+
+// which failures affect a component
+function related(id){
+  const out = [];
+  CHS.forEach(ch => { const f = FAIL[ch];
+    if (f.x.includes(id)) out.push([ch,'display goes to red X']);
+    else if (f.mcdu[id]) out.push([ch, f.mcdu[id].replace('\n',' ')]);
+  });
+  if (COMP[id].agm) { const ch = COMP[id].pw[0].split(' ')[1]; out.unshift([ch,'this AGM is lost (driven by '+COMP[id].pw[0]+')']); }
+  return out;
+}
+
+function drawSide(){
+  const f = S.fail && FAIL[S.fail];
+  let h = '';
+  if (S.sel) {
+    const c = COMP[S.sel];
+    const pw = c.ps ? `${c.pw[0]} <span class="muted">PRI</span><br><span class="sec">${c.pw[1]}</span> <span class="muted">SEC</span>` : esc(c.pw.join(', '));
+    const cb = c.ps ? `${c.cb[0]} <span class="muted">PRI</span><br><span class="sec">${c.cb[1]}</span> <span class="muted">SEC</span>` : esc(c.cb.join(' + '));
+    const rel = related(S.sel);
+    h += `<div class="card"><h2>${esc(c.n)}<span class="r"><a href="#" id="unsel">close</a></span></h2>
+      <dl class="kv"><dt>Power</dt><dd>${pw}</dd><dt>CB</dt><dd>${cb}</dd></dl>
+      ${rel.length ? `<h3>Affected by</h3>${rel.map(([ch,t])=>`<div><span class="pill">${CHN(ch)}</span> ${esc(t)}</div>`).join('')}` : ''}
+      ${S.sel==='OUL'||S.sel==='OUR' ? '<p class="muted">The source only labels this unit with its bus (ESS FLT INST) and CB.</p>':''}
+      ${S.sel==='STBY' ? '<p class="muted">Source box over the center lower panel reads “FLT INSTR DC” with two CBs.</p>':''}
+      ${S.sel==='LPL'||S.sel==='LPR' ? '<p class="muted">Source marks this pedestal panel only with its CB and bus.</p>':''}
+      ${c.agm ? '<p class="muted">AGM CB entries are truncated in the source image (“POP A-5, CPOP A-…”); completed here from the matching MAU channel CBs.</p>':''}
+    </div>`;
+  }
+  if (f) {
+    const hide = $('#hideFx').checked && !S.reveal;
+    h += `<div class="card"><h2>${esc(f.t)} ${f.proc.length?`<span class="r">PROC <span class="proc">${f.proc.map(p=>`<b>${p}</b>`).join('')}</span></span>`:''}</h2>
+      <div class="muted" style="margin-bottom:6px">Failed items</div>
+      <ul class="fitems ${hide?'hidden-blur':''}">${f.it.map(([k,n])=>`<li><b>${esc(k)}</b>${n?` <i>${esc(n)}</i>`:''}</li>`).join('')}</ul>
+      ${hide?'<button class="btn" id="reveal" style="margin-top:10px">Reveal failed items</button>':''}
+    </div>`;
+    h += `<div class="card"><h2>CAS</h2><div class="cas ${hide?'hidden-blur':''}">${f.cas.map(([t,c])=>`<div class="${c}">${esc(t)}</div>`).join('')}</div></div>`;
+  } else {
+    const isCb = S.layer === 'cb';
+    h += `<div class="card"><h2>${isCb?'MAU circuit breakers':'MAU power sources'}</h2>
+      <div class="tw"><table><tr><th>Channel</th><th>PRI</th><th>SEC</th></tr>
+      ${MAU.map(m=>`<tr><td><b>MAU ${m.ch}</b></td><td>${isCb?m.pri[1]:m.pri[0]}</td><td>${isCb?m.sec[1]:m.sec[0]}</td></tr>`).join('')}
+      ${TONE.map(t=>`<tr><td><b>${t.n}</b></td><td colspan="2">${isCb?t.cb:t.pw}</td></tr>`).join('')}
+      </table></div>
+      <p class="muted">Tap any box on the flight deck for details. Use the bar below the panel to fail a MAU channel or MRC.</p></div>
+      <div class="card"><h2>CAS</h2><div class="cas"><div class="none">— no messages —</div></div></div>`;
+  }
+  $('#side').innerHTML = h;
+  const u = $('#unsel'); if (u) u.onclick = e => { e.preventDefault(); S.sel = null; drawDeck(); drawSide(); };
+  const r = $('#reveal'); if (r) r.onclick = () => { S.reveal = true; drawSide(); };
+}
+
+function initPanel(){
+  const fb = $('#failbar');
+  CHS.forEach(ch => { const b = document.createElement('button'); b.textContent = CHN(ch); b.dataset.ch = ch; fb.appendChild(b); });
+  const r = document.createElement('button'); r.textContent = 'RESET'; r.className = 'rst'; r.dataset.ch = ''; fb.appendChild(r);
+  fb.querySelectorAll('button').forEach(b => b.onclick = () => {
+    S.fail = b.dataset.ch || null; S.reveal = false;
+    fb.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b && !!S.fail));
+    drawDeck(); drawSide();
+  });
+  document.querySelectorAll('#layer button').forEach(b => {
+    b.classList.toggle('on', b.dataset.l === S.layer);
+    b.onclick = () => { S.layer = b.dataset.l; LS.set('pv_layer', S.layer);
+      document.querySelectorAll('#layer button').forEach(x => x.classList.toggle('on', x === b)); drawDeck(); drawSide(); };
+  });
+  $('#hideFx').checked = LS.get('pv_hide', false);
+  $('#hideFx').onchange = () => { LS.set('pv_hide', $('#hideFx').checked); S.reveal = false; drawSide(); };
+  drawDeck(); drawSide();
+}
+
+// ===================== DRILL =====================
+const STATS = LS.get('pv_stats', {});
+const SESSION = {n:0, ok:0, streak:0};
+const MODES = [
+  ['mixed','Mixed','Everything below, shuffled.'],
+  ['pw','Power sources','Which bus powers each unit and each MAU channel (PRI/SEC).'],
+  ['cb','Circuit breakers','CB locations for displays, MCDUs, IRUs, MAU channels, AGMs.'],
+  ['fail','Failures','What is lost (or not) when a MAU channel or MRC fails.'],
+  ['cas','Diagnose CAS','Read the CAS list and name the failed channel (its own message is masked).'],
+  ['predict','Predict','A channel fails — select every item you expect to lose, then check.'],
+  ['weak','Weak spots','Questions you have missed before.'],
+];
+let DM = LS.get('pv_dmode','mixed');
+
+const ALLITEMS = (() => { const m = new Map(); CHS.forEach(ch => FAIL[ch].it.forEach(i => { if (!m.has(i[0])) m.set(i[0], i); })); return m; })();
+const itemChs = k => CHS.filter(ch => FAIL[ch].it.some(i => i[0] === k));
+
+function mkQ(key, q, correct, pool, exp, pre){
+  const opts = shuffle([correct, ...shuffle([...new Set(pool)].filter(o => o !== correct)).slice(0,3)]);
+  return {key, q, opts, ans: correct, exp, pre: pre||''};
+}
+function cbNeighbors(cb){
+  const m = cb.match(/^(C?POP|LEER|REER) ([A-Z])-(\d+)$/); if (!m) return [];
+  const [ , p, r, n] = m; const num = +n; const out = [];
+  if (p==='POP') out.push(`CPOP ${r}-${n}`); if (p==='CPOP') out.push(`POP ${r}-${n}`);
+  if (p==='LEER') out.push(`REER ${r}-${n}`); if (p==='REER') out.push(`LEER ${r}-${n}`);
+  if (num>1) out.push(`${p} ${r}-${num-1}`); out.push(`${p} ${r}-${num+1}`);
+  const rr = String.fromCharCode(r.charCodeAt(0)+1); out.push(`${p} ${rr}-${n}`);
+  return out;
+}
+const ALLCB = [...new Set([...Object.values(COMP).flatMap(c=>c.cb), ...MAU.flatMap(m=>[m.pri[1],m.sec[1]]), ...TONE.map(t=>t.cb)])];
+
+function genPw(){
+  const r = Math.random();
+  if (r < 0.35) { // MAU channel
+    const m = rnd(MAU), side = rnd(['pri','sec']);
+    return mkQ(`pw:MAU${m.ch}:${side}`, `MAU ${m.ch} — ${side.toUpperCase()} power source?`, m[side][0],
+      ['ESS DC','L MAIN DC','R MAIN DC','L ESS DC','R ESS DC','EMER DC'],
+      `MAU ${m.ch}: PRI ${m.pri[0]} · SEC ${m.sec[0]}.`);
+  }
+  if (r < 0.45) { const id = rnd(['AGM1','AGM2','AGM3','AGM4']); const c = COMP[id];
+    return mkQ(`pw:${id}`, `${c.s} is driven by which MAU channel?`, c.pw[0], MAU.map(m=>'MAU '+m.ch),
+      'AGM 1 ← MAU 3B · AGM 2 ← MAU 3A · AGM 3 ← MAU 2A · AGM 4 ← MAU 1B (count down 3B→1B, left to right).'); }
+  const ids = Object.keys(COMP).filter(k => !COMP[k].agm);
+  const id = rnd(ids), c = COMP[id];
+  if (c.ps) { const i = Math.random()<.5?0:1;
+    return mkQ(`pw:${id}:${i}`, `${c.s} — ${i?'SEC':'PRI'} power source?`, c.pw[i], BUSES, `${c.s}: PRI ${c.pw[0]} · SEC ${c.pw[1]}.`); }
+  return mkQ(`pw:${id}`, `Power source for ${c.n}?`, c.pw[0], BUSES, `${c.n}: ${c.pw[0]} (CB ${c.cb.join(' + ')}).`);
+}
+function genCb(){
+  const r = Math.random();
+  if (r < 0.35) { const m = rnd(MAU), side = rnd(['pri','sec']); const cb = m[side][1];
+    return mkQ(`cb:MAU${m.ch}:${side}`, `MAU ${m.ch} — ${side.toUpperCase()} circuit breaker?`, cb,
+      [...cbNeighbors(cb), ...MAU.map(x=>x[side][1])],
+      `MAU ${m.ch}: PRI ${m.pri[1]} · SEC ${m.sec[1]}. Row A, column 10 → 5 for 1A → 3B.`); }
+  if (r < 0.42) { const t = rnd(TONE); return mkQ(`cb:${t.n}`, `${t.n} — circuit breaker?`, t.cb, [...cbNeighbors(t.cb), 'POP D-7','CPOP D-6'], `Tone gens: #1 POP D-8, #2 CPOP D-8 (both ESS DC).`); }
+  const ids = Object.keys(COMP).filter(k => !COMP[k].agm);
+  const id = rnd(ids), c = COMP[id];
+  if (c.ps) { const i = Math.random()<.5?0:1; const cb = c.cb[i];
+    return mkQ(`cb:${id}:${i}`, `${c.s} — ${i?'SEC':'PRI'} circuit breaker?`, cb, [...cbNeighbors(cb), c.cb[1-i]], `${c.s}: PRI ${c.cb[0]} · SEC ${c.cb[1]}.`); }
+  const cb = c.cb.join(' + ');
+  const pool = c.cb.length > 1 ? ['POP E-9 + CPOP E-9','POP D-9 + CPOP E-9','POP E-8 + CPOP D-8','CPOP E-9 + POP D-9']
+                               : [...cbNeighbors(c.cb[0]), ...shuffle(ALLCB).slice(0,3)];
+  return mkQ(`cb:${id}`, `Circuit breaker for ${c.n}?`, cb, pool, `${c.n}: ${cb} — powered by ${c.pw.join(', ')}.`);
+}
+function genFail(){
+  const r = Math.random();
+  const ch = rnd(CHS), f = FAIL[ch], mine = new Set(f.it.map(i=>i[0]));
+  const others = [...ALLITEMS.keys()].filter(k => !mine.has(k));
+  const expl = `${CHN(ch)} fail loses: ${f.it.map(i=>i[0]).join(', ')}.`;
+  if (r < 0.35) { const it = rnd(f.it);
+    return mkQ(`lost:${ch}`, `${CHN(ch)} fails. Which of these is LOST?`, it[0], shuffle(others), expl); }
+  if (r < 0.6 && f.it.length >= 3) { const odd = rnd(others);
+    const q = mkQ(`notlost:${ch}`, `${CHN(ch)} fails. Which one is NOT lost?`, odd, shuffle(f.it.map(i=>i[0])), expl + ` ${odd} is lost with ${itemChs(odd).map(CHN).join(' / ')}.`);
+    return q; }
+  if (r < 0.8) { // unique item → which channel
+    const uniq = [...ALLITEMS.keys()].filter(k => itemChs(k).length === 1);
+    const k = rnd(uniq); const c = itemChs(k)[0];
+    return mkQ(`which:${k}`, `Loss of “${itemLabel(ALLITEMS.get(k))}” — which single failure?`, CHN(c), CHS.map(CHN), `${k} is lost only with ${CHN(c)}.`); }
+  // displays
+  const xs = CHS.filter(c => FAIL[c].x.length);
+  const c = rnd(xs); const du = FAIL[c].x[0];
+  return Math.random()<.5
+    ? mkQ(`du:${c}`, `${CHN(c)} fails. Which display goes to a red X?`, du, ['DU1','DU2','DU3','DU4'], `${CHN(c)} drives ${COMP['AGM'+du.slice(2)].s} → ${du}. 3B→DU1, 3A→DU2, 2A→DU3, 1B→DU4.`)
+    : mkQ(`dux:${du}`, `${du} shows a red X. Which channel failed?`, CHN(c), MAU.map(m=>'MAU '+m.ch), `${du} is fed by ${COMP['AGM'+du.slice(2)].s}, driven by ${CHN(c)}.`);
+}
+function genCas(){
+  const ch = rnd(CHS), f = FAIL[ch];
+  const mask = t => t.replace(/^(MAU) \d[AB] Fail$/,'MAU ?? Fail').replace(/^MRC \d Fail$/,'MRC ? Fail');
+  const pre = `<div class="caslist">${f.cas.map(([t,c])=>`<div class="${c}">${esc(mask(t))}</div>`).join('')}</div>`;
+  return mkQ(`cas:${ch}`, 'Which failure produced this CAS?', CHN(ch), CHS.map(CHN), `${f.t}.`, pre);
+}
+const GEN = {pw:genPw, cb:genCb, fail:genFail, cas:genCas};
+function genMixed(){ return rnd([genPw,genCb,genFail,genFail,genCas])(); }
+function genWeak(){
+  const bad = Object.entries(STATS).filter(([k,v]) => v.w > 0).sort((a,b)=> (b[1].w-b[1].r) - (a[1].w-a[1].r)).map(x=>x[0]);
+  if (!bad.length) return null;
+  const top = new Set(bad.slice(0,12));
+  for (let i=0;i<300;i++){ const q = genMixed(); if (top.has(q.key)) return q; }
+  return null;
+}
+
+let CUR = null, PRED = null;
+function drawModes(){
+  $('#dmodes').innerHTML = MODES.map(([k,l]) => `<button class="chip ${k===DM?'on':''}" data-m="${k}">${l}</button>`).join('');
+  $('#dmdesc').textContent = MODES.find(m=>m[0]===DM)[2];
+  document.querySelectorAll('#dmodes .chip').forEach(b => b.onclick = () => { DM = b.dataset.m; LS.set('pv_dmode', DM); drawModes(); nextQ(); });
+  const seen = Object.values(STATS).reduce((a,v)=>a+v.r+v.w,0), ok = Object.values(STATS).reduce((a,v)=>a+v.r,0);
+  $('#dstat').innerHTML = `Session ${SESSION.ok}/${SESSION.n} · streak ${SESSION.streak} · all-time ${seen?Math.round(100*ok/seen):0}%`;
+}
+function nextQ(){
+  if (DM === 'predict') return drawPredict();
+  let q = DM === 'weak' ? genWeak() : DM === 'mixed' ? genMixed() : GEN[DM]();
+  if (!q) { $('#qcard').innerHTML = `<p>No missed questions yet — nice. Try <b>Mixed</b> first.</p>`; return; }
+  CUR = q;
+  $('#qcard').innerHTML = `${q.pre}<div class="q">${esc(q.q)}</div><div class="opts">${q.opts.map((o,i)=>`<button class="opt" data-i="${i}">${esc(o)}</button>`).join('')}</div><div class="fb" id="fb"></div>`;
+  document.querySelectorAll('#qcard .opt').forEach(b => b.onclick = () => answer(b));
+}
+function answer(b){
+  if (CUR.done) return; CUR.done = true;
+  const ok = b.textContent === CUR.ans;
+  document.querySelectorAll('#qcard .opt').forEach(x => { if (x.textContent === CUR.ans) x.classList.add('ok'); });
+  if (!ok) b.classList.add('bad');
+  const st = STATS[CUR.key] || (STATS[CUR.key] = {r:0,w:0}); ok ? st.r++ : st.w++; LS.set('pv_stats', STATS);
+  SESSION.n++; if (ok) { SESSION.ok++; SESSION.streak++; } else SESSION.streak = 0;
+  $('#fb').innerHTML = `<div class="key">${ok?'✅ Correct.':'❌ Answer: <b>'+esc(CUR.ans)+'</b>.'} ${esc(CUR.exp)}</div><button class="btn" id="nx">Next →</button>`;
+  $('#nx').onclick = nextQ; drawModes();
+}
+function drawPredict(){
+  const ch = rnd(CHS); PRED = {ch, sel:new Set(), done:false};
+  const items = [...ALLITEMS.keys()].sort((a,b)=>a.localeCompare(b));
+  $('#qcard').innerHTML = `<div class="q">${esc(CHN(ch))} fails. Select everything that is lost.</div>
+    <div class="pgrid2">${items.map(k=>`<button class="pi" data-k="${esc(k)}">${esc(k)}</button>`).join('')}</div>
+    <div class="row" style="margin-top:12px"><button class="btn" id="chk">Check</button><button class="btn sec" id="skip">New channel</button></div><div class="fb" id="fb"></div>`;
+  document.querySelectorAll('#qcard .pi').forEach(b => b.onclick = () => { if (PRED.done) return; const k=b.dataset.k; PRED.sel.has(k)?PRED.sel.delete(k):PRED.sel.add(k); b.classList.toggle('on'); });
+  $('#skip').onclick = drawPredict;
+  $('#chk').onclick = () => {
+    if (PRED.done) return; PRED.done = true;
+    const truth = new Set(FAIL[ch].it.map(i=>i[0])); let hit=0, miss=0, fp=0;
+    document.querySelectorAll('#qcard .pi').forEach(b => { const k=b.dataset.k, s=PRED.sel.has(k), t=truth.has(k);
+      b.classList.remove('on'); if (s&&t){b.classList.add('hit');hit++;} else if (t){b.classList.add('miss');miss++;} else if (s){b.classList.add('fp');fp++;} });
+    const ok = miss===0 && fp===0;
+    const st = STATS['pred:'+ch] || (STATS['pred:'+ch]={r:0,w:0}); ok?st.r++:st.w++; LS.set('pv_stats',STATS);
+    SESSION.n++; if (ok){SESSION.ok++;SESSION.streak++;} else SESSION.streak=0;
+    $('#fb').innerHTML = `<div class="legend"><span><i style="border-color:var(--green);background:var(--green-bg)"></i>got it</span><span><i style="border-color:var(--red);border-style:dashed"></i>missed</span><span><i style="border-color:var(--amber);background:var(--amber-bg)"></i>not lost</span></div>
+      <div class="key">${ok?'✅ Perfect.':`${hit}/${truth.size} found · ${miss} missed · ${fp} extra.`} CAS: ${FAIL[ch].cas.map(c=>c[0]).join(', ')}.</div><button class="btn" id="nx">Next →</button>`;
+    $('#nx').onclick = drawPredict; drawModes();
+  };
+}
+
+// ===================== REFERENCE =====================
+function drawRef(){
+  const items = [...ALLITEMS.keys()];
+  const order = k => CHS.findIndex(ch => FAIL[ch].it.some(i=>i[0]===k));
+  items.sort((a,b) => order(a)-order(b) || a.localeCompare(b));
+  const compRows = Object.keys(COMP).map(id => { const c=COMP[id];
+    return `<tr><td><b>${esc(c.n)}</b></td><td>${c.ps?`${c.pw[0]} <span class="muted">PRI</span><br><span class="sec">${c.pw[1]}</span> <span class="muted">SEC</span>`:esc(c.pw.join(', '))}</td><td>${c.ps?`${c.cb[0]} <span class="muted">PRI</span><br><span class="sec">${c.cb[1]}</span> <span class="muted">SEC</span>`:esc(c.cb.join(' + '))}</td></tr>`; }).join('');
+  const agmOf = {'3B':'AGM 1 → DU1','3A':'AGM 2 → DU2','2A':'AGM 3 → DU3','1B':'AGM 4 → DU4','1A':'—','2B':'—'};
+  $('#v-ref').innerHTML = `
+  <div class="card"><h2>Patterns worth memorising</h2>
+    <ul>
+      <li><b>1A and 2B are the “side” channels</b> — 1A takes side 1, 2B side 2: FGC (AP/YD mon, FD, trim, stall barrier), AT, ADS, APM, CMF, CMS, FWC, radio tuning, Wx control, ACS/BAS default mode, AC/DC synoptic errors. Only these two give <b>amber AP / Yaw Damper / Stick Push / Elevator Trim</b> CAS.</li>
+      <li><b>1B, 2A, 3A, 3B each drive one AGM</b> → one DU goes to a red X and Charts are lost. Left to right: <b>3B → DU1, 3A → DU2, 2A → DU3, 1B → DU4</b>.</li>
+      <li><b>FMS / TOLD:</b> 1B → FMS 1 / TOLD 1 · 2A → FMS 2 / TOLD 2 · 3B → FMS 3 / TOLD 3.</li>
+      <li><b>GPS / EGPWM (RAAS):</b> 3B → GPS 1, EGPWM 1 · 2A → GPS 2, EGPWM 2.</li>
+      <li><b>ADS 3:</b> lost with 3B; with 3A only its altimeter setting (BAROSET 3 Fail).</li>
+      <li><b>MRC → NIM:</b> MRC 1 = NIM 1 (VHF 1, NAV 1, ADF 1, audio 1 & 3) + APM 3 + <b>TCAS</b>; MRC 2 = NIM 2 (VHF 2, NAV 2, ADF 2, audio 2 & 4) + APM 4. Both → ASCB.</li>
+      <li><b>MAU CBs:</b> all in row A, same number on POP and CPOP: 1A = A-10, 1B = A-9, 2A = A-8, 2B = A-7, 3A = A-6, 3B = A-5. PRI on POP for 1A, 3A, 3B; PRI on CPOP for 1B, 2A, 2B.</li>
+      <li><b>MAU power:</b> PRI is ESS DC except 2A (R MAIN) and 3A (L MAIN). Tone gens: ESS DC, POP/CPOP D-8.</li>
+      <li><b>EMER DC:</b> MCDU 1, MCDU 3, IRU 3. <b>DU2/DU3</b> have two feeds: MAIN (PRI) and ESS (SEC).</li>
+    </ul>
+    <p class="muted">These patterns are read from the source tables; the source itself does not state them.</p>
+  </div>
+  <div class="card"><h2>MAU channels</h2><div class="tw"><table>
+    <tr><th>Channel</th><th>PRI power</th><th>PRI CB</th><th>SEC power</th><th>SEC CB</th><th>Graphics</th><th>Proc ref</th></tr>
+    ${MAU.map(m=>`<tr><td><b>MAU ${m.ch}</b></td><td>${m.pri[0]}</td><td>${m.pri[1]}</td><td>${m.sec[0]}</td><td>${m.sec[1]}</td><td>${agmOf[m.ch]}</td><td>${FAIL[m.ch].proc.join(', ')}</td></tr>`).join('')}
+    ${TONE.map(t=>`<tr><td><b>${t.n}</b></td><td>${t.pw}</td><td>${t.cb}</td><td colspan="4"></td></tr>`).join('')}
+  </table></div></div>
+  <div class="card"><h2>Components — power &amp; CB</h2><div class="tw"><table><tr><th>Unit</th><th>Power</th><th>CB</th></tr>${compRows}</table></div></div>
+  <div class="card"><h2>Failure matrix</h2><div class="tw"><table class="mx">
+    <tr><th>Item lost</th>${CHS.map(c=>`<th class="c">${CHN(c).replace(' ','<br>')}</th>`).join('')}</tr>
+    ${items.map(k=>`<tr><td>${esc(k)}</td>${CHS.map(c=>`<td class="c">${FAIL[c].it.some(i=>i[0]===k)?'●':''}</td>`).join('')}</tr>`).join('')}
+  </table></div>
+  <p class="muted">Notes: EVM, Thrust Reversers and Touchdown Protect apply to the G450 only; EVS-HUD to VGS-equipped aircraft only. NIM 1/2 include SELCAL, VHF, NAV, ADF, marker beacon, dual mic bus and audio buses.</p></div>
+  <div class="card"><h2>CAS by failure</h2><div class="tw"><table><tr><th>Failure</th><th>CAS (amber / cyan)</th></tr>
+    ${CHS.map(c=>`<tr><td><b>${CHN(c)}</b></td><td><div class="caslist" style="margin:0">${FAIL[c].cas.map(([t,k])=>`<div class="${k}">${esc(t)}</div>`).join('')}</div></td></tr>`).join('')}
+  </table></div></div>
+  <div class="card"><h2>About</h2>
+    <p>Source: <i>PlaneView Source Guide — G450/G550 Cert G Enhanced Nav</i> (Planeview MAU Brief, Rev 1.2), 11 screenshots. The flight-deck drawing here is a simplified schematic, not the original artwork.</p>
+    <ul>
+      <li>POP / CPOP = pilot / copilot CB panels; LEER / REER = left / right electronic equipment rack.</li>
+      <li>AGM CB entries are cut off in the source (“POP A-5, CPOP A-…”); completed from the MAU channel that drives each AGM.</li>
+      <li>MAU 2B lists “Monitor / Warning (FWC)” without a number; shown here as Monitor / Warning 2 to match the “FWC 2 Fail” CAS.</li>
+      <li>The two outboard units beside DU1/DU4, the FLT INSTR box and the lower pedestal panels are named in the source only by bus and CB.</li>
+      <li>Panel highlights (glow) and MCDU screen text are approximations of the source screenshots.</li>
+    </ul>
+    <p class="muted">Study aid only — the AFM / Gulfstream documentation governs. <button class="btn sec" id="clr" style="margin-left:8px">Reset drill stats</button></p>
+  </div>`;
+  $('#clr').onclick = () => { for (const k in STATS) delete STATS[k]; LS.set('pv_stats', STATS); drawModes(); };
+}
+
+// ===================== init =====================
+initPanel(); drawModes(); nextQ(); drawRef();
+{ const t = LS.get('pv_tab', 'panel'); const b = document.querySelector(`.tabs button[data-v="${t}"]`); if (b) b.click(); }
+if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(()=>{});
+
+</script>
+</body>
+</html>
