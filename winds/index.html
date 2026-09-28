@@ -134,7 +134,7 @@ input.fld, select.fld{font:500 16px -apple-system,sans-serif; padding:9px 10px; 
   <div class="header">
     <h1>Winds 101</h1>
     <p>Winds &amp; temperatures aloft — reading the charts, seasonal patterns, Brazil ↔ USA / Europe · offline study</p>
-    <p class="appver" style="font-size:11.5px;margin-top:3px;opacity:.85">v1 · 28/09/2026</p>
+    <p class="appver" style="font-size:11.5px;margin-top:3px;opacity:.85">v2 · 28/09/2026</p>
   </div>
   <div class="tabs" id="tabs">
     <button data-v="read" class="on">How to read</button>
@@ -171,7 +171,7 @@ input.fld, select.fld{font:500 16px -apple-system,sans-serif; padding:9px 10px; 
         <li><b>Producers:</b> WAFC London and WAFC Washington, from the same global model data used by flight-planning systems (GRIB2).</li>
         <li><b>Levels (charts):</b> FL050, 100, 140, 180, 240, 270, 300, 320, 340, 360, 390, 410, 450 and 530 (varies by provider). The gridded data behind them is what your flight plan uses.</li>
         <li><b>Validity:</b> fixed-time forecasts — 00, 06, 12, 18 UTC. Use the chart closest to the time you will be at that point.</li>
-        <li><b>Grid:</b> one barb per grid point (typically every 5° on printed charts). Direction is <b>true</b>; speed in knots.</li>
+        <li><b>Grid:</b> one barb per point of a regular lat/long grid (spacing depends on the chart scale). Direction is <b>true</b>; speed in knots.</li>
         <li><b>Temperature:</b> whole °C, <b>negative unless marked “+”</b> (e.g. 56 = −56 °C). Compare with ISA to get the ISA deviation for performance.</li>
         <li><b>Isotachs / shading</b> (on some versions) show speed bands — the jet core is the band with the highest speeds.</li>
       </ul>
@@ -193,7 +193,7 @@ input.fld, select.fld{font:500 16px -apple-system,sans-serif; padding:9px 10px; 
       <div class="tscroll"><table class="t fb" id="fbtab"></table></div>
       <div class="info" id="fbdec" style="min-height:44px">Tap a group above.</div>
       <div class="row" style="margin:8px 0">
-        <input class="fld mono" id="fbin" placeholder="Type a group, e.g. 7319-60 or 256138" style="max-width:320px">
+        <input class="fld mono" id="fbin" placeholder="Type a group, e.g. 2546-24 or 731960" style="max-width:320px">
         <button class="btn" id="fbgo">Decode</button>
       </div>
       <h3>Rules</h3>
@@ -229,7 +229,7 @@ input.fld, select.fld{font:500 16px -apple-system,sans-serif; padding:9px 10px; 
         <li><b>Buys Ballot:</b> back to the wind, low pressure is on the <b>left in the NH</b> and on the <b>right in the SH</b>. Lows turn anticlockwise in the NH and clockwise in the SH; highs the opposite.</li>
         <li><b>Thermal wind:</b> the air is colder towards the poles, so pressure surfaces slope down poleward more and more with height → <b>westerlies increase with height</b> up to the tropopause (jet cores), then decrease above.</li>
         <li><b>Three-cell circulation:</b> surface trade winds blow from the subtropical highs to the ITCZ (NE trades in the NH, SE trades in the SH). Aloft the flow returns poleward and is turned by Coriolis into the <b>subtropical westerly jet</b> at the edge of the Hadley cell (~25–35°).</li>
-        <li><b>Near the equator</b> Coriolis vanishes: winds aloft are light and mostly easterly, strongest in the <b>summer hemisphere</b> (monsoon anticyclones aloft).</li>
+        <li><b>Near the equator</b> Coriolis vanishes: winds aloft are light and mostly easterly, strongest in the <b>summer hemisphere</b> (monsoon anticyclones aloft) — except the <b>westerly ducts</b> over the equatorial Atlantic and E Pacific in Dec–Mar.</li>
         <li><b>The winter hemisphere</b> has the larger pole–equator temperature contrast → stronger jets, closer to the equator. The whole pattern follows the sun: north in July, south in January.</li>
       </ul>
     </div>
@@ -242,8 +242,8 @@ input.fld, select.fld{font:500 16px -apple-system,sans-serif; padding:9px 10px; 
         <tr><td><b>NH polar front jet</b></td><td>Strong, meandering; USA and N Atlantic (35–50°N)</td><td>Weak, ~45–55°N (Canada, N Atlantic)</td></tr>
         <tr><td><b>SH subtropical jet</b></td><td>Weaker, ~35–45°S</td><td><b>Strong</b>, ~25–35°S: S Brazil, N Argentina, S Atlantic. Mean 70–80 kt at FL390, days of 120–150 kt</td></tr>
         <tr><td><b>Tropics over S America</b></td><td><b>Bolivian High</b> (~15–20°S, 60–65°W) and <b>Nordeste trough</b> aloft; SE–S winds over central Brazil</td><td>Westerlies reach central Brazil; high moves to N South America</td></tr>
-        <tr><td><b>Equatorial Atlantic</b></td><td><b>Westerly duct</b> — light-to-moderate westerlies aloft, 0–20°N</td><td><b>Easterlies</b> aloft; <b>Tropical Easterly Jet</b> over Africa (~FL450, 5–15°N) tailing into the Atlantic</td></tr>
-        <tr><td><b>ITCZ</b> (surface)</td><td>Southernmost (Atlantic ~0–5°N, into NE Brazil Mar–Apr)</td><td>Northernmost (~8–12°N)</td></tr>
+        <tr><td><b>Equatorial Atlantic</b></td><td><b>Westerly duct</b> — light-to-moderate westerlies aloft, ~5°S–15°N</td><td><b>Easterlies</b> aloft; <b>Tropical Easterly Jet</b> over Africa (~FL450, 5–15°N) tailing into the Atlantic</td></tr>
+        <tr><td><b>ITCZ</b> (surface)</td><td>Atlantic ~0–5°N; southernmost in Mar–Apr (~2°S–2°N off NE Brazil — NE Brazil rainy season)</td><td>Moving to its northernmost (~8–12°N, peak Aug–Sep)</td></tr>
       </table></div>
       <p class="muted">Transition seasons (Mar–May, Sep–Nov) sit in between; the SH jet over southern Brazil already strengthens in Apr–May, the NH jet is still present in Apr — so late autumn (SH) is often the worst time for northbound headwinds to the USA.</p>
     </div>
@@ -484,7 +484,7 @@ const GCAP={
  DJF:'<b>NH winter / SH summer.</b> Strong NH subtropical jet across Mexico, the Gulf, Florida and N Africa; SH jet weak and far south. Over Brazil the <b>Bolivian High</b> gives light S–SE winds; westerly duct over the equatorial Atlantic.',
  MAM:'<b>Transition.</b> NH jet still strong in Mar–Apr; the SH jet over southern Brazil strengthens through Apr–May. Often the worst period for northbound headwinds on the Brazil–USA legs.',
  JJA:'<b>NH summer / SH winter.</b> <b>SH subtropical jet</b> over southern Brazil, Uruguay and N Argentina at its strongest. NH jet weak and north. Easterlies aloft over the equatorial Atlantic and West Africa.',
- SON:'<b>Transition.</b> SH jet weakens and moves south; NH jet re-forms over the USA and N Atlantic from Oct. Generally the lightest winds of the year on the Brazil–USA routes.'};
+ SON:'<b>Transition.</b> SH jet weakens and moves south; NH jet re-forms over the USA and N Atlantic from Oct. Among the lightest winds of the year on the Brazil – US East Coast routes.'};
 let gS='DJF', gL='FL390', gPt=null;
 function renderGlob(){
   $('#gseas').innerHTML='<span class="lab">Season</span>'+Object.keys(SNAME).map(k=>`<button class="chip ${k===gS?'on':''}" data-s="${k}">${SNAME[k]}</button>`).join('');
@@ -503,7 +503,7 @@ $('#gmap').addEventListener('click',e=>{const [la,lo]=mapLL($('#gmap'),e); gPt=[
 const RGRP={KMIA:'E',KTEB:'E',KVNY:'W',LPPT:'EU',LFPB:'EU',EGGW:'EU'};
 const RTXT={
  E:`<h3>Brazil ↔ USA East Coast</h3>
-  <ul><li><b>Northbound is a small headwind on average all year</b> (FL390 mean ≈ 0 to −14 kt): the route runs roughly north-west, across the prevailing westerlies at both ends and through the light tropical winds in the middle.</li>
+  <ul><li><b>Northbound is a small headwind on average all year</b> (FL390 mean ≈ 0 to −14 kt): the route runs north-north-west, across the prevailing westerlies at both ends and through the light tropical winds in the middle.</li>
   <li><b>Dec–Feb:</b> the S–SE flow on the east side of the <b>Bolivian High</b> gives a tailwind over central Brazil, cancelled near the Caribbean/Florida (and the whole US East Coast) by the strong <b>NH subtropical/polar jets</b> — to Teterboro the last third often has 30 kt+ mean headwind, 100 kt+ on jet days.</li>
   <li><b>Apr–Jun:</b> worst months — the <b>SH jet</b> over São Paulo/southern Brazil is already strong (headwind on the first hour) while the NH jet has not yet retreated.</li>
   <li><b>Jul–Nov:</b> SH jet only at the start; tropical and Caribbean segment near calm → the easiest northbound season.</li>
@@ -511,14 +511,14 @@ const RTXT={
  W:`<h3>Brazil ↔ USA West Coast</h3>
   <ul><li><b>The largest mean headwind of the three routes northbound</b> (≈ −7 to −20 kt at FL390) and the longest leg (≈ 5,370 NM great circle) — keep an eye on the range margin with winter/autumn headwinds.</li>
   <li>The course (~310°) has a big westward component, so <b>every westerly on the way is a headwind</b>: the SH jet near departure (Apr–Oct) and the NH subtropical jet over Mexico/Baja and Southern California (Oct–May; mean −35 to −45 kt on the last third).</li>
-  <li>The track crosses the <b>Andes</b> near Colombia/Ecuador — mountain-wave and CAT awareness when a jet crosses the ridge.</li>
+  <li>The track crosses the <b>Andes</b> in southern Colombia — mountain-wave and CAT awareness when a jet crosses the ridge.</li>
   <li><b>May</b> is typically the worst month (both jets active); <b>Jul–Aug</b> the best.</li>
   <li><b>Southbound</b> is correspondingly helped — often worth a lower fuel load or an extra destination option.</li></ul>`,
  EU:`<h3>Brazil ↔ Europe</h3>
-  <ul><li><b>Northbound is a tailwind on average all year</b> (FL390 ≈ +6 to +20 kt): the course (~030°) has an eastward component, so the westerlies at both ends push you along.</li>
+  <ul><li><b>Northbound is a tailwind on average all year</b> (FL390 ≈ +5 to +20 kt): the course (~030°) has an eastward component, so the westerlies at both ends push you along.</li>
   <li><b>Dec–May:</b> strongest help (+15 to +20 kt mean) — SH westerlies over southern Brazil, the <b>equatorial Atlantic westerly duct</b> in Dec–Mar, and the NH subtropical jet near the Canaries/Madeira/Iberia.</li>
-  <li><b>Jun–Sep:</b> weakest help (+5 to +10 kt). The SH jet helps at the start, but <b>easterlies aloft</b> near the equator (0–10°N, linked to the West African monsoon and the Tropical Easterly Jet) give a headwind in the middle; the NH jet is far north.</li>
-  <li><b>Southbound</b> (Europe → Brazil) is the harder direction: mean headwind −6 to −20 kt, worst in winter/spring.</li>
+  <li><b>Jul–Sep:</b> weakest help (+5 to +10 kt; June is in transition). The SH jet helps at the start, but <b>easterlies aloft</b> near the equator (0–10°N, linked to the West African monsoon and the Tropical Easterly Jet) give a headwind in the middle; the NH jet is far north.</li>
+  <li><b>Southbound</b> (Europe → Brazil) is the harder direction: mean headwind −5 to −20 kt, worst in winter/spring.</li>
   <li>Atlantic crossing via the EUR/SAM corridor (Recife/Natal – Cape Verde – Canaries): winds shift the ETP towards the headwind side — recompute with the day's winds.</li></ul>`};
 let rD='LFPB', rDir='out', rL='FL390', rM=new Date().getMonth();
 function rData(){ const R=D.R[rD], L=R.lv[rL]; const s=rDir==='out'?1:-1;
@@ -645,7 +645,7 @@ function calcWT(){
   const a=(wd-crs)*R2, hw=ws*Math.cos(a), xw=ws*Math.sin(a), ratio=xw/tas;
   if(Math.abs(ratio)>=1){$('#c_out').innerHTML=tileH('Error','—','Crosswind exceeds TAS');return;}
   const wca=Math.asin(ratio)/R2, gs=tas*Math.cos(wca*R2)-hw, hdg=((crs+wca)%360+360)%360;
-  let h=tileH('Wind component',`${hw>0?'M':'P'}${Math.abs(Math.round(hw))}`,`${Math.abs(Math.round(hw))} kt ${hw>0?'headwind':'tailwind'}`,hw>0?'var(--head)':'var(--tail)')
+  let h=tileH('Wind component',`${Math.abs(Math.round(hw))===0?'0':(hw>0?'M':'P')+Math.abs(Math.round(hw))}`,`${Math.abs(Math.round(hw))} kt ${hw>0?'headwind':'tailwind'}`,hw>0?'var(--head)':'var(--tail)')
    +tileH('Crosswind',`${Math.abs(Math.round(xw))} kt`,Math.abs(xw)<0.5?'none':`from the ${xw>0?'right':'left'}`)
    +tileH('Drift / WCA',`${wca>=0?'+':'−'}${Math.abs(wca).toFixed(1)}°`,`true heading ${String(Math.round(hdg)||360).padStart(3,'0')}°`)
    +tileH('Ground speed',`${Math.round(gs)} kt`,`TAS ${Math.round(tas)}`);
@@ -687,16 +687,16 @@ const QZ=[
  ['Barbs & charts','WAFS wind/temperature charts are:',['Valid for a 6-hour period','Fixed-time forecasts (00/06/12/18 UTC)','Observations from radiosondes','Valid only over land'],1,'Use the chart closest to your time over the area.'],
  ['Barbs & charts','ISA temperature at FL390 is:',['−52.4 °C','−56.5 °C','−44.4 °C','−60 °C'],1,'Above the ISA tropopause (36,089 ft) the ISA temperature is constant at −56.5 °C.'],
  ['FB code','FB group 2546-24 decodes as:',['250° / 46 kt, −24 °C','254° / 6 kt, −24 °C','250° / 146 kt, −24 °C','046° / 25 kt, +24 °C'],0,'DD=25 → 250°, ss=46 kt, temp −24.'],
- ['FB code','FB group 7319-60 decodes as:',['730° — invalid','230° / 119 kt, −60 °C','190° / 73 kt, −60 °C','230° / 19 kt, −60 °C'],1,'73−50 = 23 → 230°; 19+100 = 119 kt.'],
+ ['FB code','At 39,000 ft, FB group 731960 decodes as:',['730° — invalid','230° / 119 kt, −60 °C','190° / 73 kt, −60 °C','230° / 19 kt, −60 °C'],1,'73−50 = 23 → 230°; 19+100 = 119 kt.'],
  ['FB code','FB group 9900 means:',['99 kt from north','Light and variable (< 5 kt)','Missing data','Calm at the surface only'],1,'9900 = light and variable.'],
  ['FB code','At 34,000 ft the FB group 256748 is:',['250° / 67 kt, +48 °C','250° / 67 kt, −48 °C','256° / 7 kt, −48 °C','750° — invalid'],1,'Above 24,000 ft the minus sign is omitted.'],
- ['FB code','FB group 7799 at FL390 means:',['270° / 99 kt','270° / 199 kt or more','Light and variable','Missing'],1,'77−50 = 27 → 270°; speed code 99 with +50 = 199 kt or more.'],
+ ['FB code','FB group 7799 at FL390 means:',['270° / 99 kt','270° / 199 kt or more','Light and variable','Missing'],1,'77−50 = 27 → 270°; direction ≥ 51 means add 100 to the speed: 99 + 100 = 199 kt or more (200 kt+ is also coded 7799).'],
  ['FB code','Why does the 3,000 ft FB level never show a temperature?',['Too close to the surface — temperature not forecast at 3,000 ft','It is always ISA','It is classified','It is shown only in METARs'],0,'No temperature at 3,000 ft or within 2,500 ft of station elevation.'],
  ['Circulation','Back to the wind in the Southern Hemisphere, low pressure is:',['On the left','On the right','Ahead','Behind'],1,'Buys Ballot: left in the NH, right in the SH.'],
  ['Circulation','Why do westerly winds increase with height up to the tropopause?',['Less friction','Thermal wind — colder air towards the poles','The ozone layer','The Earth’s rotation increases with height'],1,'The poleward temperature gradient makes pressure surfaces slope more with height.'],
  ['Circulation','The subtropical jet forms at:',['The poleward edge of the Hadley cell (~25–35°)','The ITCZ','The polar front (~60°)','The stratosphere only'],0,'Air moving poleward aloft in the Hadley cell is turned east by Coriolis.'],
  ['Circulation','Which jet is higher, on average?',['Polar front jet','Subtropical jet','Both at FL300','The African easterly jet'],1,'STJ ~FL350–400, below the higher tropical tropopause; PFJ ~FL300–350.'],
- ['Circulation','Near the equator, winds at cruise levels are usually:',['Strong westerly jets','Light, mostly easterly — stronger in the summer hemisphere','Always calm','Northerly'],1,'Coriolis vanishes; monsoon anticyclones aloft give easterlies.'],
+ ['Circulation','Near the equator, winds at cruise levels are usually:',['Strong westerly jets','Light, mostly easterly — stronger in the summer hemisphere (except the Dec–Mar westerly ducts)','Always calm','Northerly'],1,'Coriolis vanishes; monsoon anticyclones aloft give easterlies.'],
  ['Circulation','Surface trade winds south of the ITCZ blow from the:',['Northeast','Southeast','Southwest','West'],1,'SE trades in the SH, NE trades in the NH.'],
  ['Circulation','Above the jet core (e.g. FL450+ over a FL370 core), wind speed usually:',['Keeps increasing','Decreases','Reverses direction','Becomes calm immediately'],1,'The maximum is just below the tropopause; above it the westerlies weaken.'],
  ['Seasons & hemispheres','Jets are stronger and closer to the equator in:',['The summer hemisphere','The winter hemisphere','Both equally all year','Only the NH'],1,'Larger pole–equator temperature contrast in winter.'],
@@ -708,12 +708,12 @@ const QZ=[
  ['Seasons & hemispheres','Over the equatorial Atlantic in Dec–Mar, the upper flow is typically:',['Westerly (“westerly duct”)','Strong easterly jet','Northerly','Calm all year'],0,'Light-to-moderate westerlies aloft in the NH winter — helps northbound to Europe.'],
  ['Brazil–USA','On average at FL390, SBGR → Miami northbound has:',['A small mean headwind (≈0 to −14 kt)','A strong tailwind all year','A 60 kt mean headwind','No wind ever'],0,'Mean ≈ −5 kt over the year; near zero in Dec–Feb, worst in May.'],
  ['Brazil–USA','Which month is typically worst for SBGR → USA northbound headwind?',['January','May','August','October'],1,'SH jet already strong over southern Brazil while the NH jet is still present.'],
- ['Brazil–USA','Which USA route has the largest mean northbound headwind?',['SBGR–KMIA','SBGR–KTEB','SBGR–KVNY','All equal'],2,'Course ~310° — westerlies at both ends are nearly on the nose; ≈ −11 kt mean, −20 kt in May.'],
+ ['Brazil–USA','Which USA route has the largest mean northbound headwind?',['SBGR–KMIA','SBGR–KTEB','SBGR–KVNY','All equal'],2,'Course ~310° — westerlies at both ends are largely on the nose; ≈ −11 kt mean, −20 kt in May.'],
  ['Brazil–USA','In Dec–Feb, the headwind on SBGR → Teterboro is concentrated:',['Near São Paulo','Over the Amazon','On the last third (Caribbean – US East Coast)','Uniformly'],2,'NH winter jets over the Atlantic seaboard; central Brazil even gives a tailwind.'],
- ['Brazil–USA','The SBGR → Van Nuys great circle crosses which terrain hazard?',['The Andes near Colombia/Ecuador','The Alps','The Rockies at 50°N','None'],0,'Mountain waves / CAT when a jet crosses the ridge.'],
+ ['Brazil–USA','The SBGR → Van Nuys great circle crosses which terrain hazard?',['The Andes in southern Colombia','The Alps','The Rockies at 50°N','None'],0,'Mountain waves / CAT when a jet crosses the ridge.'],
  ['Brazil–USA','Southbound USA → Brazil, the mean wind is usually:',['A small tailwind','A large headwind','Always calm','A pure crosswind'],0,'Mirror image of northbound.'],
  ['Brazil–Europe','SBGR → Paris northbound, the mean component at FL390 is:',['A tailwind all year (≈ +8 to +19 kt)','A headwind all year','Zero','A tailwind only in July'],0,'Course ~030° — westerlies at both ends help.'],
- ['Brazil–Europe','Northbound to Europe, the tailwind is weakest in:',['Jan–Mar','Jun–Sep','Nov','It never changes'],1,'Easterlies aloft near the equator and a weak, northern NH jet.'],
+ ['Brazil–Europe','Northbound to Europe, the tailwind is weakest in:',['Jan–Mar','Jul–Sep','Nov','It never changes'],1,'Easterlies aloft near the equator and a weak, northern NH jet.'],
  ['Brazil–Europe','Southbound Europe → Brazil in winter/spring, expect:',['Mean headwind ≈ −15 to −20 kt','Mean tailwind ≈ +20 kt','Calm','Only crosswind'],0,'Mirror of the northbound tailwind.'],
  ['Brazil–Europe','In Jun–Aug the headwind segment northbound to Europe is:',['Near SBGR','Near the equator (0–10°N)','Over France','Over the Canaries'],1,'Tropical easterlies aloft (West African monsoon, TEJ tail).'],
  ['Calculations','Course 030°, wind 270°/80 kt. The along-track component is about:',['40 kt tailwind','80 kt headwind','69 kt tailwind','40 kt headwind'],0,'Angle 120° → 80 × cos120 = −40 → 40 kt tailwind (and 69 kt crosswind from the left).'],
