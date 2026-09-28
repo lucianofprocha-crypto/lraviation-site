@@ -94,6 +94,20 @@
   #resetbtn{background:var(--accent); color:#fff;}
   .footer{text-align:center; font-size:11px; color:var(--gray); margin-top:20px; line-height:1.7;}
   .footer a{color:var(--accent);}
+  #pdfview{position:fixed; inset:0; z-index:50; background:#2a2f38; display:none;
+    flex-direction:column;}
+  #pdfview.open{display:flex;}
+  #pdfbar{flex:none; display:flex; align-items:center; gap:12px; padding:10px 14px;
+    background:var(--navy); color:#fff;}
+  #pdfbar b{font-size:13.5px; flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis;
+    white-space:nowrap;}
+  #pdfclose{border:none; background:#e8a33d; color:#1B2A4A; font-weight:800; font-size:14px;
+    border-radius:8px; padding:8px 16px; cursor:pointer; flex:none;}
+  #pdfpages{flex:1; overflow:auto; -webkit-overflow-scrolling:touch; padding:12px;
+    text-align:center;}
+  #pdfpages canvas{display:block; margin:0 auto 12px; max-width:100%; height:auto;
+    background:#fff; box-shadow:0 3px 12px rgba(0,0,0,.4); border-radius:3px;}
+  #pdfstatus{color:#cfd6e0; font-size:13px; padding:20px;}
 </style>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#1B2A4A">
@@ -169,19 +183,19 @@
       <p style="margin:10px 0 8px" class="refnote">Per the official NAT OPS Bulletin Checklist issued
         18 September 2026. Tap to open — the PDFs ship with the app and work offline.<!--BULNOTE--></p>
       <table class="ref">
-        <tr><td><a href="bulletins/checklist-2026-09-18.pdf" target="_blank">Checklist</a></td>
+        <tr><td><a href="bulletins/checklist-2026-09-18.pdf" onclick="openPDF('bulletins/checklist-2026-09-18.pdf', 'Checklist'); return false">Checklist</a></td>
             <td>Current bulletin list — issued 18 SEP 2026</td></tr>
-        <tr><td><a href="bulletins/2017-004-r2.pdf" target="_blank">2017-004 R2</a></td>
+        <tr><td><a href="bulletins/2017-004-r2.pdf" onclick="openPDF('bulletins/2017-004-r2.pdf', '2017-004 R2'); return false">2017-004 R2</a></td>
             <td>NAT Data Link Special Emphasis Items</td></tr>
-        <tr><td><a href="bulletins/2019-003-r5.pdf" target="_blank">2019-003 R5</a></td>
+        <tr><td><a href="bulletins/2019-003-r5.pdf" onclick="openPDF('bulletins/2019-003-r5.pdf', '2019-003 R5'); return false">2019-003 R5</a></td>
             <td>Data Link Performance Improvement Options</td></tr>
-        <tr><td><a href="bulletins/2023-001-r6.pdf" target="_blank">2023-001 R6</a></td>
+        <tr><td><a href="bulletins/2023-001-r6.pdf" onclick="openPDF('bulletins/2023-001-r6.pdf', '2023-001 R6'); return false">2023-001 R6</a></td>
             <td>NAT Oceanic Clearance Removal (25 FEB 2026)</td></tr>
-        <tr><td><a href="bulletins/2024-001.pdf" target="_blank">2024-001</a></td>
+        <tr><td><a href="bulletins/2024-001.pdf" onclick="openPDF('bulletins/2024-001.pdf', '2024-001'); return false">2024-001</a></td>
             <td>PBCS Tracks</td></tr>
-        <tr><td><a href="bulletins/2025-001.pdf" target="_blank">2025-001</a></td>
+        <tr><td><a href="bulletins/2025-001.pdf" onclick="openPDF('bulletins/2025-001.pdf', '2025-001'); return false">2025-001</a></td>
             <td>NAT GNSS Interference Procedures</td></tr>
-        <tr><td><a href="bulletins/2026-001-oesb.pdf" target="_blank">2026-001</a></td>
+        <tr><td><a href="bulletins/2026-001-oesb.pdf" onclick="openPDF('bulletins/2026-001-oesb.pdf', '2026-001'); return false">2026-001</a></td>
             <td>OESB — Oceanic Errors Safety Bulletin (18 SEP 2026)</td></tr>
       </table>
       <p class="refnote" style="margin-top:8px">Official source for currency:
@@ -193,22 +207,21 @@
 
   <div class="card">
     <h2>Weather avoidance</h2>
-    <svg class="diagram" viewBox="0 0 720 260" xmlns="http://www.w3.org/2000/svg" aria-label="Weather avoidance diagram">
+    <p style="margin:4px 0 8px; padding:8px 12px; background:var(--amber-bg); border-left:3px solid var(--amber-line); border-radius:0 8px 8px 0; font-size:13px">
+      <b>Any deviation requires an ATC clearance — request FIRST:</b> CPDLC lateral-deviation downlink or
+      voice "WEATHER DEVIATION REQUIRED" (priority) · "PAN PAN" if needed. The rules below apply ONLY while
+      a clearance cannot be obtained (NAT Doc 007 §10.4.6).</p>
+    <svg class="diagram" viewBox="0 0 720 260" xmlns="http://www.w3.org/2000/svg" aria-label="Weather deviation diagram">
       <rect x="0" y="0" width="720" height="260" fill="#f9fbfd"/>
-      <!-- corredor ±10 NM -->
-      <rect x="0" y="85" width="720" height="90" fill="#eef3f8"/>
-      <line x1="0" y1="85" x2="720" y2="85" stroke="#9db1c7" stroke-width="1.5" stroke-dasharray="6 5"/>
-      <line x1="0" y1="175" x2="720" y2="175" stroke="#9db1c7" stroke-width="1.5" stroke-dasharray="6 5"/>
-      <text x="8" y="79" font-size="11" fill="#7b8ba0">10 NM</text>
-      <text x="8" y="190" font-size="11" fill="#7b8ba0">10 NM</text>
-      <text x="672" y="20" font-size="12" font-weight="700" fill="#5b5f66">NORTH</text>
-      <text x="672" y="252" font-size="12" font-weight="700" fill="#5b5f66">SOUTH</text>
-      <!-- track -->
+      <rect x="0" y="90" width="720" height="80" fill="#eef3f8"/>
+      <line x1="0" y1="90" x2="720" y2="90" stroke="#9db1c7" stroke-width="1.5" stroke-dasharray="6 5"/>
+      <line x1="0" y1="170" x2="720" y2="170" stroke="#9db1c7" stroke-width="1.5" stroke-dasharray="6 5"/>
+      <text x="8" y="84" font-size="11" fill="#7b8ba0">5 NM</text>
+      <text x="8" y="185" font-size="11" fill="#7b8ba0">5 NM</text>
       <line x1="20" y1="130" x2="700" y2="130" stroke="#1B2A4A" stroke-width="3"/>
       <path d="M60 122 L74 130 L60 138 Z" fill="#1B2A4A"/>
       <path d="M660 122 L674 130 L660 138 Z" fill="#1B2A4A"/>
-      <text x="84" y="147" font-size="11.5" fill="#1B2A4A" font-weight="700">CLEARED TRACK</text>
-      <!-- CB -->
+      <text x="84" y="147" font-size="11.5" fill="#1B2A4A" font-weight="700">CLEARED TRACK — DIRECTION OF FLIGHT →</text>
       <g transform="translate(430 130)">
         <circle cx="-16" cy="-4" r="17" fill="#aab6c6"/>
         <circle cx="6" cy="-12" r="21" fill="#98a6b9"/>
@@ -217,22 +230,24 @@
         <path d="M2 12 L-6 30 L2 28 L-4 46" stroke="#E8A33D" stroke-width="3.5" fill="none" stroke-linecap="round"/>
         <text x="-14" y="-24" font-size="11" font-weight="800" fill="#5b5f66">CB</text>
       </g>
-      <!-- desvio norte -->
       <path d="M240 130 C 300 130, 320 40, 430 40 C 540 40, 560 130, 620 130"
         fill="none" stroke="#0B5A8A" stroke-width="3" stroke-dasharray="9 6"/>
       <path d="M310 74 L322 62 L324 78 Z" fill="#0B5A8A"/>
       <g font-size="12" font-weight="800" fill="#0B5A8A">
-        <text x="360" y="26">&gt;10 NM NORTH → DESCEND 300 ft ▼</text>
+        <text x="330" y="26">LEFT of track ≥5 NM → DESCEND 300 ft ▼</text>
       </g>
-      <!-- desvio sul -->
       <path d="M240 130 C 300 130, 320 220, 430 220 C 540 220, 560 130, 620 130"
         fill="none" stroke="#7fa8c4" stroke-width="2.5" stroke-dasharray="6 6"/>
       <g font-size="12" font-weight="800" fill="#4d7fa0">
-        <text x="372" y="244">&gt;10 NM SOUTH → CLIMB 300 ft ▲</text>
+        <text x="336" y="246">RIGHT of track ≥5 NM → CLIMB 300 ft ▲</text>
       </g>
-      <text x="126" y="112" font-size="11.5" font-weight="700" fill="#5b5f66">≤10 NM: maintain cleared altitude</text>
+      <text x="120" y="112" font-size="11.5" font-weight="700" fill="#5b5f66">&lt;5 NM: keep the ATC-assigned level</text>
     </svg>
-    <div class="refnote">Deviation ≤ 10 NM: maintain cleared altitude · &gt; 10 NM north of track: descend 300 ft · &gt; 10 NM south of track: climb 300 ft. Advise ATC as soon as possible.</div>
+    <div class="refnote">Without clearance (§10.4.6): deviate away from the OTS if possible · broadcast callsign,
+      FL, position and intentions on the frequency in use and 121.5 (backup 123.45), lights ON, watch ACAS ·
+      &lt;5 NM: keep assigned level · crossing ≈5 NM: LEFT descend 300 ft / RIGHT climb 300 ft (Table 13-1) ·
+      cleared to a distance and need more: apply the ±300 ft BEFORE exceeding it · returning: be at the assigned
+      level within 5 NM of the centreline · keep trying to get the clearance. (V.2025-1.1)</div>
   </div>
 
   <div class="card cont">
@@ -299,6 +314,12 @@
 
 </div>
 
+<div id="pdfview" role="dialog" aria-modal="true">
+  <div id="pdfbar"><b id="pdftitle"></b><button id="pdfclose" onclick="closePDF()">✕ Close</button></div>
+  <div id="pdfpages"><div id="pdfstatus"></div></div>
+</div>
+
+<script src="pdf.min.js"></script>
 <script src="jspdf.umd.min.js"></script>
 <script src="jspdf.plugin.autotable.min.js"></script>
 <script src="oceanic_data.js"></script>
@@ -388,7 +409,7 @@ function growAll(){
 }
 function autoGrow(t){
   t.style.height = 'auto';
-  t.style.height = Math.min(t.scrollHeight + 2, 340) + 'px';
+  t.style.height = (t.scrollHeight + 2) + 'px';
 }
 
 function refresh(){
@@ -506,6 +527,55 @@ function exportPDF(){
     doc.text('Generated by LR Aviation FlightOps Companion - page ' + p + '/' + pages, 14, 291);
   }
   doc.save('oceanic_crossing_' + (h.date || new Date().toISOString().slice(0, 10)) + '.pdf');
+}
+
+var pdfTask = 0;
+function openPDF(url, title){
+  var view = document.getElementById('pdfview');
+  var pages = document.getElementById('pdfpages');
+  document.getElementById('pdftitle').textContent = title;
+  pages.innerHTML = '<div id="pdfstatus">Loading…</div>';
+  view.className = 'open';
+  document.body.style.overflow = 'hidden';
+  if (!window.pdfjsLib){
+    document.getElementById('pdfstatus').textContent = 'PDF viewer not loaded — open once online.';
+    return;
+  }
+  pdfjsLib.GlobalWorkerOptions.workerSrc = 'pdf.worker.min.js';
+  var myTask = ++pdfTask;
+  pdfjsLib.getDocument(url).promise.then(function(doc){
+    if (myTask !== pdfTask) return;
+    pages.innerHTML = '';
+    var width = Math.min(pages.clientWidth - 24, 900);
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    var chain = Promise.resolve();
+    for (var p = 1; p <= doc.numPages; p++){
+      (function(pn){
+        chain = chain.then(function(){
+          return doc.getPage(pn).then(function(page){
+            if (myTask !== pdfTask) return;
+            var vp1 = page.getViewport({scale: 1});
+            var scale = width / vp1.width;
+            var vp = page.getViewport({scale: scale * dpr});
+            var c = document.createElement('canvas');
+            c.width = vp.width; c.height = vp.height;
+            c.style.width = Math.round(vp.width / dpr) + 'px';
+            pages.appendChild(c);
+            return page.render({canvasContext: c.getContext('2d'), viewport: vp}).promise;
+          });
+        });
+      })(p);
+    }
+  }).catch(function(e){
+    var st = document.getElementById('pdfstatus');
+    if (st) st.textContent = 'Could not open the PDF (' + e.message + ') — in the Claude preview the bulletin files are not included; on the published site they open normally.';
+  });
+}
+function closePDF(){
+  pdfTask++;
+  document.getElementById('pdfview').className = '';
+  document.getElementById('pdfpages').innerHTML = '';
+  document.body.style.overflow = '';
 }
 
 function newCrossing(){
