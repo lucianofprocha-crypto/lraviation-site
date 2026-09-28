@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="SIGW 101">
+<meta name="theme-color" content="#0E5E5A">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-180.png">
+<title>SIGW 101</title>
+<style>
+:root{
+  --navy:#1B2A4A; --accent:#0E6E69; --gray:#5b5f66; --line:#e2e5ea;
+  --bg:#f5f7fa; --card:#ffffff; --amber:#E8A33D; --amber-dk:#8a4f00; --amber-bg:#fdf3e3;
+  --green:#1b7a3d; --green-bg:#e7f5ec; --red:#b71c1c; --red-bg:#fdeceb;
+  --soft:#f7f9fb; --ink:#1c1f24; --blue-bg:#eaf5f4; --blue-line:#c6e3e0; --mark:#fff0a8;
+  --map:#fbfcfd; --grid:#dfe4ea;
+  --jet:#1f5fbf; --cb:#c62828; --turb:#d97a00; --ice:#0f8a8a; --trop:#7a4fb5; --haz:#6b3a1f;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --navy:#cfe0f5; --accent:#56c2ba; --gray:#9aa3ad; --line:#2c333d;
+    --bg:#12161c; --card:#1a2029; --amber-dk:#f0b860; --amber-bg:#2e2515;
+    --green:#5fcf8a; --green-bg:#15291d; --red:#ff8a80; --red-bg:#2e1716;
+    --soft:#20262f; --ink:#e6e9ee; --blue-bg:#15272a; --blue-line:#23484a; --mark:#5a4a00;
+    --map:#161b22; --grid:#2a313b;
+    --jet:#6ea8ff; --cb:#ff7b72; --turb:#ffb454; --ice:#4fd1c5; --trop:#b99cf0; --haz:#d9a47a;
+  }
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+html,body{overscroll-behavior-y:none;}
+body{margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; background:var(--bg); color:var(--ink);
+  padding:calc(18px + env(safe-area-inset-top)) 16px calc(60px + env(safe-area-inset-bottom));}
+.wrap{max-width:1200px; margin:0 auto;}
+.header{text-align:center; margin-bottom:12px;}
+.header h1{font-size:22px; margin:0 0 4px; color:var(--navy);}
+.header p{font-size:13px; color:var(--gray); margin:0;}
+.tabs{display:flex; gap:6px; background:var(--soft); border:1px solid var(--line); padding:4px; border-radius:10px; margin:0 auto 16px; max-width:760px; position:sticky; top:calc(6px + env(safe-area-inset-top)); z-index:5; overflow-x:auto;}
+.tabs button{flex:1; border:none; background:none; padding:10px 8px; border-radius:7px; font:600 14px -apple-system,sans-serif; color:var(--gray); cursor:pointer; white-space:nowrap;}
+.tabs button.on{background:var(--card); color:var(--navy); box-shadow:0 1px 3px rgba(0,0,0,.12);}
+.view{display:none;} .view.on{display:block;}
+.card{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px 18px; margin-bottom:14px;}
+.card h2{font-size:13.5px; text-transform:uppercase; letter-spacing:.04em; color:var(--accent); margin:0 0 10px; display:flex; gap:10px; align-items:center; flex-wrap:wrap;}
+.card h2 .r{margin-left:auto; text-transform:none; letter-spacing:0; font-weight:600; color:var(--gray); font-size:12px;}
+.card h3{font-size:14px; margin:14px 0 6px; color:var(--navy); text-transform:uppercase; letter-spacing:.03em;}
+.card p, .card li{font-size:14.5px; line-height:1.5;}
+.card p{margin:6px 0;}
+.card ul, .card ol{margin:6px 0; padding-left:22px;}
+.muted{color:var(--gray); font-size:12.5px;}
+.btn{border:none; background:var(--accent); color:#fff; font:700 14px -apple-system,sans-serif; padding:11px 16px; border-radius:8px; cursor:pointer;}
+.btn.sec{background:var(--soft); color:var(--accent); border:1px solid var(--line);}
+.btn:disabled{opacity:.45;}
+.row{display:flex; gap:10px; flex-wrap:wrap; align-items:center;}
+.chips{display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px;}
+.chip{border:1px solid var(--line); background:var(--card); color:var(--gray); border-radius:999px; padding:7px 13px; font:600 13px -apple-system,sans-serif; cursor:pointer;}
+.chip.on{background:var(--accent); border-color:var(--accent); color:#fff;}
+input.search{width:100%; font:500 16px -apple-system,sans-serif; padding:10px 12px; border-radius:9px; border:1px solid var(--line); background:var(--card); color:var(--ink); margin-bottom:10px;}
+mark{background:var(--mark); color:inherit; border-radius:3px; padding:0 1px;}
+.tag{display:inline-block; font-size:11px; font-weight:800; border-radius:5px; padding:2px 6px; margin-right:4px; vertical-align:middle;}
+.t-swh{background:var(--blue-bg); color:var(--accent); border:1px solid var(--blue-line);}
+.t-swm{background:var(--amber-bg); color:var(--amber-dk);}
+.t-reg{background:var(--soft); color:var(--gray); border:1px solid var(--line);}
+.t-new{background:var(--green-bg); color:var(--green);}
+.t-old{background:var(--red-bg); color:var(--red);}
+
+/* legend */
+.jgrid{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:14px; align-items:start;}
+@media (max-width:900px){ .jgrid{grid-template-columns:1fr;} }
+.jfig{background:var(--map); border:1px solid var(--line); border-radius:12px; overflow:hidden;}
+.jfig svg{display:block; width:100%; height:auto;}
+.jkey{display:flex; gap:14px; flex-wrap:wrap; font-size:13px; margin-top:8px;}
+.jkey span{display:inline-flex; align-items:center; gap:6px;}
+.jkey i{display:inline-block; width:26px; height:5px; border-radius:3px;}
+.lgrid{display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:12px;}
+.lg{display:flex; gap:12px; background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px;}
+.lg .sym{flex:none; width:96px; height:64px; border-radius:8px; background:var(--map); border:1px solid var(--line); display:flex; align-items:center; justify-content:center; color:var(--ink);}
+.lg .sym svg{width:90px; height:60px;}
+.lg b{font-size:14.5px; color:var(--navy);}
+.lg p{margin:4px 0 0; font-size:13.5px; line-height:1.45;}
+.lg .ex{font-family:ui-monospace,Menlo,monospace; font-size:12.5px; background:var(--soft); border-radius:5px; padding:1px 5px;}
+.cat-h{font-size:13px; text-transform:uppercase; letter-spacing:.05em; color:var(--gray); margin:18px 0 8px; font-weight:800;}
+
+/* steps */
+.step{display:flex; gap:12px; margin:10px 0;}
+.step{border-radius:10px; padding:6px; cursor:pointer; transition:background .2s;}
+.step.on{background:var(--blue-bg); outline:1px solid var(--blue-line);}
+#rmap .mk{cursor:pointer;}
+#rmap .mk.on circle{fill:var(--amber); }
+#rmap .f.dim{opacity:.25;}
+#rmap text{paint-order:stroke; stroke:var(--map); stroke-width:4px; stroke-linejoin:round;}
+#rmap .mk text{stroke:none;}
+#rmap g[data-k=hdr] text, #rmap g[data-k=box] text{stroke:var(--card);}
+.step .n{flex:none; width:30px; height:30px; border-radius:50%; background:var(--accent); color:#fff; font-weight:800; display:flex; align-items:center; justify-content:center;}
+.step div p{margin:2px 0;}
+table.t{border-collapse:collapse; width:100%; font-size:13.5px;}
+table.t th, table.t td{border:1px solid var(--line); padding:7px 9px; text-align:left; vertical-align:top;}
+table.t th{background:var(--soft); color:var(--navy);}
+.note{background:var(--amber-bg); border-left:4px solid var(--amber); border-radius:6px; padding:9px 12px; font-size:13.5px; line-height:1.45; margin:10px 0;}
+.info{background:var(--blue-bg); border:1px solid var(--blue-line); border-radius:8px; padding:9px 12px; font-size:13.5px; line-height:1.45; margin:10px 0;}
+
+/* chart */
+.cgrid{display:grid; grid-template-columns:minmax(0,1fr) 320px; gap:14px; align-items:start;}
+@media (max-width:900px){ .cgrid{grid-template-columns:1fr;} }
+.mapbox{background:var(--map); border:1px solid var(--line); border-radius:12px; overflow:hidden; touch-action:manipulation;}
+.mapbox svg{display:block; width:100%; height:auto;}
+.f{cursor:pointer;}
+#map text{paint-order:stroke; stroke:var(--map); stroke-width:4px; stroke-linejoin:round;}
+#map g[data-k=hdr] text, #map g[data-k=box] text{stroke:var(--card);}
+.f .hit{stroke:transparent; fill:none; stroke-width:26; pointer-events:stroke;}
+.f .hitf{fill:transparent; stroke:none;}
+.f.sel > *:not(.hit):not(.hitf){filter:drop-shadow(0 0 4px var(--accent));}
+.flist{list-style:none; padding:0; margin:8px 0 0;}
+.flist li{padding:8px 9px; border-radius:8px; cursor:pointer; font-size:14px;}
+.flist li.on{background:var(--blue-bg); color:var(--navy); font-weight:700;}
+#fx h4{margin:0 0 6px; font-size:16px; color:var(--navy);}
+#fx p{font-size:14px; line-height:1.5; margin:5px 0;}
+
+/* quiz */
+.opt{display:block; width:100%; text-align:left; border:1px solid var(--line); background:var(--card); color:var(--ink); border-radius:9px; padding:12px 14px; font:500 15px -apple-system,sans-serif; margin:7px 0; cursor:pointer;}
+.opt.ok{background:var(--green-bg); border-color:var(--green); color:var(--green); font-weight:700;}
+.opt.bad{background:var(--red-bg); border-color:var(--red); color:var(--red);}
+.qq{font-size:17px; font-weight:700; color:var(--navy); line-height:1.4; margin:4px 0 8px;}
+.prog{height:6px; background:var(--soft); border-radius:3px; overflow:hidden; margin:8px 0;}
+.prog i{display:block; height:100%; background:var(--accent);}
+.bars .b{display:flex; align-items:center; gap:10px; font-size:13.5px; margin:5px 0;}
+.bars .b span:first-child{width:130px;}
+.bars .b .bar{flex:1; height:8px; background:var(--soft); border-radius:4px; overflow:hidden;}
+.bars .b .bar i{display:block; height:100%; background:var(--accent);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <h1>SIGW 101</h1>
+    <p>WAFS significant weather charts — high level (SWH) &amp; medium level (SWM) · offline study</p>
+    <p class="appver" style="font-size:11.5px;margin-top:3px;opacity:.85">v1 · 28/09/2026</p>
+  </div>
+  <div class="tabs" id="tabs">
+    <button data-v="read" class="on">How to read</button>
+    <button data-v="legend">Legend</button>
+    <button data-v="chart">Practice chart</button>
+    <button data-v="jets">Jet patterns</button>
+    <button data-v="changes">2025 changes</button>
+    <button data-v="quiz">Quiz</button>
+  </div>
+
+  <!-- HOW TO READ -->
+  <section class="view on" id="v-read">
+    <div class="card">
+      <h2>What a SIGWX chart is</h2>
+      <p>A <b>fixed-time</b> forecast of significant en-route weather produced by the two World Area Forecast Centres (WAFC London and WAFC Washington). It is a <b>snapshot for the validity time</b> printed on the chart, not a forecast for a period. Legacy T+24 charts are issued for 00, 06, 12 and 18 UTC. ICAO: the forecast may be used from <b>3 h before to 3 h after</b> the validity time.</p>
+      <table class="t">
+        <tr><th>Chart</th><th>Layer</th><th>Main content</th></tr>
+        <tr><td><span class="tag t-swh">SWH</span> High level</td><td>FL250 – FL600 <span class="muted">(FL630 before Jan 2025)</span></td><td>Jet streams, CB (OCNL/FRQ), MOD/SEV turbulence, tropopause, volcanoes, radioactive release, tropical cyclones</td></tr>
+        <tr><td><span class="tag t-swm">SWM</span> Medium level</td><td>FL100 – FL450</td><td>As SWH plus MOD/SEV icing areas; regional versions may add fronts, freezing level, sandstorm etc.</td></tr>
+      </table>
+      <div class="info">Heights are <b>flight levels</b> (hundreds of feet), speeds in <b>knots</b>. <span class="ex" style="font-family:ui-monospace,Menlo,monospace">XXX</span> = the level is outside the chart's layer (above the top or below the base). Only <b>moderate and severe</b> phenomena are shown — light turbulence or icing never appears.</div>
+    </div>
+
+    <div class="card">
+      <h2>Reading method — where to look</h2>
+      <p class="muted">Tap a number on the chart or a step below — the matching area is highlighted. Practice SWH chart, invented data.</p>
+      <div class="mapbox" id="rmap" style="margin:8px 0 14px"></div>
+      <div class="step" data-s="1" id="st1"><div class="n">1</div><div><p><b>Header box.</b> Check the chart type (SWH/SWM), the layer (e.g. FL250–600), the <b>validity date/time</b> and the issuing WAFC. A chart may be used from <b>3 h before to 3 h after</b> its validity time — use the chart whose validity is closest to the time you are over each part of the route.</p></div></div>
+      <div class="step" data-s="2" id="st2"><div class="n">2</div><div><p><b>Standing notes.</b> Read the fixed text: units, and the note that <b>“CB implies TS, GR (hail), moderate or severe turbulence and icing”</b> — those hazards are therefore not drawn separately around CB areas. Also “CHECK SIGMET, ADVISORIES FOR TC AND VA, AND ASHTAM AND NOTAM FOR VA” and, when a radioactive release is shown, “CHECK SIGMET AND NOTAM FOR RDOACT CLD”.</p></div></div>
+      <div class="step" data-s="3" id="st3"><div class="n">3</div><div><p><b>Jet streams.</b> Thick arrowed lines where wind ≥ 80 kt. At the wind flag read the <b>maximum speed</b> and its <b>FL</b>; if ≥ 120 kt a pair of levels gives the depth of the ≥ 80 kt layer. Double bars across the jet (change bars) mark a speed change of 20 kt or a core-height change of 3,000 ft. Read the direction from the <b>arrowhead</b> — jets are not always westerly. Flags sit on the <b>left</b> of the core looking downwind in the NH, on the <b>right</b> in the SH. Think headwind/tailwind and CAT.</p></div></div>
+      <div class="step" data-s="4" id="st4"><div class="n">4</div><div><p><b>Cumulonimbus.</b> Scalloped outlines labelled with amount (OCNL / FRQ) and <b>top over base</b> (e.g. 470 over XXX). Compare the top with your cruise level — an aircraft at FL450 does not overfly a CB area topping FL470.</p></div></div>
+      <div class="step" data-s="5" id="st5"><div class="n">5</div><div><p><b>Turbulence.</b> Heavy dashed outlines, usually numbered, with the symbol (single hat = MOD, double hat = SEV) and <b>top/base</b>. Since 2025 this covers CAT, in-cloud and orographic turbulence (EDR-based).</p></div></div>
+      <div class="step" data-s="6" id="st6"><div class="n">6</div><div><p><b>Icing (SWM).</b> <span class="muted">(not on this SWH chart)</span> MOD/SEV icing areas with top/base — relevant for climb and descent through FL100–FL250.</p></div></div>
+      <div class="step" data-s="7" id="st7"><div class="n">7</div><div><p><b>Tropopause.</b> Thin dashed contours labelled FL (e.g. FL300). Low tropopause = colder air mass, often with jets and CAT nearby; tropopause breaks and steep slopes are CAT areas.</p></div></div>
+      <div class="step" data-s="8" id="st8"><div class="n">8</div><div><p><b>Other hazards.</b> Volcano (name + position), radioactive release, tropical cyclone (name), sandstorm/duststorm. SIGWX only shows the location — get details from VA advisories, SIGMET, NOTAM and TC advisories.</p></div></div>
+    </div>
+
+
+    <div class="card">
+      <h2>Sources</h2>
+      <p class="muted">ICAO Annex 3, Appendix 1 (Model SN — symbols and notations; model SWH/SWM charts) · Met Office “Guidelines for interpreting WAFC SIGWX forecasts” · UK CAA AIC P 168/2024 “Changes to ICAO upper-air SIGWX forecasts” (replaces P 131/2024) · ICAO WAFS transition briefings 2025. The practice chart is invented for training and is not a real forecast. Line colours in this app are for study only — identify features by line style and label.</p>
+      <div class="note"><b>For study only — not for operational use.</b> Always use the official forecasts, SIGMETs and advisories issued for your flight. © LR Aviation · lraviation.com.br</div>
+    </div>
+  </section>
+
+  <!-- LEGEND -->
+  <section class="view" id="v-legend">
+    <input class="search" id="lsearch" placeholder="Search symbols (e.g. jet, CB, EDR, volcano, XXX)">
+    <div class="chips" id="lchips"></div>
+    <div id="lout"></div>
+  </section>
+
+  <!-- PRACTICE CHART -->
+  <section class="view" id="v-chart">
+    <div class="cgrid">
+      <div>
+        <div class="mapbox" id="map"></div>
+        <p class="muted" style="margin-top:6px">Invented practice data — not a real forecast. Tap any feature on the chart.</p>
+      </div>
+      <div>
+        <div class="card" id="fx"><h4>Tap a feature</h4><p class="muted">Tap a line, area or symbol on the chart, or pick one from the list below.</p></div>
+        <div class="card"><h2>Features</h2><ul class="flist" id="flist"></ul></div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Chart questions <span class="r" id="cqs"></span></h2>
+      <div id="cq"></div>
+    </div>
+  </section>
+
+  <!-- JET PATTERNS -->
+  <section class="view" id="v-jets">
+    <div class="card">
+      <h2>Jet stream patterns — hemisphere, season, latitude</h2>
+      <div class="chips" id="jseason"></div>
+      <p id="jcap" style="font-size:14.5px; margin:4px 0 10px"></p>
+      <div class="jgrid">
+        <div><div class="jfig" id="jglobe"></div><p class="muted" style="margin-top:6px">Schematic globe — jets drawn on the visible hemisphere. Line thickness = relative strength; dashed = weak / intermittent.</p></div>
+        <div><div class="jfig" id="jsect"></div><p class="muted" style="margin-top:6px">Pole-to-pole cross-section: tropopause (dashed purple) and jet cores just below the tropopause breaks.</p>
+          <div class="jkey"><span><i style="background:var(--jet)"></i>Polar front jet</span><span><i style="background:var(--turb)"></i>Subtropical jet</span><span><i style="background:var(--cb)"></i>Tropical easterly jet</span><span><i style="background:var(--trop); height:2px"></i>Tropopause</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>The main jets</h2>
+      <table class="t">
+        <tr><th>Jet</th><th>Typical latitude</th><th>Typical level</th><th>Direction</th><th>Character</th></tr>
+        <tr><td><b>Polar front jet (PFJ)</b></td><td>~40–60° (30–70°)</td><td>FL300–350</td><td>Westerly</td><td>Strongly meandering, broken into segments; tied to mid-latitude fronts and lows</td></tr>
+        <tr><td><b>Subtropical jet (STJ)</b></td><td>~25–35°</td><td>FL350–400</td><td>Westerly</td><td>More continuous and zonal; poleward edge of the Hadley cell</td></tr>
+        <tr><td><b>Tropical easterly jet (TEJ)</b></td><td>~5–20°N</td><td>FL450–500</td><td><b>Easterly</b></td><td>Northern summer only (Jun–Sep), Asian monsoon: India → Arabia → Africa</td></tr>
+      </table>
+      <div class="info">Both westerly jets sit just below the <b>tropopause breaks</b>: the PFJ between the low polar and the mid-latitude tropopause, the STJ between the mid-latitude and the high tropical tropopause — so the STJ is higher than the PFJ.</div>
+    </div>
+    <div class="card">
+      <h2>Season — both hemispheres</h2>
+      <ul>
+        <li><b>Winter:</b> larger pole–equator temperature contrast → jets <b>stronger</b> (PFJ often 150–200 kt+) and displaced <b>towards the equator</b> (PFJ ~35–45°).</li>
+        <li><b>Summer:</b> jets <b>weaker</b> and shifted <b>poleward</b> (PFJ ~50–60°); in the NH the STJ can almost disappear in places.</li>
+        <li><b>Autumn / spring:</b> transition — strengthening and moving equatorward in autumn, weakening and moving poleward in spring.</li>
+        <li>Rule of thumb: <b>the winter hemisphere has the strongest jets, closest to the equator.</b></li>
+      </ul>
+      <h3>Northern vs southern hemisphere</h3>
+      <ul>
+        <li><b>NH:</b> more land and mountains (Rockies, Himalaya) → jets <b>more wavy and variable</b>. Strongest jets off the east coasts: Japan / W Pacific (STJ can exceed 200 kt in winter) and eastern USA / N Atlantic.</li>
+        <li><b>SH:</b> mostly ocean → jets <b>more zonal</b> and <b>more constant</b> through the year; persistent STJ over Australia, southern Africa and southern Brazil / northern Argentina in winter (~25–35°S).</li>
+        <li>In both hemispheres the cold (poleward) side is the low-pressure side: that is where the flags are drawn (left in NH, right in SH, looking downwind) and where CAT is usually strongest, just below the core.</li>
+      </ul>
+      <h3>Other patterns</h3>
+      <ul>
+        <li><b>Jet merging:</b> where PFJ and STJ come together (Japan, eastern USA) speeds add up — CAT zone.</li>
+        <li><b>Troughs and ridges:</b> the jet follows the waves; in deep troughs it can blow northward, southward or even westward. Sharp curvature = CAT.</li>
+        <li><b>Entrance / exit regions:</b> acceleration and deceleration along the axis (change bars) also produce turbulence.</li>
+        <li><b>Not on SWH:</b> African easterly jet (~FL100–150, northern summer, W Africa), polar night jet (stratosphere, winter, far above FL600), low-level jets.</li>
+      </ul>
+      <div class="note"><b>N Atlantic ops:</b> in winter the N Atlantic PFJ is strong and further south — large tailwind eastbound, strong headwind westbound, NAT tracks move the most. In summer it weakens and moves north; the STJ lies over N Africa and the Mediterranean.</div>
+      <p class="muted">Figures are typical values for study — the actual jet on any day is the one on the chart.</p>
+    </div>
+  </section>
+
+  <!-- CHANGES -->
+  <section class="view" id="v-changes">
+    <div class="card">
+      <h2>WAFS SIGWX changes — effective 23 Jan 2025</h2>
+      <p class="muted">Originally planned for 26 Nov 2024, delayed for technical reasons (UK AIC P 168/2024).</p>
+      <table class="t">
+        <tr><th>Item</th><th>Before</th><th>From 23 Jan 2025</th></tr>
+        <tr><td>SWH layer</td><td>FL250 – FL630</td><td><b>FL250 – FL600</b></td></tr>
+        <tr><td>SWM layer</td><td>FL100 – FL450</td><td>Unchanged</td></tr>
+        <tr><td>Turbulence</td><td>CAT areas only</td><td><b>“Turbulence”</b> areas: CAT + in-cloud + orographic, based on EDR — MOD ≥ 0.20 and &lt; 0.35, SEV ≥ 0.35</td></tr>
+        <tr><td>CB</td><td>ISOL EMBD, OCNL EMBD, FRQ EMBD, OCNL, FRQ</td><td><b>Only OCNL and FRQ CB</b> (&gt; 50 % coverage). Isolated/embedded CB → WAFS gridded CB extent data</td></tr>
+        <tr><td>SWM icing</td><td>Combined in-cloud icing &amp; turbulence areas</td><td><b>MOD and SEV icing only</b>; associated in-cloud turbulence no longer on SWM</td></tr>
+        <tr><td>Tropopause</td><td>Spot heights in boxes (plus H / L boxes)</td><td><b>Thin dashed contours</b> labelled with FL (e.g. FL300)</td></tr>
+        <tr><td>WAFC PNG charts</td><td>Black and white</td><td><b>Colour</b>; icing drawn with a different line style from CB</td></tr>
+        <tr><td>Unchanged</td><td colspan="2">Jet streams, tropopause (as a feature), tropical cyclones, volcanic eruptions, release of radioactive material</td></tr>
+        <tr><td>Issue time</td><td>—</td><td>T+24 charts for 00/06/12/18 UTC, available about 18 h before validity (≈ 1 h earlier than before)</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <h2>New IWXXM SIGWX data</h2>
+      <ul>
+        <li>One global dataset FL100 – FL600 (no separate SWH/SWM).</li>
+        <li>Validity <b>T+6 to T+48 every 3 hours</b> — used by flight planning / EFB systems to draw charts for any of these times.</li>
+        <li>CB base is not included (it was usually “XXX” anyway).</li>
+      </ul>
+      <h3>Timeline</h3>
+      <table class="t">
+        <tr><td><b>23 Jan 2025</b></td><td>Content changes above; IWXXM SIGWX T+6…T+48 available</td></tr>
+        <tr><td><b>Nov 2026</b></td><td>BUFR SIGWX discontinued — IWXXM becomes the only digital format</td></tr>
+        <tr><td><b>Nov 2028</b></td><td>Centrally produced WAFC PNG briefing charts discontinued</td></tr>
+      </table>
+      <div class="note">Charts from your flight-planning provider may be drawn by the provider from WAFS data and can look different (colours, fonts) from WAFC charts. The symbols and labels follow ICAO Annex 3.</div>
+    </div>
+  </section>
+
+  <!-- QUIZ -->
+  <section class="view" id="v-quiz">
+    <div class="card" id="qsetup">
+      <h2>Quiz</h2>
+      <div class="chips" id="qchips"></div>
+      <div class="row">
+        <button class="btn" id="qstart">Start</button>
+        <button class="btn sec" id="qmiss">Review missed (<span id="nmiss">0</span>)</button>
+        <button class="btn sec" id="qreset">Reset progress</button>
+      </div>
+      <h3>Progress by area</h3>
+      <div class="bars" id="qbars"></div>
+    </div>
+    <div class="card" id="qbox" style="display:none"></div>
+  </section>
+</div>
+
+<script>
+/* ---------- helpers ---------- */
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const LS='lrsigwx.v1';
+function load(){try{return JSON.parse(localStorage.getItem(LS))||{}}catch(e){return {}}}
+function save(o){try{localStorage.setItem(LS,JSON.stringify(o))}catch(e){}}
+let ST=load(); ST.q=ST.q||{}; ST.tab=ST.tab||'read';
+
+/* ---------- symbol drawing (viewBox 0 0 90 60, currentColor) ---------- */
+function scallop(x1,y1,x2,y2,r){ // horizontal scalloped segment helper
+  let d=`M${x1} ${y1}`; const n=Math.round((x2-x1)/(2*r)); const w=(x2-x1)/n;
+  for(let i=0;i<n;i++) d+=` a${w/2} ${w/2} 0 0 1 ${w} 0`; return d;
+}
+function scallopPoly(pts,step){ // scalloped closed outline through points (arcs bulge outward for clockwise pts)
+  let d=`M${pts[0][0]} ${pts[0][1]}`;
+  for(let i=0;i<pts.length;i++){
+    const a=pts[i], b=pts[(i+1)%pts.length]; const L=Math.hypot(b[0]-a[0],b[1]-a[1]);
+    const n=Math.max(1,Math.round(L/step)); const dx=(b[0]-a[0])/n, dy=(b[1]-a[1])/n; const r=Math.hypot(dx,dy)/2;
+    for(let k=0;k<n;k++) d+=` a${r.toFixed(1)} ${r.toFixed(1)} 0 0 1 ${dx.toFixed(1)} ${dy.toFixed(1)}`;
+  }
+  return d+'Z';
+}
+function flags(x,y,spd,dir){ // barbs on a horizontal shaft pointing +x (dir=1) ; feathers drawn from tail
+  let s='', p=x, v=spd; const up=-16;
+  while(v>=50){ s+=`<path d="M${p} ${y} L${p} ${y+up} L${p+8} ${y} Z" fill="currentColor"/>`; p+=10; v-=50; }
+  while(v>=10){ s+=`<path d="M${p} ${y} L${p-5} ${y+up}" stroke="currentColor" stroke-width="2"/>`; p+=6; v-=10; }
+  if(v>=5){ s+=`<path d="M${p} ${y} L${p-2.5} ${y+up/2}" stroke="currentColor" stroke-width="2"/>`; }
+  return s;
+}
+function trefoil(cx,cy,r1,r2){
+  let s=`<circle cx="${cx}" cy="${cy}" r="${r1*0.7}" fill="currentColor"/>`;
+  [90,210,330].forEach(a0=>{ const A=d=>(a0-30+d)*Math.PI/180, B=(a0+30)*Math.PI/180;
+    const p=(r,a)=>[(cx+r*Math.cos(a)).toFixed(1),(cy-r*Math.sin(a)).toFixed(1)];
+    const [x1,y1]=p(r1*1.3,A(0)),[x2,y2]=p(r2,A(0)),[x3,y3]=p(r2,B),[x4,y4]=p(r1*1.3,B);
+    s+=`<path d="M${x1} ${y1} L${x2} ${y2} A${r2} ${r2} 0 0 0 ${x3} ${y3} L${x4} ${y4} A${r1*1.3} ${r1*1.3} 0 0 1 ${x1} ${y1}Z" fill="currentColor"/>`;});
+  return s;
+}
+const TURB_M=(x,y,w=1)=>`<path d="M${x-22*w} ${y} H${x-10*w} L${x} ${y-16*w} L${x+10*w} ${y} H${x+22*w}" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/>`;
+const TURB_S=(x,y,w=1)=>TURB_M(x,y,w)+`<path d="M${x-10*w} ${y-8*w} L${x} ${y-24*w} L${x+10*w} ${y-8*w}" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/>`;
+const ICE=(x,y,n,w=1)=>{let s=`<path d="M${x-14*w} ${y-14*w} Q${x-14*w} ${y+10*w} ${x} ${y+10*w} Q${x+14*w} ${y+10*w} ${x+14*w} ${y-14*w}" fill="none" stroke="currentColor" stroke-width="2.4"/>`;
+  const xs=n===2?[-4,4]:[-6,0,6]; xs.forEach(d=>s+=`<path d="M${x+d*w} ${y-16*w} V${y+13*w}" stroke="currentColor" stroke-width="2.4"/>`); return s;};
+const TC=(x,y,k=1)=>`<circle cx="${x}" cy="${y}" r="${6*k}" fill="none" stroke="currentColor" stroke-width="2.6"/><path d="M${x-6*k} ${y} C${x-6*k} ${y-12*k} ${x+2*k} ${y-16*k} ${x+10*k} ${y-14*k} M${x+6*k} ${y} C${x+6*k} ${y+12*k} ${x-2*k} ${y+16*k} ${x-10*k} ${y+14*k}" fill="none" stroke="currentColor" stroke-width="2.6"/>`;
+const VOLC=(x,y,k=1)=>`<path d="M${x-11*k} ${y+10*k} L${x-5*k} ${y-3*k} H${x+5*k} L${x+11*k} ${y+10*k} M${x-11*k} ${y+10*k} H${x-4*k} M${x+4*k} ${y+10*k} H${x+11*k}" fill="none" stroke="currentColor" stroke-width="${2.2*k}" stroke-linejoin="round"/><circle cx="${x}" cy="${y+10*k}" r="${1.8*k}" fill="currentColor"/><path d="M${x} ${y-6*k} V${y-15*k} M${x-2*k} ${y-6*k} L${x-7*k} ${y-13*k} M${x+2*k} ${y-6*k} L${x+7*k} ${y-13*k}" stroke="currentColor" stroke-width="${1.8*k}" stroke-linecap="round"/>`;
+const SV=b=>`<svg viewBox="0 0 90 60" xmlns="http://www.w3.org/2000/svg">${b}</svg>`;
+const T=(x,y,t,sz=11,wt=700,anchor='middle')=>`<text x="${x}" y="${y}" font-size="${sz}" font-weight="${wt}" text-anchor="${anchor}" fill="currentColor" font-family="-apple-system,Helvetica,Arial,sans-serif">${t}</text>`;
+
+const SYM={
+  jet: SV(`<path d="M6 40 Q30 22 52 30 T80 24" fill="none" stroke="currentColor" stroke-width="3.5"/><path d="M84 23 L74 17 L76 29Z" fill="currentColor"/>`),
+  jetflag: SV(`<path d="M4 36 H78" stroke="currentColor" stroke-width="3.5"/><path d="M86 36 L76 30 L76 42Z" fill="currentColor"/>${flags(24,36,140)}${T(45,54,'FL360',10)}`),
+  jetdepth: SV(`<path d="M4 26 H78" stroke="currentColor" stroke-width="3.5"/><path d="M86 26 L76 20 L76 32Z" fill="currentColor"/>${flags(24,26,150).replace(/-16/g,'-14')}${T(45,42,'FL360',10)}${T(45,55,'290/420',10)}`),
+  change: SV(`<path d="M4 32 H78" stroke="currentColor" stroke-width="3.5"/><path d="M86 32 L76 26 L76 38Z" fill="currentColor"/><path d="M38 20 L34 44 M46 20 L42 44" stroke="currentColor" stroke-width="3"/>`),
+  cb: SV(`<path d="${scallopPoly([[14,12],[76,12],[76,48],[14,48]],10)}" fill="none" stroke="currentColor" stroke-width="2"/>${T(45,28,'OCNL CB',10)}${T(45,40,'470',10)}<path d="M36 42 H54" stroke="currentColor" stroke-width="1"/>${T(45,52,'XXX',9)}`),
+  cblabel: SV(`${T(45,17,'FRQ CB',12)}${T(45,33,'520',12)}<path d="M30 36 H60" stroke="currentColor" stroke-width="1.2"/>${T(45,50,'XXX',12)}`),
+  turbarea: SV(`<path d="M10 30 Q12 8 45 10 Q80 12 80 32 Q78 52 45 50 Q10 50 10 30Z" fill="none" stroke="currentColor" stroke-width="3" stroke-dasharray="8 5"/><rect x="36" y="20" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6"/>${T(45,34,'3',12)}`),
+  turbm: SV(TURB_M(45,40)),
+  turbs: SV(TURB_S(45,44)),
+  turbbox: SV(`<rect x="4" y="12" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5"/>${T(12,25,'3',11)}${TURB_M(42,34,0.7)}${T(72,24,'380',11)}<path d="M62 28 H82" stroke="currentColor"/>${T(72,41,'280',11)}`),
+  icem: SV(ICE(45,30,2)),
+  ices: SV(ICE(45,30,3)),
+  icearea: SV(`<path d="M10 30 Q12 8 45 10 Q80 12 80 32 Q78 52 45 50 Q10 50 10 30Z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-dasharray="2 4" stroke-linecap="round"/>${ICE(34,30,2,0.6)}${T(60,26,'180',10)}<path d="M50 29 H70" stroke="currentColor"/>${T(60,40,'100',10)}`),
+  tropc: SV(`<path d="M4 38 Q30 20 50 30 T86 22" fill="none" stroke="currentColor" stroke-width="1.4" stroke-dasharray="5 4"/><rect x="28" y="12" width="34" height="14" fill="var(--map)"/>${T(45,23,'FL300',11)}`),
+  tropspot: SV(`<rect x="27" y="18" width="36" height="22" fill="none" stroke="currentColor" stroke-width="1.6"/>${T(45,34,'340',13)}`),
+  troph: SV(`<path d="M25 44 V24 L45 12 L65 24 V44Z" fill="none" stroke="currentColor" stroke-width="1.6"/>${T(45,30,'H',10)}${T(45,42,'450',11)}`),
+  tropl: SV(`<path d="M25 14 V36 L45 48 L65 36 V14Z" fill="none" stroke="currentColor" stroke-width="1.6"/>${T(45,26,'L',10)}${T(45,38,'290',11)}`),
+  tropcb: SV(`<path d="M4 30 H86" stroke="currentColor" stroke-width="1.4" stroke-dasharray="5 4"/><path d="M22 58 V34 Q22 26 30 26 Q34 14 45 12 Q56 14 60 26 Q68 26 68 34 V58" fill="none" stroke="currentColor" stroke-width="2"/><path d="M45 6 V20" stroke="currentColor" stroke-width="1.6"/><path d="M45 3 L41 9 H49Z" fill="currentColor"/>${T(76,26,'TROP',8)}`),
+  tc: SV(TC(45,30,1.3)),
+  tcsh: SV(`<g transform="translate(90,0) scale(-1,1)">${TC(45,30,1.3)}</g>`),
+  jeteast: SV(`<g transform="rotate(180 45 22)"><path d="M4 22 H78" stroke="currentColor" stroke-width="3.5"/><path d="M86 22 L76 16 L76 28Z" fill="currentColor"/>${flags(24,22,120)}</g>${T(45,55,'NH · easterly',9)}`),
+  jetsh: SV(`<g transform="translate(0,44) scale(1,-1)"><path d="M4 22 H78" stroke="currentColor" stroke-width="3.5"/><path d="M86 22 L76 16 L76 28Z" fill="currentColor"/>${flags(24,22,140)}</g>${T(45,55,'SH · westerly',9)}`),
+  volc: SV(VOLC(45,34,1.3)),
+  rad: SV(`<circle cx="45" cy="30" r="20" fill="none" stroke="currentColor" stroke-width="1.6"/>`+trefoil(45,30,3.2,16)),
+  sand: SV(`${T(45,40,'S',30,700)}<path d="M18 30 H70" stroke="currentColor" stroke-width="2.4"/><path d="M76 30 L68 25 L68 35Z" fill="currentColor"/>`),
+  cold: SV(`<path d="M4 40 H86" stroke="currentColor" stroke-width="2.6"/>${[14,36,58].map(x=>`<path d="M${x} 40 L${x+8} 26 L${x+16} 40Z" fill="currentColor"/>`).join('')}`),
+  warm: SV(`<path d="M4 40 H86" stroke="currentColor" stroke-width="2.6"/>${[14,40,66].map(x=>`<path d="M${x} 40 A8 8 0 0 1 ${x+16} 40Z" fill="currentColor"/>`).join('')}`),
+  occl: SV(`<path d="M4 40 H86" stroke="currentColor" stroke-width="2.6"/><path d="M8 40 L15 28 L22 40Z M48 40 L55 28 L62 40Z" fill="currentColor"/><path d="M26 40 A7 7 0 0 1 40 40Z M66 40 A7 7 0 0 1 80 40Z" fill="currentColor"/>`),
+  stat: SV(`<path d="M4 32 H86" stroke="currentColor" stroke-width="2.6"/><path d="M10 32 L17 20 L24 32Z M50 32 L57 20 L64 32Z" fill="currentColor"/><path d="M30 32 A7 7 0 0 0 44 32Z M70 32 A7 7 0 0 0 84 32Z" fill="currentColor"/>`),
+  frontspd: SV(`<path d="M4 44 H86" stroke="currentColor" stroke-width="2.6"/>${[14,56].map(x=>`<path d="M${x} 44 L${x+8} 32 L${x+16} 44Z" fill="currentColor"/>`).join('')}<path d="M45 30 V12" stroke="currentColor" stroke-width="2"/><path d="M45 6 L40 14 H50Z" fill="currentColor"/>${T(62,20,'15',12)}`),
+  frz: SV(`<rect x="18" y="16" width="54" height="26" rx="4" fill="none" stroke="currentColor" stroke-width="1.6"/>${T(45,34,'0°:100',13)}`),
+  xxx: SV(`${T(45,25,'450',14)}<path d="M28 30 H62" stroke="currentColor" stroke-width="1.2"/>${T(45,47,'XXX',14)}`),
+  header: SV(`<rect x="6" y="6" width="78" height="48" fill="none" stroke="currentColor" stroke-width="1.4"/>${T(45,19,'SIGWX FL250-600',8.5)}${T(45,31,'VALID 1200 UTC',8.5)}${T(45,43,'28 SEP 2026',8.5)}`)
+};
+
+/* ---------- legend data ---------- */
+const LEG=[
+ ['Chart basics','header','Header box',['swh','swm'],'Chart type and layer, <b>validity date/time (UTC)</b>, issuing WAFC and units. A fixed-time snapshot — pick the chart whose validity is nearest the time you are over the area.'],
+ ['Chart basics','xxx','Top / base and XXX',['swh','swm'],'Vertical extent is written <b>top over base</b> (or top/base) in FL. <span class="ex">XXX</span> = above the top or below the base of the chart layer (e.g. on SWH, base below FL250).'],
+ ['Jet streams','jet','Jet stream axis',['swh','swm'],'Thick line with arrowhead showing direction of the jet core. Drawn where the wind is <b>≥ 80 kt</b>.'],
+ ['Jet streams','jetflag','Wind flag and FL',['swh','swm'],'Placed at the point of maximum wind. Pennant = 50 kt, full barb = 10 kt, half barb = 5 kt. Example: 2 pennants + 4 barbs = <b>140 kt</b>, maximum at <b>FL360</b>. <b>Northern hemisphere:</b> flags on the <b>left</b> of the jet core looking downwind (low-pressure side — poleward for a westerly jet).'],
+ ['Jet streams','jetsh','Flags — southern hemisphere',['swh','swm'],'<b>Southern hemisphere:</b> flags on the <b>right</b> of the jet core looking downwind — again the low-pressure (poleward) side (Buys Ballot). A westerly jet in the SH therefore has its flags on the south side, below the line.'],
+ ['Jet streams','jeteast','Easterly jet',['swh'],'Jets are mostly westerly but <b>not always</b>: they meander, and the <b>Tropical Easterly Jet</b> blows from the east in the northern summer (≈ Jun–Sep) over India, Arabia and Africa, around FL450–500. In the NH the flags of an easterly jet are on the south side (“upside down”) — this confirms the direction, but always read it from the <b>arrowhead</b>.'],
+ ['Jet streams','jetdepth','Jet depth',['swh','swm'],'Shown when maximum speed is <b>≥ 120 kt</b>: the two levels (e.g. <span class="ex">290/420</span>) give the vertical extent of the layer where the wind is ≥ 80 kt.'],
+ ['Jet streams','change','Change bars',['swh','swm'],'Double bar across the jet axis: marks a <b>change of 20 kt</b> in speed along the jet, or a <b>change of 3,000 ft</b> (30 FL) in the height of the jet core.'],
+ ['Cumulonimbus','cb','CB area',['swh','swm'],'Scalloped outline. Label gives amount and <b>top over base</b>. On WAFS charts from Jan 2025 only <b>OCNL</b> and <b>FRQ</b> CB are shown. “CB implies TS, GR, MOD or SEV TURB and ICE.”'],
+ ['Cumulonimbus','cblabel','CB amount',['swh','swm'],'<b>ISOL</b> = isolated individual CB (&lt; 50 %) · <b>OCNL</b> = well-separated (50–75 % of the area) · <b>FRQ</b> = little or no separation (&gt; 75 %) · <b>EMBD</b> = embedded in other cloud layers. ISOL/EMBD categories are no longer on WAFS charts (use gridded CB data).'],
+ ['Turbulence','turbarea','Turbulence area',['swh','swm'],'Heavy dashed outline, normally numbered and keyed to a label or side box. From Jan 2025: <b>“Turbulence”</b> = CAT + in-cloud + orographic, based on EDR (was CAT only).'],
+ ['Turbulence','turbm','Moderate turbulence',['swh','swm'],'Single “hat” symbol. EDR <b>≥ 0.20 and &lt; 0.35</b>.'],
+ ['Turbulence','turbs','Severe turbulence',['swh','swm'],'Double “hat” symbol. EDR <b>≥ 0.35</b>.'],
+ ['Turbulence','turbbox','Turbulence label',['swh','swm'],'Area <b>3</b>: moderate turbulence between <b>FL280 and FL380</b> (top 380 over base 280).'],
+ ['Icing','icem','Moderate icing',['swm'],'Icing symbol with two bars. Shown on SWM charts (not a separate feature on SWH).'],
+ ['Icing','ices','Severe icing',['swm'],'Icing symbol with three bars.'],
+ ['Icing','icearea','Icing area',['swm'],'From Jan 2025 WAFC SWM charts show <b>MOD and SEV icing only</b>, drawn with a line style different from CB areas; no associated in-cloud turbulence. Example: MOD icing FL100–FL180.'],
+ ['Tropopause','tropc','Tropopause contour',['swh','new'],'<b>New (2025):</b> thin dashed contour with the tropopause FL (e.g. FL300). Tight contours = steep slope / tropopause break → CAT risk.'],
+ ['Tropopause','tropspot','Tropopause spot height',['swh','old'],'<b>Legacy:</b> box with tropopause height in FL at that point (e.g. 340 = FL340). Replaced by contours on WAFC charts.'],
+ ['Tropopause','troph','Tropopause high',['swh','old'],'<b>Legacy:</b> local maximum of tropopause height (FL450).'],
+ ['Tropopause','tropcb','CB tops vs tropopause',['swh','swm'],'Compare the CB top with the local tropopause height. <b>The higher a CB top penetrates above the tropopause (overshooting top), the stronger the updraft and the more severe the storm</b> (hail, severe turbulence). General rule, not absolute: shear and moisture also matter, and a high tropical tropopause allows very tall CB without penetration — tops above cruise level → avoid laterally.'],
+ ['Tropopause','tropl','Tropopause low',['swh','old'],'<b>Legacy:</b> local minimum of tropopause height (FL290) — usually a cold air mass, often near jets.'],
+ ['Hazards','tc','Tropical cyclone — NH',['swh','swm'],'Northern hemisphere symbol as in ICAO Annex 3 (anticlockwise circulation). Position of a tropical cyclone, with its name. Use TC advisories and SIGMET for track and intensity.'],
+ ['Hazards','tcsh','Tropical cyclone — SH',['swh','swm'],'Southern hemisphere symbol — mirror image of the NH one (clockwise circulation). All other SIGWX symbols are the same in both hemispheres.'],
+ ['Hazards','volc','Volcanic eruption',['swh','swm'],'Location of an eruption with name and lat/long. SIGWX does <b>not</b> show the ash cloud — check VAAC advisories/graphics, VA SIGMET and NOTAM.'],
+ ['Hazards','rad','Radioactive release',['swh','swm'],'Location of a release of radioactive material into the atmosphere (lat/long, name of site if known). Details via SIGMET/NOTAM.'],
+ ['Hazards','sand','Widespread sandstorm / duststorm',['swm','reg'],'Shown on medium/low level charts where widespread.'],
+ ['Regional charts','cold','Cold front',['reg'],'Surface front — appears on regional medium/low level charts (national MET services), not on WAFS SWH.'],
+ ['Regional charts','warm','Warm front',['reg'],'Surface warm front.'],
+ ['Regional charts','occl','Occluded front',['reg'],'Alternating triangles and semicircles on the same side.'],
+ ['Regional charts','stat','Quasi-stationary front',['reg'],'Triangles and semicircles on opposite sides.'],
+ ['Regional charts','frontspd','Front movement',['reg'],'Arrow with speed in kt (here 15 kt) showing the expected movement of the front.'],
+ ['Regional charts','frz','Freezing level',['reg'],'0 °C isotherm level: <span class="ex">0°:100</span> = freezing level at FL100.'],
+];
+const ABBR=[['CB','Cumulonimbus'],['CAT','Clear air turbulence'],['EDR','Eddy dissipation rate (turbulence intensity metric)'],['EMBD','Embedded (in layers of other cloud)'],['FRQ','Frequent — little or no separation (> 75 %)'],['ICE','Icing'],['ISOL','Isolated — individual CB (< 50 %)'],['LYR','Layer(s) / layered'],['MOD','Moderate'],['MTW','Mountain waves'],['OCNL','Occasional — well separated (50–75 %)'],['SEV','Severe'],['TC','Tropical cyclone'],['TROP','Tropopause'],['TURB','Turbulence'],['VA','Volcanic ash'],['XXX','Above top / below base of the chart layer'],['SWH / SWM / SWL','SIGWX high / medium / low level'],['WAFC','World Area Forecast Centre (London, Washington)'],['IWXXM','ICAO Meteorological Information Exchange Model (XML data format)']];
+const TAGS={swh:'<span class="tag t-swh">SWH</span>',swm:'<span class="tag t-swm">SWM</span>',reg:'<span class="tag t-reg">Regional</span>',new:'<span class="tag t-new">NEW 2025</span>',old:'<span class="tag t-old">LEGACY</span>'};
+let lcat='All';
+function renderLegend(){
+  const cats=['All',...new Set(LEG.map(l=>l[0])),'Abbreviations'];
+  $('#lchips').innerHTML=cats.map(c=>`<button class="chip ${c===lcat?'on':''}" data-c="${c}">${c}</button>`).join('');
+  const q=$('#lsearch').value.trim().toLowerCase();
+  const hl=s=>{ if(!q) return s; return s.replace(/(>[^<]*)/g,m=>m.replace(new RegExp('('+q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','ig'),'<mark>$1</mark>')); };
+  const plain=s=>s.replace(/<[^>]+>/g,'').toLowerCase();
+  let h='';
+  if(lcat!=='Abbreviations'){
+    let last='';
+    LEG.filter(l=>(lcat==='All'||l[0]===lcat)&&(!q||plain(l[0]+' '+l[2]+' '+l[4]).includes(q))).forEach(l=>{
+      if(l[0]!==last){ if(last) h+='</div>'; h+=`<div class="cat-h">${l[0]}</div><div class="lgrid">`; last=l[0]; }
+      h+=`<div class="lg"><div class="sym">${SYM[l[1]]}</div><div><b>${hl('>'+l[2]).slice(1)}</b><div>${l[3].map(t=>TAGS[t]).join('')}</div><p>${hl(l[4])}</p></div></div>`;
+    });
+    if(last) h+='</div>';
+  }
+  if(lcat==='Abbreviations'||lcat==='All'){
+    const ab=ABBR.filter(a=>!q||(a[0]+' '+a[1]).toLowerCase().includes(q));
+    if(ab.length) h+=`<div class="cat-h">Abbreviations</div><div class="card"><table class="t">${ab.map(a=>`<tr><td style="width:140px"><b>${esc(a[0])}</b></td><td>${esc(a[1])}</td></tr>`).join('')}</table></div>`;
+  }
+  $('#lout').innerHTML=h||'<p class="muted">No match.</p>';
+}
+$('#lchips').addEventListener('click',e=>{const b=e.target.closest('.chip'); if(!b) return; lcat=b.dataset.c; renderLegend();});
+$('#lsearch').addEventListener('input',renderLegend);
+
+/* ---------- practice chart ---------- */
+// grid: x 60..860 = 40W..0 (20 px/deg), y 60..540 = 60N..30N (16 px/deg)
+function mapSVG(extra){
+  let g='';
+  for(let x=60;x<=860;x+=100){ const lon=40-(x-60)/20; g+=`<path d="M${x} 60 V540" stroke="var(--grid)" stroke-width="1"/><text x="${x}" y="556" font-size="11" text-anchor="middle" fill="var(--gray)">${lon===0?'0':lon+'W'}</text>`; }
+  for(let y=60;y<=540;y+=80){ const lat=60-(y-60)/16; g+=`<path d="M60 ${y} H860" stroke="var(--grid)" stroke-width="1"/><text x="54" y="${y+4}" font-size="11" text-anchor="end" fill="var(--gray)">${lat}N</text>`; }
+  const jA='M70 360 C200 330 300 250 440 240 S700 200 850 150';
+  const jB='M70 505 C250 490 450 470 600 470 S760 455 840 440';
+  const cbPts=[[610,360],[700,350],[770,385],[775,450],[700,480],[615,460],[590,410]];
+  const S=`
+  <g class="f" data-k="trop" style="color:var(--trop)">
+    <path class="hit" d="M60 150 C250 170 500 110 860 95"/><path class="hit" d="M60 300 C260 290 470 300 860 260"/><path class="hit" d="M60 430 C300 420 520 400 860 380"/>
+    <path d="M60 150 C250 170 500 110 860 95" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="6 5"/>
+    <path d="M60 300 C260 290 470 300 860 260" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="6 5"/>
+    <path d="M60 430 C300 420 520 400 860 380" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="6 5"/>
+    <g fill="currentColor" font-size="12" font-weight="700"><rect x="120" y="148" width="46" height="16" fill="var(--map)"/><text x="143" y="161" text-anchor="middle">FL300</text>
+    <rect x="150" y="285" width="46" height="16" fill="var(--map)"/><text x="173" y="298" text-anchor="middle">FL350</text>
+    <rect x="360" y="410" width="46" height="16" fill="var(--map)"/><text x="383" y="423" text-anchor="middle">FL450</text></g>
+  </g>
+  <g class="f" data-k="turb1" style="color:var(--turb)">
+    <path class="hitf" d="M330 190 Q360 150 470 160 Q590 170 600 215 Q590 265 470 275 Q350 280 330 240Z"/>
+    <path d="M330 190 Q360 150 470 160 Q590 170 600 215 Q590 265 470 275 Q350 280 330 240Z" fill="none" stroke="currentColor" stroke-width="3" stroke-dasharray="10 6"/>
+    <rect x="348" y="190" width="20" height="20" fill="var(--map)" stroke="currentColor" stroke-width="1.5"/><text x="358" y="205" font-size="13" font-weight="800" text-anchor="middle" fill="currentColor">1</text>
+  </g>
+  <g class="f" data-k="turb2" style="color:var(--turb)">
+    <path class="hitf" d="M650 170 Q700 150 750 175 Q760 215 705 222 Q650 220 650 170Z"/>
+    <path d="M650 170 Q700 150 750 175 Q760 215 705 222 Q650 220 650 170Z" fill="none" stroke="currentColor" stroke-width="3" stroke-dasharray="10 6"/>
+    <rect x="690" y="178" width="20" height="20" fill="var(--map)" stroke="currentColor" stroke-width="1.5"/><text x="700" y="193" font-size="13" font-weight="800" text-anchor="middle" fill="currentColor">2</text>
+  </g>
+  <g class="f" data-k="jetA" style="color:var(--jet)">
+    <path class="hit" d="${jA}"/>
+    <path d="${jA}" fill="none" stroke="currentColor" stroke-width="4"/>
+    <path d="M858 147 L842 145 L848 160Z" fill="currentColor"/>
+    <path d="M232 315 L222 290 M241 310 L231 285" stroke="currentColor" stroke-width="3"/>
+    <path d="M662 200 L656 175 M671 198 L665 173" stroke="currentColor" stroke-width="3"/>
+    <g transform="translate(420,242) scale(1.5) translate(-420,-242)">${flags(420,242,150)}</g>
+    <g fill="currentColor" font-size="13" font-weight="800" text-anchor="middle"><text x="440" y="298">FL360</text><text x="440" y="314">290/420</text></g>
+  </g>
+  <g class="f" data-k="jetB" style="color:var(--jet)">
+    <path class="hit" d="${jB}"/>
+    <path d="${jB}" fill="none" stroke="currentColor" stroke-width="4"/>
+    <path d="M848 438 L832 434 L836 450Z" fill="currentColor"/>
+    <g transform="translate(465,472) scale(1.5) translate(-465,-472)">${flags(465,472,110)}</g>
+    <text x="478" y="496" text-anchor="middle" fill="currentColor" font-size="12.5" font-weight="800">FL390</text>
+  </g>
+  <g class="f" data-k="cb" style="color:var(--cb)">
+    <path class="hitf" d="M610 360 L700 350 L770 385 L775 450 L700 480 L615 460 L590 410Z"/>
+    <path d="${scallopPoly(cbPts,16)}" fill="none" stroke="currentColor" stroke-width="2.4"/>
+    <g fill="currentColor" font-size="13" font-weight="800" text-anchor="middle"><text x="685" y="400">OCNL CB</text><text x="685" y="418">480</text><path d="M665 422 H705" stroke="currentColor" stroke-width="1.3"/><text x="685" y="437">XXX</text></g>
+  </g>
+  <g class="f" data-k="volc" style="color:var(--haz)">
+    <circle class="hitf" cx="500" cy="375" r="30"/>
+    ${VOLC(500,379,1.2)}
+    <text x="500" y="405" font-size="11" font-weight="700" text-anchor="middle" fill="currentColor">MT SERRA 41N 018W</text>
+  </g>
+  <g class="f" data-k="tc" style="color:var(--haz)">
+    <circle class="hitf" cx="240" cy="515" r="28"/>
+    ${TC(240,512,1.3)}
+    <text x="270" y="533" font-size="11" font-weight="700" fill="currentColor">TC ALBA</text>
+  </g>
+  <g class="f" data-k="rad" style="color:var(--haz)">
+    <circle class="hitf" cx="800" cy="112" r="26"/>
+    <circle cx="800" cy="112" r="16" fill="var(--map)" stroke="currentColor" stroke-width="1.5"/>${trefoil(800,112,2.6,13)}
+    <text x="800" y="144" font-size="11" font-weight="700" text-anchor="middle" fill="currentColor">56N 003W</text>
+  </g>
+  <g class="f" data-k="hdr" style="color:var(--ink)">
+    <rect class="hitf" x="70" y="68" width="250" height="68"/>
+    <rect x="70" y="68" width="250" height="68" fill="var(--card)" stroke="currentColor" stroke-width="1.3"/>
+    <g fill="currentColor" font-size="11.5"><text x="80" y="85" font-weight="800">PRACTICE SIGWX · FL250–600</text><text x="80" y="101">VALID 1200 UTC 28 SEP 2026</text><text x="80" y="116">Heights FL · speeds kt</text><text x="80" y="130">CB implies TS, GR, MOD/SEV TURB, ICE</text></g>
+  </g>
+  <g class="f" data-k="box" style="color:var(--turb)">
+    <rect class="hitf" x="700" y="490" width="150" height="46"/>
+    <rect x="700" y="490" width="150" height="46" fill="var(--card)" stroke="currentColor" stroke-width="1.3"/>
+    <g fill="currentColor" font-size="12" font-weight="800"><text x="710" y="508">1</text>${TURB_M(740,510,0.5)}<text x="765" y="508">390/280</text>
+    <text x="710" y="529">2</text>${TURB_S(740,532,0.5)}<text x="765" y="529">400/330</text></g>
+  </g>`;
+  return `<svg viewBox="0 0 900 570" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,Helvetica,Arial,sans-serif">${g}${S}${extra||''}</svg>`;
+}
+const FEAT={
+  hdr:['Header box','Practice SWH chart, layer <b>FL250–FL600</b>, valid <b>1200 UTC 28 Sep 2026</b> (fixed time). Standing note: CB implies TS, GR, MOD/SEV turbulence and icing.'],
+  jetA:['Jet stream — polar front jet','Axis from the WSW to the ENE. Flag: 3 pennants = <b>150 kt</b>, maximum at <b>FL360</b>. Depth <b>290/420</b>: wind ≥ 80 kt from FL290 to FL420 (shown because ≥ 120 kt). Flags on the north side = left of the core looking downwind (NH convention). The two sets of <b>change bars</b> mark 20 kt speed changes — the jet accelerates into the 150 kt core then weakens east of 10W.<br><br>At FL410 eastbound: inside the jet layer → strong tailwind; westbound → plan a lower/higher FL or a route away from the core. Expect CAT on the cold (north) side — see turbulence area 1.'],
+  jetB:['Jet stream — subtropical jet',''],
+  turb1:['Turbulence area 1','Heavy dashed outline keyed to the box: <b>MOD turbulence FL280–FL390</b>. Sits on the cold (poleward) side of the 150 kt jet core — typical CAT location. At FL410 you are above the area; at FL370 inside it.'],
+  turb2:['Turbulence area 2','<b>SEV turbulence FL330–FL400</b> (double hat, EDR ≥ 0.35) where the jet curves and the tropopause slopes steeply. Avoid by level (FL410+) or laterally.'],
+  box:['Turbulence key box','Numbers link each dashed area to its intensity and <b>top/base</b>: 1 = MOD 390/280, 2 = SEV 400/330.'],
+  cb:['CB area','<b>OCNL CB</b> (well-separated, &gt; 50 % coverage), tops <b>FL480</b>, base <b>XXX</b> = below FL250 (outside the SWH layer). CB implies thunderstorm, hail, MOD/SEV turbulence and icing. At FL450 you cannot top it — deviate laterally.'],
+  trop:['Tropopause contours','Thin dashed lines: <b>FL300</b> in the north (cold air), <b>FL350</b> mid-chart, <b>FL450</b> in the south (warm, subtropical air). The closely spaced FL300/FL350 contours under the polar jet show a sloping tropopause — a CAT-prone zone.'],
+  volc:['Volcanic eruption','Volcano symbol with name and position: <b>MT SERRA 41N 018W</b> (invented). The ash cloud is not on SIGWX — check VAAC advisory, VA SIGMET and NOTAM.'],
+  tc:['Tropical cyclone','Tropical cyclone <b>ALBA</b> (invented) near 31N 031W. Use TC advisories/SIGMET for track, intensity and CB extent.'],
+  rad:['Radioactive release','Radioactive material released at <b>56N 003W</b> (invented). Details and any restricted area via SIGMET/NOTAM.']
+};
+FEAT.jetB[1]='2 pennants + 1 barb = <b>110 kt</b> at <b>FL390</b>. No depth label because the maximum is below 120 kt. Subtropical jets are usually higher and further south than polar front jets, with the tropopause above them near FL450.';
+let fsel=null;
+function selFeat(k){
+  fsel=k; $$('#map .f').forEach(g=>g.classList.toggle('sel',g.dataset.k===k));
+  $$('#flist li').forEach(li=>li.classList.toggle('on',li.dataset.k===k));
+  const f=FEAT[k]; $('#fx').innerHTML=`<h4>${f[0]}</h4><p>${f[1]}</p>`;
+}
+function renderChart(){
+  $('#map').innerHTML=mapSVG();
+  $('#flist').innerHTML=Object.keys(FEAT).map(k=>`<li data-k="${k}">${FEAT[k][0]}</li>`).join('');
+  $('#map').addEventListener('click',e=>{const g=e.target.closest('.f'); if(g) selFeat(g.dataset.k);});
+  $('#flist').addEventListener('click',e=>{const li=e.target.closest('li'); if(li){selFeat(li.dataset.k); if(innerWidth<=900) $('#fx').scrollIntoView({behavior:'smooth',block:'nearest'});}});
+  renderCQ();
+}
+const CQ=[
+ ['What is the maximum wind in the polar jet, and at what level?',['130 kt at FL360','150 kt at FL360','150 kt at FL420','110 kt at FL290'],1,'Three pennants = 150 kt; the FL next to the flag is the level of maximum wind.'],
+ ['You cruise at FL410 eastbound along 50N. Relative to the polar jet you are:',['Above the jet layer','Inside the ≥ 80 kt layer','Below the jet layer','Not affected — jets are only on SWM'],1,'Depth 290/420 → wind ≥ 80 kt from FL290 to FL420.'],
+ ['What does the CB label 480 over XXX mean on this SWH chart?',['Tops FL480, base below FL250','Base FL480, top above FL600','Tops FL480, base unknown','CB between FL250 and FL480 only'],0,'Top over base; XXX = outside the chart layer (base below FL250).'],
+ ['Area 2 is:',['MOD turbulence FL280–FL390','SEV turbulence FL330–FL400','SEV icing FL330–FL400','MOD turbulence FL330–FL400'],1,'Double hat = severe; 400/330 = top/base.'],
+ ['Why is there no depth label on the subtropical jet?',['Depth is only shown on SWM','Maximum speed is below 120 kt','The jet is above FL600','Depth is shown only at change bars'],1,'Jet depth is added when the maximum speed is ≥ 120 kt.'],
+ ['What do the double bars across the polar jet indicate?',['Jet crosses the tropopause','20 kt change in speed','Turbulence along the jet','Boundary between WAFC areas'],1,'Change bars mark a 20 kt change of speed along the jet, or a 3,000 ft change in core height.'],
+ ['Where on this chart is the tropopause lowest?',['South, FL450','Mid-chart, FL350','North, FL300','Over the CB area'],2,'The FL300 contour lies in the north, in the cold air poleward of the jet.'],
+ ['Where do you get the ash cloud position for MT SERRA?',['From the SIGWX chart','VAAC advisory / VA SIGMET / NOTAM','From the tropopause contours','From the jet flag'],1,'SIGWX only marks the volcano position.'],
+];
+let cqa={};
+function renderCQ(){
+  let n=0; $('#cq').innerHTML=CQ.map((q,i)=>{ const a=cqa[i]; if(a!==undefined&&a===q[2]) n++;
+    return `<div style="margin-bottom:14px"><div class="qq" style="font-size:15px">${i+1}. ${q[0]}</div>${q[1].map((o,j)=>`<button class="opt ${a!==undefined?(j===q[2]?'ok':(j===a?'bad':'')):''}" data-i="${i}" data-j="${j}" ${a!==undefined?'disabled':''}>${o}</button>`).join('')}${a!==undefined?`<p class="muted">${q[3]}</p>`:''}</div>`;}).join('')+`<button class="btn sec" id="cqr">Reset chart questions</button>`;
+  $('#cqs').textContent=`${n}/${CQ.length} correct`;
+}
+$('#cq').addEventListener('click',e=>{ if(e.target.id==='cqr'){cqa={};renderCQ();return;} const b=e.target.closest('.opt'); if(!b) return; cqa[b.dataset.i]=+b.dataset.j; renderCQ(); });
+
+/* ---------- quiz ---------- */
+const QZ=[
+ ['Basics','The WAFS high-level SIGWX chart (SWH) currently covers:',['FL100–FL450','FL250–FL600','FL250–FL630','FL180–FL600'],1,'Since 23 Jan 2025 the top is FL600 (was FL630).'],
+ ['Basics','The medium-level SIGWX chart (SWM) covers:',['FL100–FL450','FL100–FL250','FL180–FL450','SFC–FL250'],0,'SWM layer FL100–FL450, unchanged in 2025.'],
+ ['Basics','A SIGWX chart valid 1200 UTC is:',['A forecast for 1200–1800 UTC','A fixed-time forecast for 1200 UTC','An analysis of 1200 UTC observations','Valid 0600–1800 UTC'],1,'SIGWX is a snapshot for the validity time.'],
+ ['Basics','According to ICAO, a SIGWX chart valid 1200 UTC may be used:',['Only at exactly 1200 UTC','From 0900 to 1500 UTC','From 1200 to 1800 UTC','From 0600 to 1800 UTC'],1,'Forecasts may be used from 3 h before to 3 h after the validity time.'],
+ ['Basics','Legacy T+24 WAFC charts are issued for validity times:',['00, 06, 12, 18 UTC','00 and 12 UTC only','Every 3 h','03, 09, 15, 21 UTC'],0,'Four charts per day; the new IWXXM data adds 3-hourly steps T+6…T+48.'],
+ ['Basics','“XXX” in a top/base label means:',['Unknown intensity','Level outside the chart layer','Cloud reported by pilots','Data missing — ignore the area'],1,'Above the top or below the base of the chart layer.'],
+ ['Basics','Heights on SIGWX charts are given in:',['Feet AMSL','Flight levels (hundreds of feet)','Metres','Pressure altitude in thousands of feet'],1,'e.g. 380 = FL380.'],
+ ['Basics','The standing note “CB implies…” refers to:',['Light turbulence and rain','Thunderstorm, hail, moderate or severe turbulence and icing','Lightning only','Severe turbulence only above FL450'],1,'These hazards are not drawn separately around CB areas.'],
+ ['Basics','Light turbulence on a SIGWX chart is shown by:',['A single hat','A dashed line without symbol','It is not shown','A box with the letter L'],2,'Only moderate and severe phenomena appear.'],
+ ['Basics','SIGWX charts show winds and temperatures at levels?',['Yes, at every grid point','Only at jet flags (wind) — use wind/temp charts for the rest','Only temperatures','Yes, at the tropopause'],1,'Winds only appear as jet maxima; use WAFS wind/temperature charts.'],
+ ['Jet streams','A jet stream is drawn on SIGWX where the wind is at least:',['60 kt','80 kt','100 kt','120 kt'],1,'Minimum 80 kt.'],
+ ['Jet streams','Jet depth (e.g. 290/420) is added when the maximum speed is at least:',['80 kt','100 kt','120 kt','150 kt'],2,'≥ 120 kt.'],
+ ['Jet streams','The two levels of the jet depth give:',['The CAT layer','The layer where the wind is ≥ 80 kt','The tropopause range','Top/base of cloud along the jet'],1,'Vertical extent of the ≥ 80 kt layer.'],
+ ['Jet streams','Double bars across the jet axis indicate:',['20 kt change in speed','Tropopause break','Jet ends','CAT'],0,'Change bars — 20 kt change in speed, or 3,000 ft change in core height.'],
+ ['Jet streams','Flag with 2 pennants and 3 full barbs:',['130 kt','230 kt','115 kt','150 kt'],0,'50+50+10+10+10 = 130 kt.'],
+ ['Jet streams','“FL360” next to the jet flag is:',['Base of the jet','Top of the jet','Level of the maximum wind','Tropopause height'],2,'Level of the jet core at that point.'],
+ ['Jet streams','In the northern hemisphere, CAT associated with a jet is most likely:',['On the warm (equatorward) side, well above the core','On the cold (poleward) side, just below the core','Exactly at the core level only','Far away from the jet'],1,'Strongest shear is typically on the cold side, below the core, and where the jet curves.'],
+ ['Jet streams','In the northern hemisphere the jet flags are drawn:',['On the left of the jet core, looking downwind','On the right of the jet core, looking downwind','Always on the north side','Always above the line'],0,'NH: left side looking downwind (low-pressure side). SH: right side.'],
+ ['Jet streams','Northern hemisphere: the flags of a jet are on the south side of the line. The jet is blowing:',['West to east','East to west','South to north','Cannot be determined'],1,'Left of the core looking downwind is south only when the wind blows toward the west — an easterly jet. Confirm with the arrowhead.'],
+ ['Jet streams','In the southern hemisphere the jet flags are drawn:',['On the left of the core, looking downwind','On the right of the core, looking downwind','Always on the equator side','Not drawn'],1,'SH: right side looking downwind — the low-pressure side (Buys Ballot).'],
+ ['Jet streams','The Tropical Easterly Jet is found:',['In the northern summer over India, Arabia and Africa, around FL450–500','Over the North Atlantic in winter','Over Antarctica in the southern winter','Only below FL250'],0,'Jets are not always westerly — always read the direction from the arrowhead.'],
+ ['Cumulonimbus','On WAFS charts from Jan 2025 which CB categories are shown?',['ISOL and EMBD only','OCNL and FRQ only','All including ISOL EMBD','None — moved to gridded data'],1,'Only OCNL and FRQ CB (> 50 % coverage).'],
+ ['Cumulonimbus','OCNL CB means:',['Individual isolated CB','Well-separated CB (50–75 %)','CB with little or no separation (> 75 %)','CB hidden in other cloud'],1,'Occasional = well separated.'],
+ ['Cumulonimbus','FRQ CB means:',['Well-separated CB','Little or no separation (> 75 %)','CB embedded in layers','CB over land only'],1,'Frequent.'],
+ ['Cumulonimbus','On an SWH chart, CB label 450 over XXX:',['Tops FL450, base below FL250','Base FL450','Tops above FL600','Tops FL450, base FL100'],0,'Top over base; XXX = below the chart layer.'],
+ ['Cumulonimbus','CB areas are outlined with:',['Heavy dashed line','Scalloped line','Thin dashed line','Dotted line'],1,'Scalloped (cloud-like) outline.'],
+ ['Cumulonimbus','After the 2025 change, isolated/embedded CB information is found in:',['SWM charts','WAFS gridded CB extent data','TAFs only','METAR remarks'],1,'Gridded CB data sets (e.g. via SADIS / WIFS or your provider).'],
+ ['Turbulence','Since Jan 2025 “turbulence” areas include:',['CAT only','CAT, in-cloud and orographic turbulence','Only mountain waves','Only turbulence above FL450'],1,'Replaces the old CAT-only areas.'],
+ ['Turbulence','EDR threshold for MOD turbulence:',['≥ 0.10','≥ 0.20 and < 0.35','≥ 0.35','≥ 0.50'],1,'SEV ≥ 0.35.'],
+ ['Turbulence','Turbulence areas are outlined with:',['Heavy dashed line','Scalloped line','Thin dashed line','Solid thin line'],0,'Heavy dashed outline, often numbered.'],
+ ['Turbulence','Key “3 · single hat · 380/280” means:',['Area 3, SEV turbulence FL280–FL380','Area 3, MOD turbulence FL280–FL380','Area 3, MOD icing FL280–FL380','MOD turbulence at FL380 only'],1,'Single hat = MOD; top 380 / base 280.'],
+ ['Turbulence','The double-hat symbol means:',['Moderate turbulence','Severe turbulence','Mountain waves','Moderate icing'],1,'Severe.'],
+ ['Icing','Icing areas are shown on:',['SWH only','SWM (medium level)','Neither','Both, with the same detail'],1,'Icing is depicted on medium-level charts.'],
+ ['Icing','From Jan 2025, WAFC SWM charts show:',['Combined icing and in-cloud turbulence areas','MOD and SEV icing only','Light, MOD and SEV icing','Icing only inside CB'],1,'Associated in-cloud turbulence removed from SWM.'],
+ ['Icing','The icing symbol with three bars means:',['Light icing','Moderate icing','Severe icing','Freezing rain'],2,'Two bars = moderate, three = severe.'],
+ ['Tropopause','On WAFC charts from 2025 the tropopause is shown as:',['Spot heights in boxes','Thin dashed contours labelled with FL','Shaded areas','It is no longer shown'],1,'e.g. FL300 contour.'],
+ ['Tropopause','Flying from 60N towards 30N the tropopause normally:',['Lowers','Rises','Stays at FL360','Disappears'],1,'Low over polar air, high over tropical air.'],
+ ['Tropopause','Legacy box “L 290” means:',['Low tropopause point at FL290','Low-level CB FL290','Lowest jet FL290','Icing below FL290'],0,'Local minimum of tropopause height.'],
+ ['Tropopause','A CB top penetrates well above the local tropopause (overshooting top). This indicates:',['A weak, dissipating cell','A strong updraft — likely a more severe storm','Only light turbulence','Icing only'],1,'The greater the penetration above the tropopause, the stronger the updraft and the more severe the storm (general rule; shear and moisture also matter).'],
+ ['Tropopause','Closely spaced tropopause contours suggest:',['A flat tropopause','A steep slope/break — CAT risk','Icing','CB'],1,'Tropopause breaks are CAT-prone, often near jets.'],
+ ['Hazards','The volcano symbol on SIGWX tells you:',['The ash cloud extent','The eruption location and name','Ash concentration','Nothing — decorative'],1,'Get the ash cloud from VAAC advisories, VA SIGMET, NOTAM.'],
+ ['Hazards','The tropical cyclone symbol:',['Is the same in both hemispheres','Is mirrored between hemispheres (anticlockwise NH, clockwise SH)','Is only used in the SH','Shows the cyclone intensity'],1,'The TC symbol is the only SIGWX hazard symbol that differs by hemisphere.'],
+ ['Hazards','The trefoil (radiation) symbol marks:',['A nuclear plant with a TFR','A release of radioactive material into the atmosphere','Military exercise area','Solar radiation storm'],1,'Location of release; details via SIGMET/NOTAM.'],
+ ['Hazards','Widespread sandstorm/duststorm is typically shown on:',['SWH','SWM / regional charts','Neither','Only METAR'],1,'Medium and low level charts.'],
+ ['2025 changes','BUFR SIGWX data is discontinued in:',['Jan 2025','Nov 2026','Nov 2028','It continues indefinitely'],1,'IWXXM becomes the only digital format.'],
+ ['2025 changes','Centrally produced WAFC PNG SIGWX charts end in:',['Nov 2025','Nov 2026','Nov 2028','Jan 2030'],2,'Nov 2028.'],
+ ['2025 changes','The new IWXXM SIGWX data provides validity times:',['T+24 only','T+6 to T+48 every 3 h','T+12 and T+24','Hourly to T+36'],1,'Single global dataset FL100–FL600.'],
+ ['2025 changes','The 2025 changes left which item unchanged?',['Top of SWH layer','CB categories','Jet streams','Tropopause depiction'],2,'Jets, TC, volcano, radioactive release unchanged.'],
+ ['Flight use','A business jet cruising at FL450 plans primarily with:',['SWM','SWH','SWL','Surface analysis'],1,'Cruise levels are in the SWH layer; SWM matters for climb/descent.'],
+ ['Flight use','Chart valid 1200 UTC; you cross a CB area at 1500 UTC and the next chart is valid 1800 UTC:',['Ignore — outside validity','Use 1200 UTC chart, consider movement toward 1800, and check SIGMETs','Use the 1800 chart only','Use yesterday’s 1200 UTC chart'],1,'Use the nearest validity, interpolate movement and cross-check current SIGMETs.'],
+ ['Flight use','CB area tops FL480 and your cruise is FL450:',['Overfly — 3,000 ft is enough','Plan lateral avoidance / reroute','Descend below XXX','No action; CB imply only light turbulence'],1,'Do not plan to top CB; avoid laterally.'],
+ ['Flight use','SIGWX vs SIGMET:',['SIGMET is a WAFC planning chart','SIGWX is a planning forecast; SIGMET is issued by an MWO for current/short-term hazards','They are the same product','SIGMET covers only surface weather'],1,'Always cross-check the planning chart with SIGMETs.'],
+];
+const QCATS=[...new Set(QZ.map(q=>q[0]))];
+let qcat='Mixed', qrun=null;
+function qstats(c){const ids=QZ.map((q,i)=>i).filter(i=>c==='Mixed'||QZ[i][0]===c); let seen=0,ok=0; ids.forEach(i=>{const s=ST.q[i]; if(s){seen++; if(s.last) ok++;}}); return {n:ids.length,seen,ok};}
+function renderQSetup(){
+  $('#qchips').innerHTML=['Mixed',...QCATS].map(c=>`<button class="chip ${c===qcat?'on':''}" data-c="${c}">${c} <span style="opacity:.7">${qstats(c).n}</span></button>`).join('');
+  $('#nmiss').textContent=Object.keys(ST.q).filter(i=>ST.q[i]&&!ST.q[i].last).length;
+  $('#qbars').innerHTML=QCATS.map(c=>{const s=qstats(c); const p=s.n?Math.round(100*s.ok/s.n):0; return `<div class="b"><span>${c}</span><div class="bar"><i style="width:${p}%"></i></div><span class="muted">${s.ok}/${s.n}</span></div>`;}).join('');
+}
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function startQuiz(ids){
+  if(!ids.length){ $('#qbox').style.display='block'; $('#qbox').innerHTML='<p>Nothing to review. </p><button class="btn sec" id="qback">Back</button>'; return; }
+  qrun={ids:shuffle(ids.slice()),i:0,ok:0,ans:null};
+  $('#qsetup').style.display='none'; $('#qbox').style.display='block'; drawQ();
+}
+function drawQ(){
+  const r=qrun;
+  if(r.i>=r.ids.length){ $('#qbox').innerHTML=`<h2>Result</h2><p class="qq">${r.ok} / ${r.ids.length} correct (${Math.round(100*r.ok/r.ids.length)} %)</p><div class="row"><button class="btn" id="qback">Back</button></div>`; return; }
+  const k=r.ids[r.i], q=QZ[k];
+  if(!r.ord) r.ord={}; if(!r.ord[k]) r.ord[k]=shuffle(q[2].map((o,j)=>j));
+  const ord=r.ord[k];
+  $('#qbox').innerHTML=`<h2>${q[0]}<span class="r">${r.i+1} / ${r.ids.length}</span></h2><div class="prog"><i style="width:${100*r.i/r.ids.length}%"></i></div>
+   <div class="qq">${q[1]}</div>${ord.map(j=>`<button class="opt ${r.ans!==null?(j===q[3]?'ok':(j===r.ans?'bad':'')):''}" data-j="${j}" ${r.ans!==null?'disabled':''}>${q[2][j]}</button>`).join('')}
+   ${r.ans!==null?`<div class="info">${q[4]}</div><div class="row"><button class="btn" id="qnext">Next</button><button class="btn sec" id="qback">End</button></div>`:`<div class="row"><button class="btn sec" id="qback">End</button></div>`}`;
+}
+$('#qchips').addEventListener('click',e=>{const b=e.target.closest('.chip'); if(!b) return; qcat=b.dataset.c; renderQSetup();});
+$('#qstart').onclick=()=>startQuiz(QZ.map((q,i)=>i).filter(i=>qcat==='Mixed'||QZ[i][0]===qcat));
+$('#qmiss').onclick=()=>startQuiz(Object.keys(ST.q).filter(i=>ST.q[i]&&!ST.q[i].last).map(Number));
+$('#qreset').onclick=()=>{ if(confirm('Reset quiz progress?')){ST.q={}; save(ST); renderQSetup();} };
+$('#qbox').addEventListener('click',e=>{
+  if(e.target.id==='qback'){ qrun=null; $('#qbox').style.display='none'; $('#qsetup').style.display='block'; renderQSetup(); return; }
+  if(e.target.id==='qnext'){ qrun.i++; qrun.ans=null; drawQ(); return; }
+  const b=e.target.closest('.opt'); if(!b||qrun.ans!==null) return;
+  const k=qrun.ids[qrun.i], j=+b.dataset.j, ok=j===QZ[k][3];
+  qrun.ans=j; if(ok) qrun.ok++;
+  const s=ST.q[k]||{n:0,c:0}; s.n++; if(ok) s.c++; s.last=ok; ST.q[k]=s; save(ST); drawQ();
+});
+
+/* ---------- how-to-read annotated chart ---------- */
+const RMK=[[1,338,78],[2,338,128],[3,398,300],[4,800,392],[5,312,204],[5,684,513],[7,200,160],[8,455,352],[8,200,515],[8,835,100]];
+const RFEAT={1:['hdr'],2:['hdr'],3:['jetA','jetB'],4:['cb'],5:['turb1','turb2','box'],6:[],7:['trop'],8:['volc','tc','rad']};
+function renderRead(){
+  const mk=RMK.map(([n,x,y])=>`<g class="mk" data-s="${n}"><circle cx="${x}" cy="${y}" r="15" fill="var(--accent)" stroke="#fff" stroke-width="2.5"/><text x="${x}" y="${y+5.5}" font-size="15" font-weight="800" text-anchor="middle" fill="#fff">${n}</text></g>`).join('');
+  $('#rmap').innerHTML=mapSVG(mk);
+  $('#rmap').addEventListener('click',e=>{const m=e.target.closest('.mk'); if(!m) return; readSel(+m.dataset.s); const st=$('#st'+m.dataset.s); st.scrollIntoView({behavior:'smooth',block:'center'});});
+  $$('#v-read .step').forEach(st=>st.addEventListener('click',()=>{ const n=+st.dataset.s; readSel(n); const r=$('#rmap').getBoundingClientRect(); if(r.bottom<60||r.top>innerHeight-60) $('#rmap').scrollIntoView({behavior:'smooth',block:'start'}); }));
+}
+function readSel(n){
+  $$('#v-read .step').forEach(st=>st.classList.toggle('on',+st.dataset.s===n));
+  $$('#rmap .mk').forEach(m=>m.classList.toggle('on',+m.dataset.s===n));
+  const keys=RFEAT[n]||[];
+  $$('#rmap .f').forEach(g=>{ const on=keys.includes(g.dataset.k); g.classList.toggle('sel',on); g.classList.toggle('dim',keys.length>0&&!on); });
+}
+
+/* ---------- jet patterns ---------- */
+const JS_SEAS={
+ djf:{name:'Dec–Feb',cap:'<b>NH winter / SH summer.</b> NH jets strong and far south; SH jets weaker and poleward. No TEJ.',
+   jets:[['PFJ',40,9,7,1,'var(--jet)'],['STJ',28,3,6,1,'var(--turb)'],['PFJ',-55,5,3,1,'var(--jet)'],['STJ',-33,2,2,1,'var(--turb)',1]],
+   trop:{n:[42,28],s:[-55,-33]},core:[[40,330,1.3,'var(--jet)','PFJ'],[28,390,1.2,'var(--turb)','STJ'],[-55,320,0.7,'var(--jet)','PFJ'],[-33,390,0.6,'var(--turb)','STJ']]},
+ tr:{name:'Mar–May / Sep–Nov',cap:'<b>Transition seasons.</b> Jets moving poleward in spring, equatorward in autumn; moderate strength in both hemispheres.',
+   jets:[['PFJ',48,7,5,1,'var(--jet)'],['STJ',32,3,4,1,'var(--turb)'],['PFJ',-50,5,5,1,'var(--jet)'],['STJ',-30,2,4,1,'var(--turb)']],
+   trop:{n:[48,32],s:[-50,-30]},core:[[48,330,1,'var(--jet)','PFJ'],[32,390,0.9,'var(--turb)','STJ'],[-50,330,1,'var(--jet)','PFJ'],[-30,390,0.9,'var(--turb)','STJ']]},
+ jja:{name:'Jun–Aug',cap:'<b>NH summer / SH winter.</b> NH PFJ weak and far north, NH STJ weak/intermittent; <b>Tropical Easterly Jet</b> over India–Arabia–Africa. SH jets strong and further north.',
+   jets:[['PFJ',56,6,3,1,'var(--jet)'],['STJ',40,2,2,1,'var(--turb)',1],['PFJ',-45,5,6,1,'var(--jet)'],['STJ',-28,2,7,1,'var(--turb)'],['TEJ',12,1,4,-1,'var(--cb)']],
+   trop:{n:[56,40],s:[-45,-28]},core:[[56,320,0.6,'var(--jet)','PFJ'],[40,400,0.5,'var(--turb)','STJ'],[-45,330,1.3,'var(--jet)','PFJ'],[-28,390,1.3,'var(--turb)','STJ'],[12,480,0.8,'var(--cb)','TEJ']]}
+};
+let jseas='djf';
+function globeSVG(k){
+  const S=JS_SEAS[k], cx=260, cy=260, R=225, rad=Math.PI/180;
+  const P=(lat,lon)=>[cx+R*Math.cos(lat*rad)*Math.sin(lon*rad), cy-R*Math.sin(lat*rad)];
+  let g=`<defs><radialGradient id="gg" cx="40%" cy="35%" r="75%"><stop offset="0" stop-color="var(--card)"/><stop offset="1" stop-color="var(--soft)"/></radialGradient></defs>`;
+  g+=`<circle cx="${cx}" cy="${cy}" r="${R}" fill="url(#gg)" stroke="var(--gray)" stroke-width="1.2"/>`;
+  [-60,-30,0,30,60].forEach(la=>{const y=cy-R*Math.sin(la*rad), w=R*Math.cos(la*rad);
+    g+=`<path d="M${cx-w} ${y} H${cx+w}" stroke="var(--grid)" stroke-width="${la?1:1.6}"/>`;
+    g+=`<text x="${cx-w-6}" y="${y+4}" font-size="11" text-anchor="end" fill="var(--gray)">${la===0?'EQ':Math.abs(la)+(la>0?'N':'S')}</text>`;});
+  [-60,-30,0,30,60].forEach(lo=>{const rx=Math.abs(R*Math.sin(lo*rad)); g+= lo===0?`<path d="M${cx} ${cy-R} V${cy+R}" stroke="var(--grid)"/>`:`<path d="M${cx} ${cy-R} A${rx} ${R} 0 0 ${lo>0?1:0} ${cx} ${cy+R}" fill="none" stroke="var(--grid)"/>`;});
+  g+=`<text x="${cx}" y="${cy-R-8}" font-size="12" font-weight="800" text-anchor="middle" fill="var(--gray)">N</text><text x="${cx}" y="${cy+R+18}" font-size="12" font-weight="800" text-anchor="middle" fill="var(--gray)">S</text>`;
+  S.jets.forEach(([nm,la,amp,w,dir,col,dash],i)=>{
+    const l0=nm==='TEJ'?-15:-74, l1=nm==='TEJ'?72:74, ph=i*1.7; let pts=[];
+    for(let lo=l0;lo<=l1;lo+=3){ pts.push(P(la+amp*Math.pow(Math.cos(lo*rad),2)*Math.sin(lo*rad*3+ph),lo)); }
+    if(dir<0) pts.reverse();
+    const d='M'+pts.map(p=>p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' L');
+    const [ex,ey]=pts[pts.length-1], [px,py]=pts[pts.length-3]; const a=Math.atan2(ey-py,ex-px), L=8+w*1.4;
+    const h1=[ex-L*Math.cos(a-0.45),ey-L*Math.sin(a-0.45)], h2=[ex-L*Math.cos(a+0.45),ey-L*Math.sin(a+0.45)];
+    g+=`<path d="${d}" fill="none" stroke="${col}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" ${dash?'stroke-dasharray="10 7"':''}/>`;
+    g+=`<path d="M${ex+2*Math.cos(a)} ${ey+2*Math.sin(a)} L${h1[0]} ${h1[1]} L${h2[0]} ${h2[1]}Z" fill="${col}"/>`;
+    const llo=nm==='TEJ'?30:-45, [tx,ty]=P(la+amp*Math.pow(Math.cos(llo*rad),2)*Math.sin(llo*rad*3+ph),llo);
+    g+=`<text x="${tx}" y="${ty+((la>=0&&nm!=='STJ')?-10-w:16+w)}" font-size="12.5" font-weight="800" text-anchor="middle" fill="${col}" style="paint-order:stroke;stroke:var(--map);stroke-width:4px">${nm} ~${Math.abs(la)}°${la>=0?'N':'S'}${nm==='TEJ'?' (easterly)':''}</text>`;
+  });
+  return `<svg viewBox="0 0 520 540" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,Helvetica,Arial,sans-serif">${g}</svg>`;
+}
+function sectSVG(k){
+  const S=JS_SEAS[k], x0=50, x1=500, y0=250, y1=30;
+  const X=la=>x0+(90-la)/180*(x1-x0), Y=fl=>y0-(fl/600)*(y0-y1);
+  let g='';
+  [0,100,200,300,400,500,600].forEach(fl=>{g+=`<path d="M${x0} ${Y(fl)} H${x1}" stroke="var(--grid)"/><text x="${x0-6}" y="${Y(fl)+4}" font-size="10" text-anchor="end" fill="var(--gray)">${fl?'FL'+fl:'SFC'}</text>`;});
+  [90,60,30,0,-30,-60,-90].forEach(la=>{g+=`<path d="M${X(la)} ${y0} V${y1}" stroke="var(--grid)" stroke-dasharray="2 3"/><text x="${X(la)}" y="${y0+15}" font-size="10" text-anchor="middle" fill="var(--gray)">${la===0?'EQ':Math.abs(la)+(la>0?'N':'S')}</text>`;});
+  const [pn,sn]=S.trop.n, [ps,ss]=S.trop.s, H={pol:290,mid:360,tro:530};
+  const seg=(a,b,h)=>`<path d="M${X(a)} ${Y(h)} H${X(b)}" stroke="var(--trop)" stroke-width="2.2" stroke-dasharray="7 4"/>`;
+  g+=seg(90,pn-4,H.pol)+seg(pn+4,sn-3,H.mid)+seg(sn+3,ss-3,H.tro)+seg(ss+3,ps-4,H.mid)+seg(ps+4,-90,H.pol);
+  g+=`<text x="${X(80)}" y="${Y(H.pol)-6}" font-size="10" fill="var(--trop)" font-weight="700">polar trop.</text><text x="${X(8)}" y="${Y(H.tro)-6}" font-size="10" text-anchor="middle" fill="var(--trop)" font-weight="700">tropical tropopause</text>`;
+  S.core.forEach(([la,fl,s,col,nm])=>{const cx=X(la), cy=Y(fl); g+=`<ellipse cx="${cx}" cy="${cy}" rx="${12*s+4}" ry="${7*s+3}" fill="${col}" opacity=".85"/><ellipse cx="${cx}" cy="${cy}" rx="${22*s+6}" ry="${13*s+5}" fill="none" stroke="${col}" stroke-width="1.2" stroke-dasharray="3 3"/><text x="${cx}" y="${cy+(nm==='STJ'?-18*s-10:26*s+14)}" font-size="11" font-weight="800" text-anchor="middle" fill="${col}" style="paint-order:stroke;stroke:var(--map);stroke-width:4px">${nm}${nm==='TEJ'?' (E)':''}</text>`;});
+  g+=`<text x="${X(60)}" y="${y0-8}" font-size="11" font-weight="800" text-anchor="middle" fill="var(--gray)">${k==='djf'?'NH WINTER':k==='jja'?'NH SUMMER':'NH'}</text><text x="${X(-60)}" y="${y0-8}" font-size="11" font-weight="800" text-anchor="middle" fill="var(--gray)">${k==='djf'?'SH SUMMER':k==='jja'?'SH WINTER':'SH'}</text>`;
+  return `<svg viewBox="0 0 520 280" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,Helvetica,Arial,sans-serif">${g}</svg>`;
+}
+function renderJets(){
+  $('#jseason').innerHTML=Object.keys(JS_SEAS).map(k=>`<button class="chip ${k===jseas?'on':''}" data-k="${k}">${JS_SEAS[k].name}</button>`).join('');
+  $('#jcap').innerHTML=JS_SEAS[jseas].cap; $('#jglobe').innerHTML=globeSVG(jseas); $('#jsect').innerHTML=sectSVG(jseas);
+}
+$('#jseason').addEventListener('click',e=>{const b=e.target.closest('.chip'); if(!b) return; jseas=b.dataset.k; renderJets();});
+
+/* ---------- tabs ---------- */
+function showTab(v){ $$('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.v===v)); $$('.view').forEach(s=>s.classList.toggle('on',s.id==='v-'+v)); ST.tab=v; save(ST); window.scrollTo(0,0); }
+$('#tabs').addEventListener('click',e=>{const b=e.target.closest('button'); if(b) showTab(b.dataset.v);});
+
+renderLegend(); renderRead(); renderJets(); renderChart(); renderQSetup(); showTab(ST.tab);
+if('serviceWorker' in navigator && location.protocol!=='file:') navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script>
+</body>
+</html>
