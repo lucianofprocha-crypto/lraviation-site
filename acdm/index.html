@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="A-CDM 101">
+<meta name="theme-color" content="#2F3E8F">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-180.png">
+<title>A-CDM 101</title>
+<style>
+:root{
+  --navy:#1B2A4A; --accent:#2F3E8F; --gray:#5b5f66; --line:#e2e5ea;
+  --bg:#f5f7fa; --card:#ffffff; --amber:#E8A33D; --amber-dk:#8a4f00; --amber-bg:#fdf3e3;
+  --green:#1b7a3d; --green-bg:#e7f5ec; --red:#b71c1c; --red-bg:#fdeceb;
+  --soft:#f7f9fb; --ink:#1c1f24; --blue-bg:#eceffa; --blue-line:#c9d0f0; --mark:#fff0a8;
+  --map:#fbfcfd; --grid:#dfe4ea;
+  --c-ao:#1f6fbf; --c-atc:#8e3bb5; --c-nm:#c2410c; --c-ap:#0f7a6a; --c-gh:#6b5b16;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --navy:#cfe0f5; --accent:#8fa2ff; --gray:#9aa3ad; --line:#2c333d;
+    --bg:#12161c; --card:#1a2029; --amber-dk:#f0b860; --amber-bg:#2e2515;
+    --green:#5fcf8a; --green-bg:#15291d; --red:#ff8a80; --red-bg:#2e1716;
+    --soft:#20262f; --ink:#e6e9ee; --blue-bg:#1b2140; --blue-line:#34406e; --mark:#5a4a00;
+    --map:#161b22; --grid:#2a313b;
+    --c-ao:#6ea8ff; --c-atc:#c99af0; --c-nm:#ff9b6a; --c-ap:#4fd1b5; --c-gh:#d9c46a;
+  }
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+html,body{overscroll-behavior-y:none;}
+body{margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; background:var(--bg); color:var(--ink);
+  padding:calc(18px + env(safe-area-inset-top)) 16px calc(60px + env(safe-area-inset-bottom));}
+.wrap{max-width:1100px; margin:0 auto;}
+.header{text-align:center; margin-bottom:12px;}
+.header h1{font-size:22px; margin:0 0 4px; color:var(--navy);}
+.header p{font-size:13px; color:var(--gray); margin:0;}
+.tabs{display:flex; gap:6px; background:var(--soft); border:1px solid var(--line); padding:4px; border-radius:10px; margin:0 auto 16px; max-width:860px; position:sticky; top:calc(6px + env(safe-area-inset-top)); z-index:5; overflow-x:auto;}
+.tabs button{flex:1; border:none; background:none; padding:10px 8px; border-radius:7px; font:600 14px -apple-system,sans-serif; color:var(--gray); cursor:pointer; white-space:nowrap;}
+.tabs button.on{background:var(--card); color:var(--navy); box-shadow:0 1px 3px rgba(0,0,0,.12);}
+.view{display:none;} .view.on{display:block;}
+.card{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px 18px; margin-bottom:14px;}
+.card h2{font-size:13.5px; text-transform:uppercase; letter-spacing:.04em; color:var(--accent); margin:0 0 10px;}
+.card h3{font-size:14px; margin:14px 0 6px; color:var(--navy); text-transform:uppercase; letter-spacing:.03em;}
+.card p, .card li{font-size:14.5px; line-height:1.5;}
+.card p{margin:6px 0;}
+.card ul, .card ol{margin:6px 0; padding-left:22px;}
+.muted{color:var(--gray); font-size:12.5px;}
+.btn{border:none; background:var(--accent); color:#fff; font:700 14px -apple-system,sans-serif; padding:11px 16px; border-radius:8px; cursor:pointer;}
+@media (prefers-color-scheme: dark){ .btn{color:#10152a;} }
+.btn.sec{background:var(--soft); color:var(--accent); border:1px solid var(--line);}
+.btn:disabled{opacity:.45;}
+.row{display:flex; gap:10px; flex-wrap:wrap; align-items:center;}
+.chips{display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px;}
+.chip{border:1px solid var(--line); background:var(--card); color:var(--gray); border-radius:999px; padding:7px 13px; font:600 13px -apple-system,sans-serif; cursor:pointer;}
+.chip.on{background:var(--accent); border-color:var(--accent); color:#fff;}
+@media (prefers-color-scheme: dark){ .chip.on{color:#10152a;} }
+input.search{width:100%; font:500 16px -apple-system,sans-serif; padding:10px 12px; border-radius:9px; border:1px solid var(--line); background:var(--card); color:var(--ink); margin-bottom:10px;}
+mark{background:var(--mark); color:inherit; border-radius:3px; padding:0 1px;}
+.tag{display:inline-block; font-size:11px; font-weight:800; border-radius:5px; padding:2px 6px; margin-right:4px; vertical-align:middle; white-space:nowrap;}
+.w-ao{background:color-mix(in srgb,var(--c-ao) 15%,transparent); color:var(--c-ao);}
+.w-atc{background:color-mix(in srgb,var(--c-atc) 15%,transparent); color:var(--c-atc);}
+.w-nm{background:color-mix(in srgb,var(--c-nm) 15%,transparent); color:var(--c-nm);}
+.w-ap{background:color-mix(in srgb,var(--c-ap) 15%,transparent); color:var(--c-ap);}
+.w-gh{background:color-mix(in srgb,var(--c-gh) 18%,transparent); color:var(--c-gh);}
+table.t{border-collapse:collapse; width:100%; font-size:13.5px;}
+table.t th, table.t td{border:1px solid var(--line); padding:7px 9px; text-align:left; vertical-align:top;}
+table.t th{background:var(--soft); color:var(--navy);}
+.tw{overflow-x:auto;}
+.code{font-family:ui-monospace,Menlo,monospace; font-weight:700; color:var(--navy);}
+.note{background:var(--amber-bg); border-left:4px solid var(--amber); border-radius:6px; padding:9px 12px; font-size:13.5px; line-height:1.45; margin:10px 0;}
+.info{background:var(--blue-bg); border:1px solid var(--blue-line); border-radius:8px; padding:9px 12px; font-size:13.5px; line-height:1.45; margin:10px 0;}
+.grid2{display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:12px;}
+.pill{display:inline-block; font:800 12px ui-monospace,Menlo,monospace; background:var(--soft); border:1px solid var(--line); border-radius:6px; padding:2px 6px;}
+
+/* milestones */
+.phase-h{font-size:12.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--gray); margin:16px 0 8px; font-weight:800;}
+.ms{display:flex; gap:12px; background:var(--card); border:1px solid var(--line); border-radius:12px; padding:12px; margin-bottom:8px; cursor:pointer;}
+.ms .n{flex:none; width:40px; height:40px; border-radius:10px; background:var(--accent); color:#fff; font-weight:800; display:flex; align-items:center; justify-content:center; font-size:14px;}
+@media (prefers-color-scheme: dark){ .ms .n{color:#10152a;} }
+.ms .n.d{background:var(--c-ap);}
+.ms b{font-size:15px; color:var(--navy);}
+.ms .sub{font-size:13px; color:var(--gray); margin-top:2px;}
+.ms .more{display:none; font-size:14px; line-height:1.5; margin-top:8px;}
+.ms.open .more{display:block;}
+.ms .more ul{margin:4px 0; padding-left:20px;}
+
+/* timeline */
+.form{display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:10px; margin-bottom:10px;}
+.form label{font-size:12px; font-weight:700; color:var(--gray); text-transform:uppercase; letter-spacing:.03em; display:block;}
+.form input, .form select{width:100%; font:600 17px ui-monospace,Menlo,monospace; padding:9px 10px; border-radius:8px; border:1px solid var(--line); background:var(--card); color:var(--ink); margin-top:4px;}
+.tlbox{background:var(--map); border:1px solid var(--line); border-radius:12px; overflow:hidden;}
+.tlbox svg{display:block; width:100%; height:auto;}
+.tlbox text{font-family:-apple-system,sans-serif;}
+.res{display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:8px; margin:12px 0;}
+.res div{background:var(--soft); border:1px solid var(--line); border-radius:9px; padding:8px 10px;}
+.res small{display:block; font-size:11.5px; color:var(--gray); font-weight:700; text-transform:uppercase;}
+.res b{font:800 19px ui-monospace,Menlo,monospace; color:var(--navy);}
+.alerts div{border-radius:8px; padding:8px 11px; font-size:13.5px; line-height:1.45; margin:6px 0;}
+.a-ok{background:var(--green-bg); color:var(--green);}
+.a-warn{background:var(--amber-bg); color:var(--amber-dk);}
+.a-bad{background:var(--red-bg); color:var(--red);}
+.steplist{list-style:none; padding:0; margin:8px 0 0;}
+.steplist li{padding:9px 10px; border-radius:9px; font-size:14px; line-height:1.45; border:1px solid transparent; opacity:.45;}
+.steplist li.done{opacity:.8;}
+.steplist li.now{opacity:1; background:var(--blue-bg); border-color:var(--blue-line);}
+.steplist .tm{font:800 13px ui-monospace,Menlo,monospace; color:var(--accent); margin-right:8px;}
+
+/* quiz */
+.opt{display:block; width:100%; text-align:left; border:1px solid var(--line); background:var(--card); color:var(--ink); border-radius:9px; padding:12px 14px; font:500 15px -apple-system,sans-serif; margin:7px 0; cursor:pointer;}
+.opt.ok{background:var(--green-bg); border-color:var(--green); color:var(--green); font-weight:700;}
+.opt.bad{background:var(--red-bg); border-color:var(--red); color:var(--red);}
+.qq{font-size:17px; font-weight:700; color:var(--navy); line-height:1.4; margin:4px 0 8px;}
+.prog{height:6px; background:var(--soft); border-radius:3px; overflow:hidden; margin:8px 0;}
+.prog i{display:block; height:100%; background:var(--accent); width:0;}
+.expl{display:none; margin-top:10px;}
+.foot{text-align:center; font-size:11.5px; color:var(--gray); margin-top:24px; line-height:1.5;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <h1>A-CDM 101</h1>
+    <p>Airport Collaborative Decision Making — for crews and dispatchers</p>
+    <p class="appver" style="font-size:11.5px;margin-top:3px;opacity:.85">v1 · 28/09/2026</p>
+  </div>
+  <div class="tabs" id="tabs">
+    <button data-v="basics" class="on">Basics</button>
+    <button data-v="ms">Milestones</button>
+    <button data-v="times">Times</button>
+    <button data-v="crew">Crew &amp; Dispatch</button>
+    <button data-v="tl">Timeline</button>
+    <button data-v="quiz">Quiz</button>
+  </div>
+
+<!-- ================= BASICS ================= -->
+<section class="view on" id="v-basics">
+  <div class="card">
+    <h2>What A-CDM is</h2>
+    <p><b>Airport Collaborative Decision Making (A-CDM)</b> is a set of procedures and data sharing between the <b>aircraft operator</b>, <b>ground handler</b>, <b>airport operator</b>, <b>ATC</b> and the <b>Network Manager (NM)</b>. Everyone works from the same live times for each flight, so the turnaround, the start-up sequence and the ATFM slot are all planned on one shared picture.</p>
+    <p>The key idea is simple: <b>the operator tells the system when the aircraft will really be ready (TOBT)</b>; <b>ATC turns that into a start-up time (TSAT)</b> that fits the runway sequence and any CTOT; the <b>airport sends the resulting take-off estimate to the Network Manager</b> through DPI messages, which improves the whole network's traffic prediction.</p>
+    <div class="info">In Europe the reference documents are the EUROCONTROL <b>Specification for A-CDM</b> (Ed. 1.0, Jan 2025 — successor of the A-CDM Implementation Manual v5, 2017) and the NM <b>DPI Implementation Guide</b>. Each airport publishes its own local rules (AIP AD 2.20/2.22 and an A-CDM brochure) — <b>local rules always prevail</b> over the generic values in this app.</div>
+  </div>
+
+  <div class="card">
+    <h2>Who does what</h2>
+    <div class="tw"><table class="t">
+      <tr><th>Partner</th><th>Owns / provides</th></tr>
+      <tr><td><span class="tag w-ao">AO</span> Aircraft operator</td><td>Flight plan (EOBT), <b>TOBT</b> (may delegate it to the ground handler), de-icing request, crew/pax readiness.</td></tr>
+      <tr><td><span class="tag w-gh">GH</span> Ground handler / FBO</td><td>Turnaround progress; very often the <b>TOBT responsible person</b> on behalf of the AO (usual case for business aviation).</td></tr>
+      <tr><td><span class="tag w-ap">AP</span> Airport operator</td><td>Stand/gate allocation, the A-CDM platform, airport slot (SOBT) at coordinated airports, MTTT, taxi-time tables.</td></tr>
+      <tr><td><span class="tag w-atc">ATC</span> Tower / pre-departure sequencer</td><td><b>TSAT</b> and the start-up/push sequence, taxi times (EXOT), start-up and push clearances.</td></tr>
+      <tr><td><span class="tag w-nm">NM</span> Network Manager</td><td><b>CTOT</b> for regulated flights; receives DPI messages from the airport, updates the flight's profile and can refine the slot.</td></tr>
+    </table></div>
+  </div>
+
+  <div class="card">
+    <h2>The five building blocks</h2>
+    <ol>
+      <li><b>Information sharing</b> — one common platform with all times per flight.</li>
+      <li><b>Milestone approach</b> — 16 events (plus 3 de-icing events) that track the flight from flight-plan activation to take-off. <i>See the Milestones tab.</i></li>
+      <li><b>Variable taxi time</b> — realistic EXOT/EXIT per stand and runway, not a single default.</li>
+      <li><b>Pre-departure sequencing</b> — TSAT issued from TOBT, taxi time, CTOT and runway capacity (first-come-first-<i>ready</i>, not first-come-first-served).</li>
+      <li><b>Adverse conditions &amp; collaborative management of flight updates</b> — de-icing, capacity drops, and the DPI link to the Network Manager.</li>
+    </ol>
+  </div>
+
+  <div class="card">
+    <h2>The chain in one line</h2>
+    <p style="font:700 15px ui-monospace,Menlo,monospace; color:var(--navy); line-height:1.8">
+      EOBT <span class="muted">(FPL)</span> → TOBT <span class="muted">(AO/GH)</span> → TSAT <span class="muted">(ATC)</span> → +EXOT → TTOT <span class="muted">(→ NM via DPI)</span> ⇄ CTOT <span class="muted">(NM)</span>
+    </p>
+    <ul>
+      <li><b>TOBT</b> = when the aircraft will be ready: doors closed, bridge/stairs removed, tug connected, ready for start-up/push <b>immediately</b> on clearance.</li>
+      <li><b>TSAT</b> = when you can expect start-up/push approval. It is never earlier than TOBT.</li>
+      <li><b>TTOT</b> = the resulting take-off time (TOBT or TSAT + taxi-out time). If the flight has a <b>CTOT</b>, the sequencer places TTOT inside the slot window (−5/+10 min).</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>Why it matters to a bizjet crew</h2>
+    <ul>
+      <li>At an A-CDM airport <b>your start-up is by TSAT, not by when you call</b>. Calling early does not move you up.</li>
+      <li>A TOBT that is wrong (too early or not updated) costs you: missed TSAT → TOBT/TSAT deleted → you go back in the queue.</li>
+      <li>Your TOBT feeds the NM: a realistic TOBT can get you a better CTOT; an unrealistic one can lose you the slot.</li>
+      <li>At many CDM airports a TOBT more than 15 min after EOBT generates an <b>automatic DLA</b> — but the operator still owns the flight plan.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ================= MILESTONES ================= -->
+<section class="view" id="v-ms">
+  <div class="card">
+    <h2>The 16 milestones</h2>
+    <p>Each milestone is an event whose time is recorded in the A-CDM platform. Missing or late milestones trigger alerts and recalculations. Tap a milestone for details.</p>
+    <div class="chips" id="msf">
+      <button class="chip on" data-f="all">All</button>
+      <button class="chip" data-f="pre">Planning</button>
+      <button class="chip" data-f="in">Inbound</button>
+      <button class="chip" data-f="turn">Turnaround</button>
+      <button class="chip" data-f="out">Departure</button>
+      <button class="chip" data-f="dice">De-icing</button>
+    </div>
+    <div id="mslist"></div>
+    <p class="muted">Source: EUROCONTROL Specification for A-CDM Ed. 1.0 (2025). Times such as TOBT+10 or TSAT±5 are the generic values; each airport may use its own.</p>
+  </div>
+</section>
+
+<!-- ================= TIMES ================= -->
+<section class="view" id="v-times">
+  <div class="card">
+    <h2>Time parameters</h2>
+    <p>Letters: <b>S</b>cheduled · <b>E</b>stimated · <b>T</b>arget · <b>C</b>alculated · <b>A</b>ctual. Tap a filter or search.</p>
+    <input class="search" id="tq" placeholder="Search (e.g. TSAT, taxi, de-icing)">
+    <div class="chips" id="tf">
+      <button class="chip on" data-f="all">All</button>
+      <button class="chip" data-f="key">Key times</button>
+      <button class="chip" data-f="E">Estimated</button>
+      <button class="chip" data-f="T">Target</button>
+      <button class="chip" data-f="A">Actual</button>
+      <button class="chip" data-f="D">De-icing</button>
+    </div>
+    <div class="tw"><table class="t" id="ttab"></table></div>
+  </div>
+  <div class="card">
+    <h2>Key formulas</h2>
+    <div class="tw"><table class="t">
+      <tr><th>Formula</th><th>Meaning</th></tr>
+      <tr><td class="code">EIBT = ELDT + EXIT</td><td>Inbound: expected in-block from landing estimate plus taxi-in.</td></tr>
+      <tr><td class="code">TOBT = EIBT + MTTT</td><td>Automatic TOBT before arrival (turnaround flights); the TOBT responsible person then confirms or updates it.</td></tr>
+      <tr><td class="code">TOBT = AIBT + MTTT</td><td>Same, once the aircraft is actually on blocks.</td></tr>
+      <tr><td class="code">TTOT = TOBT + EXOT</td><td>Target take-off before sequencing.</td></tr>
+      <tr><td class="code">TTOT ≈ TSAT + EXOT</td><td>Once sequenced, the take-off target follows the start-up time (TSAT ≥ TOBT).</td></tr>
+      <tr><td class="code">TTOT = AOBT + EXOT</td><td>After off-block, recalculated from the actual push time.</td></tr>
+      <tr><td class="code">TTOT = ECZT + EDIT + EXOT</td><td>With de-icing: start of de-icing + de-icing duration + taxi (remote pad case).</td></tr>
+      <tr><td class="code">CTOT −5 / +10</td><td>ATFM slot tolerance window that the take-off must meet (for ATC).</td></tr>
+    </table></div>
+  </div>
+  <div class="card">
+    <h2>DPI messages (airport → Network Manager)</h2>
+    <div class="tw"><table class="t">
+      <tr><th>Message</th><th>Sent when</th><th>What it tells NM</th></tr>
+      <tr><td class="code">P-DPI</td><td>Predicted — flight plan received early (before EOBT −3 h)</td><td>Early prediction of the departure.</td></tr>
+      <tr><td class="code">E-DPI</td><td>Early — MST1 (FPL activated / correlated, ~EOBT −3 h)</td><td>Flight known to the airport; first TTOT with taxi time.</td></tr>
+      <tr><td class="code">T-DPI-t</td><td>Target — from MST2 (EOBT −2 h); each TOBT update or TTOT change ≥ 5 min</td><td>TOBT-based TTOT; NM uses it to update the flight and the CTOT.</td></tr>
+      <tr><td class="code">T-DPI-s</td><td>Sequenced — from TSAT issue (MST10); last one at start-up approval (MST14)</td><td>TSAT-based TTOT — the most reliable take-off estimate.</td></tr>
+      <tr><td class="code">A-DPI</td><td>Actual — at off-block (MST15)</td><td>Aircraft has left the stand; <b>the CTOT is frozen</b>.</td></tr>
+      <tr><td class="code">C-DPI</td><td>Cancel — TOBT deleted, TSAT expired, return to stand, etc.</td><td>Previous DPI info is no longer valid; the flight falls back to FPL data.</td></tr>
+    </table></div>
+    <p class="muted">NM plans to end AFTN exchange for DPI: from 31/12/2027 B2B will be the only channel (Spec. A-CDM Ed. 1.0).</p>
+  </div>
+  <div class="card">
+    <h2>Main alerts you may hear about</h2>
+    <div class="tw"><table class="t">
+      <tr><th>Alert</th><th>Trigger</th></tr>
+      <tr><td class="code">CDM01</td><td>No airport slot available, or slot already correlated (flight plan vs slot).</td></tr>
+      <tr><td class="code">CDM02</td><td>SOBT vs initial EOBT discrepancy.</td></tr>
+      <tr><td class="code">CDM07</td><td>Turnaround not feasible — EIBT + MTTT later than the EOBT.</td></tr>
+      <tr><td class="code">CDM08</td><td>EOBT/TOBT discrepancy — they differ by 15 min or more.</td></tr>
+      <tr><td class="code">CDM10</td><td>Off-block not recorded by ASAT + 5 min.</td></tr>
+    </table></div>
+    <p class="muted">Alerts 50 and above are reserved for local use.</p>
+  </div>
+</section>
+
+<!-- ================= CREW ================= -->
+<section class="view" id="v-crew">
+  <div class="grid2">
+  <div class="card">
+    <h2>1 · Before the day</h2>
+    <ul>
+      <li>Check if the airport is <b>A-CDM</b> (AIP AD 2.20/2.22, airport A-CDM brochure, handler). Note the local values: TOBT update threshold, start-up window, push time after approval, how DCL is obtained.</li>
+      <li>File a <b>realistic EOBT</b>. The TOBT will be compared with it all day.</li>
+      <li>Agree with the handler/FBO <b>who is the TOBT responsible person</b> and how the crew passes updates (phone, app, portal). In business aviation this is usually the handler.</li>
+      <li>Remote stand or tow required? Build it into the TOBT — TOBT means ready to push/start <b>at</b> that time.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h2>2 · Setting the TOBT</h2>
+    <ul>
+      <li>TOBT = <b>all doors closed, stairs/bridge removed, tug connected (if needed), crew ready to start immediately</b>.</li>
+      <li>It is <b>not</b> "pax arrival time" nor "engine start time + 10".</li>
+      <li>Give the handler an honest TOBT as early as you can; accuracy is what the sequencer needs.</li>
+      <li>The platform alerts (CDM08) when TOBT and EOBT differ by <b>15 min or more</b>.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h2>3 · Updating the TOBT</h2>
+    <ul>
+      <li>Update as soon as you know the change — typically <b>when it changes by 5 min or more</b> (local threshold may differ).</li>
+      <li>Best before the TSAT is issued (<b>TOBT −40 to −30 min</b>). A change after that re-sequences you — usually later.</li>
+      <li>Not ready at TOBT? Update it. If no update and no "ready" by <b>TOBT +10</b>, the TOBT is removed and you have no sequence.</li>
+      <li>Ready earlier? An earlier TOBT can give an earlier TSAT — and, via DPI, possibly a better CTOT.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h2>4 · On frequency</h2>
+    <ul>
+      <li>Obtain the <b>departure clearance</b> (DCL/voice) as locally required, usually before the start-up request.</li>
+      <li>Request start-up <b>within the TSAT window</b> (commonly <b>TSAT ±5 min</b>). Calling earlier does not move you up.</li>
+      <li>After start-up approval, <b>push/start promptly</b> — many airports expect off-block within ~5 min (CDM10 alert at ASAT +5).</li>
+      <li>If you have not requested start-up by <b>TSAT +10</b>, TSAT and TOBT are removed → new TOBT via handler → new TSAT.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h2>5 · TSAT and the CTOT</h2>
+    <ul>
+      <li>For a regulated flight, the sequencer sets the TSAT so the TTOT falls inside the <b>CTOT window (−5/+10)</b>.</li>
+      <li>The T-DPI messages give NM your TOBT-based take-off time — NM can <b>improve</b> the CTOT when you are ready earlier, or <b>re-issue</b> it when you will be later.</li>
+      <li>If TOBT + EXOT is already after CTOT +10, the slot cannot be met — expect a new CTOT (the AO/handler can also send a DLA or ask NM for a slot change).</li>
+      <li>At off-block the A-DPI <b>freezes the CTOT</b>.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h2>6 · EOBT, DLA and the flight plan</h2>
+    <ul>
+      <li>The AO <b>remains responsible for the flight plan</b>.</li>
+      <li>At airports covered by NM's <b>EOBT Update Service</b>, a TOBT later than EOBT by more than 15 min makes NM send a <b>DLA automatically</b> (for AOs using the service). Elsewhere, send the DLA yourself.</li>
+      <li>A DLA can only delay. To bring the EOBT <b>earlier</b>, the flight plan normally has to be cancelled and refiled.</li>
+      <li>IFPS/ICAO: a flight should not depart more than 15 min before, or later than 15 min after, its EOBT without a flight plan update.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h2>7 · De-icing</h2>
+    <ul>
+      <li>Request de-icing as early as possible, through the handler or ATC as locally required (<b>MST D1</b>).</li>
+      <li>The platform adds the de-icing time: <span class="code">TTOT = ECZT + EDIT + EXOT</span> (remote pad) — your TSAT may change.</li>
+      <li>On-stand and remote de-icing are handled differently — check whether the local TOBT includes the de-icing or not.</li>
+      <li>D2/D3 record start/end of de-icing (ACZT/AEZT); holdover time runs from the start of the final step.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h2>8 · Quick turn at a CDM airport</h2>
+    <ol>
+      <li>Arrival: handler confirms TOBT (from AIBT + MTTT or your estimate).</li>
+      <li>Watch the clock at <b>TOBT −40</b>: TSAT will appear (handler/app/DCL).</li>
+      <li>Change ≥ 5 min? → handler updates TOBT <b>now</b>.</li>
+      <li>DCL, doors closed, tug ready by TOBT.</li>
+      <li>Call start-up inside TSAT ±5.</li>
+      <li>Push promptly after approval.</li>
+    </ol>
+  </div>
+  </div>
+  <div class="note">Generic values from the EUROCONTROL A-CDM Specification and typical airport briefings. Always check the airport's AIP and A-CDM brochure — windows (±5, TOBT +10, etc.), who enters the TOBT and how start-up is requested vary.</div>
+</section>
+
+<!-- ================= TIMELINE ================= -->
+<section class="view" id="v-tl">
+  <div class="card">
+    <h2>Timeline calculator</h2>
+    <p>Enter times in UTC (HHMM). The sequencer delay simulates runway/stand queue. Leave CTOT blank for an unregulated flight.</p>
+    <div class="form">
+      <div><label>EOBT (FPL)</label><input id="iEOBT" inputmode="numeric" maxlength="4" value="1000"></div>
+      <div><label>TOBT</label><input id="iTOBT" inputmode="numeric" maxlength="4" value="1010"></div>
+      <div><label>EXOT (min)</label><input id="iEXOT" inputmode="numeric" maxlength="3" value="12"></div>
+      <div><label>CTOT (optional)</label><input id="iCTOT" inputmode="numeric" maxlength="4" value="1045"></div>
+      <div><label>Seq. delay (min)</label><input id="iQ" inputmode="numeric" maxlength="3" value="0"></div>
+      <div><label>De-icing (EDIT, min)</label><input id="iDI" inputmode="numeric" maxlength="3" value="0"></div>
+    </div>
+    <div class="row">
+      <button class="btn sec" data-pre="a">Example: unregulated</button>
+      <button class="btn sec" data-pre="b">Example: CTOT later</button>
+      <button class="btn sec" data-pre="c">Example: slot lost</button>
+      <button class="btn sec" data-pre="d">Example: late TOBT → DLA</button>
+    </div>
+    <div class="res" id="res"></div>
+    <div class="alerts" id="alerts"></div>
+    <div class="tlbox"><svg id="tlsvg" viewBox="0 0 1000 300"></svg></div>
+    <p class="muted">Simplified model: TSAT = latest of TOBT + sequencer delay and (CTOT − EXOT − EDIT); TTOT = TSAT + EDIT + EXOT. Real sequencers also use stand, runway and local constraints.</p>
+  </div>
+  <div class="card">
+    <h2>Step through the departure</h2>
+    <p>Uses the times above. Tap <b>Next</b> to move the clock milestone by milestone.</p>
+    <div class="row"><button class="btn" id="stNext">Next ▶</button><button class="btn sec" id="stReset">Reset</button><span class="muted" id="stClock"></span></div>
+    <ul class="steplist" id="steps"></ul>
+  </div>
+</section>
+
+<!-- ================= QUIZ ================= -->
+<section class="view" id="v-quiz">
+  <div class="card">
+    <h2>Quiz</h2>
+    <div class="chips" id="qf">
+      <button class="chip on" data-f="all">All</button>
+      <button class="chip" data-f="basics">Basics</button>
+      <button class="chip" data-f="ms">Milestones</button>
+      <button class="chip" data-f="times">Times &amp; DPI</button>
+      <button class="chip" data-f="crew">Crew scenarios</button>
+      <button class="chip" data-f="miss">Review missed</button>
+    </div>
+    <div class="row"><span class="muted" id="qstat"></span></div>
+    <div class="prog"><i id="qbar"></i></div>
+    <div id="qbox"></div>
+  </div>
+</section>
+
+<div class="foot">A-CDM 101 · study aid only — not an operational document. Based on the EUROCONTROL Specification for A-CDM Ed. 1.0 (2025), NM DPI Implementation Guide and published airport A-CDM briefings. Local procedures prevail.<br>LR Aviation · lraviation.com.br</div>
+</div>
+
+<script>
+/* ---------- tabs ---------- */
+document.querySelectorAll('#tabs button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('#tabs button').forEach(x=>x.classList.toggle('on',x===b));
+  document.querySelectorAll('.view').forEach(v=>v.classList.toggle('on',v.id==='v-'+b.dataset.v));
+  try{localStorage.setItem('lracdm.tab',b.dataset.v);}catch(e){}
+  window.scrollTo(0,0);
+});
+try{const t=localStorage.getItem('lracdm.tab'); if(t){const b=document.querySelector('#tabs button[data-v="'+t+'"]'); if(b) b.click();}}catch(e){}
+
+/* ---------- milestones ---------- */
+const MS=[
+ {n:1,p:'pre',t:'ATC flight plan activated',w:'EOBT −3 h (or on receipt if later)',who:'ap',d:['Flight plan correlated with the airport slot (SOBT) and the stand.','<b>E-DPI</b> sent to NM (P-DPI if the plan arrived earlier).','Alerts CDM01/CDM02 if no slot or SOBT/EOBT mismatch.']},
+ {n:2,p:'pre',t:'EOBT −2 h',w:'EOBT −2 h',who:'nm',d:['First <b>T-DPI-t</b> sent; CTOT allocated by NM if the flight is regulated.','Turnaround feasibility checked (EIBT + MTTT vs EOBT → CDM07).']},
+ {n:3,p:'in',t:'Take-off from outstation',w:'ATOT at outstation',who:'nm',d:['Received via NM (FUM/FSA).','ELDT → EIBT → TOBT recalculated for the outbound leg.']},
+ {n:4,p:'in',t:'Local radar update',w:'Entry into FIR/TMA',who:'atc',d:['ELDT refined from radar.','Stand and turnaround planning updated.']},
+ {n:5,p:'in',t:'Final approach',w:'On final',who:'atc',d:['ELDT now very accurate; EIBT = ELDT + EXIT.']},
+ {n:6,p:'in',t:'Landed',w:'ALDT',who:'atc',d:['Actual landing time recorded; EIBT updated.']},
+ {n:7,p:'in',t:'In-block',w:'AIBT',who:'ap',d:['Aircraft on stand. Automatic TOBT = AIBT + MTTT (if the AO has not entered one).']},
+ {n:8,p:'turn',t:'Ground handling starts',w:'ACGT',who:'gh',d:['Turnaround begins (for flights without an inbound, e.g. first flight of the day or after a night stop, ACGT replaces MST 3–7).']},
+ {n:9,p:'turn',t:'TOBT confirmed / updated',w:'Before TSAT issue',who:'ao',d:['The TOBT responsible person (AO or handler) confirms or updates the TOBT.','Each update → new T-DPI-t (TTOT change ≥ 5 min).','CDM08 if TOBT and EOBT differ by 15 min or more; EOBT Update Service may send the DLA.']},
+ {n:10,p:'turn',t:'TSAT issued',w:'TOBT −40 to −30 min',who:'atc',d:['Pre-departure sequencer issues the TSAT, using TOBT, EXOT, CTOT and runway capacity.','<b>T-DPI-s</b> sent to NM. TSAT may still be refined afterwards.']},
+ {n:11,p:'turn',t:'Boarding starts',w:'ASBT',who:'gh',d:['Used as a check of TOBT reliability — if boarding starts too late for the TOBT, the TOBT should be updated.']},
+ {n:12,p:'turn',t:'Aircraft ready',w:'ARDT',who:'ao',d:['Doors closed, ground handling complete, ready for start-up/push.','If "ready" not recorded by TOBT +5 → alert; no TOBT update by <b>TOBT +10</b> → TOBT removed (C-DPI).']},
+ {n:13,p:'out',t:'Start-up requested',w:'ASRT',who:'ao',d:['Request within the TSAT window (commonly TSAT ±5).','TSAT +5 without start-up approval → ATC told TSAT has passed, may re-sequence.','No request by <b>TSAT +10</b> → TSAT and TOBT removed (C-DPI).']},
+ {n:14,p:'out',t:'Start-up approved',w:'ASAT',who:'atc',d:['Last T-DPI-s sent.','Off-block expected promptly — CDM10 if AOBT not recorded by ASAT +5.']},
+ {n:15,p:'out',t:'Off-block',w:'AOBT',who:'atc',d:['<b>A-DPI</b> sent; <b>CTOT frozen</b>.','TTOT = AOBT + EXOT; further A-DPIs if TTOT changes ≥ 5 min.']},
+ {n:16,p:'out',t:'Take-off',w:'ATOT',who:'atc',d:['Actual take-off recorded; FSA message to the destination (becomes their MST3).']},
+ {n:'D1',p:'dice',t:'De-icing requested',w:'Crew/AO request',who:'ao',d:['EDIT added to the calculations; TTOT = ECZT + EDIT + EXOT for remote de-icing.']},
+ {n:'D2',p:'dice',t:'De-icing commenced',w:'ACZT',who:'gh',d:['Actual commencement of de-icing.']},
+ {n:'D3',p:'dice',t:'De-icing ended',w:'AEZT',who:'gh',d:['Actual end of de-icing; TTOT recalculated.']},
+];
+const WHO={ao:'AO/GH',gh:'GH',ap:'Airport',atc:'ATC',nm:'NM'};
+const PH={pre:'Planning',in:'Inbound',turn:'Turnaround',out:'Departure',dice:'De-icing (best practice)'};
+function drawMS(f){
+  let h='',last='';
+  MS.filter(m=>f==='all'||m.p===f).forEach(m=>{
+    if(m.p!==last){h+=`<div class="phase-h">${PH[m.p]}</div>`; last=m.p;}
+    h+=`<div class="ms" onclick="this.classList.toggle('open')"><div class="n ${m.p==='dice'?'d':''}">${m.n}</div><div><b>${m.t}</b> <span class="tag w-${m.who}">${WHO[m.who]}</span><div class="sub">${m.w}</div><div class="more"><ul>${m.d.map(x=>'<li>'+x+'</li>').join('')}</ul></div></div></div>`;
+  });
+  document.getElementById('mslist').innerHTML=h;
+}
+document.querySelectorAll('#msf .chip').forEach(c=>c.onclick=()=>{document.querySelectorAll('#msf .chip').forEach(x=>x.classList.toggle('on',x===c)); drawMS(c.dataset.f);});
+drawMS('all');
+
+/* ---------- times ---------- */
+const TM=[
+ ['SOBT','Scheduled Off-Block Time','Airport slot time at coordinated airports (from the slot coordinator).','ap','S',0],
+ ['EOBT','Estimated Off-Block Time','Off-block time in the ATC flight plan. Owned by the AO; updated by DLA/CHG (or automatic DLA via the NM EOBT Update Service).','ao','E',1],
+ ['TOBT','Target Off-Block Time','Time the AO or handler estimates the aircraft will be ready: all doors closed, boarding bridge removed, push-back vehicle present, ready to start-up/push immediately on clearance.','ao','T',1],
+ ['TSAT','Target Start-up Approval Time','Time, provided by ATC taking into account TOBT, CTOT and the traffic situation, at which the aircraft can expect start-up/push approval. Issued TOBT −40 to −30 min.','atc','T',1],
+ ['TTOT','Target Take-Off Time','Take-off target: TOBT/TSAT + EXOT (+ de-icing). Sent to NM in DPI messages.','atc','T',1],
+ ['CTOT','Calculated Take-Off Time','ATFM slot from the Network Manager for a regulated flight. Tolerance −5/+10 min.','nm','C',1],
+ ['EXOT','Estimated Taxi-Out Time','Stand to runway, including push-back and line-up time. Variable per stand/runway/conditions.','ap','E',1],
+ ['EXIT','Estimated Taxi-In Time','Runway to stand, inbound.','ap','E',0],
+ ['ELDT','Estimated Landing Time','Inbound landing estimate from NM (FUM) and local radar.','atc','E',0],
+ ['EIBT','Estimated In-Block Time','ELDT + EXIT.','ap','E',0],
+ ['MTTT','Minimum Turn-round Time','Minimum time needed between in-block and off-block for that aircraft/operation.','ao','E',0],
+ ['ALDT','Actual Landing Time','Inbound touchdown (MST6).','atc','A',0],
+ ['AIBT','Actual In-Block Time','Inbound on blocks (MST7).','ap','A',0],
+ ['ACGT','Actual Commencement of Ground Handling Time','Turnaround starts (MST8).','gh','A',0],
+ ['ASBT','Actual Start Boarding Time','Boarding starts (MST11).','gh','A',0],
+ ['ARDT','Actual Ready Time','Aircraft ready for start-up/push (MST12).','ao','A',1],
+ ['ASRT','Actual Start-up Request Time','Crew requests start-up (MST13).','ao','A',0],
+ ['ASAT','Actual Start-up Approval Time','ATC approves start-up (MST14).','atc','A',0],
+ ['AOBT','Actual Off-Block Time','Aircraft leaves the stand (MST15) — A-DPI, CTOT frozen.','atc','A',1],
+ ['ATOT','Actual Take-Off Time','Wheels up (MST16).','atc','A',0],
+ ['EDIT','Estimated De-icing Time','Expected duration of de-icing.','gh','D',0],
+ ['ECZT','Estimated Commencement of De-icing Time','Expected start of de-icing.','gh','D',0],
+ ['EEZT','Estimated End of De-icing Time','Expected end of de-icing.','gh','D',0],
+ ['ACZT','Actual Commencement of De-icing Time','De-icing starts (MST D2).','gh','D',0],
+ ['AEZT','Actual End of De-icing Time','De-icing ends (MST D3).','gh','D',0],
+];
+let tF='all';
+function drawT(){
+  const q=document.getElementById('tq').value.trim().toLowerCase();
+  const esc=s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+  const hl=s=>q?s.replace(new RegExp('('+esc(q)+')','ig'),'<mark>$1</mark>'):s;
+  let h='<tr><th>Code</th><th>Name</th><th>Meaning</th><th>Set by</th></tr>';
+  TM.filter(r=>(tF==='all'||(tF==='key'?r[5]:r[4]===tF))&&(!q||(r.join(' ').toLowerCase().includes(q)))).forEach(r=>{
+    h+=`<tr><td class="code">${hl(r[0])}</td><td>${hl(r[1])}</td><td>${hl(r[2])}</td><td><span class="tag w-${r[3]}">${WHO[r[3]]}</span></td></tr>`;
+  });
+  document.getElementById('ttab').innerHTML=h;
+}
+document.getElementById('tq').oninput=drawT;
+document.querySelectorAll('#tf .chip').forEach(c=>c.onclick=()=>{document.querySelectorAll('#tf .chip').forEach(x=>x.classList.toggle('on',x===c)); tF=c.dataset.f; drawT();});
+drawT();
+
+/* ---------- timeline ---------- */
+const $=id=>document.getElementById(id);
+function pT(s){s=String(s).replace(/\D/g,''); if(s.length<3) return null; s=s.padStart(4,'0'); const h=+s.slice(0,2), m=+s.slice(2); if(h>23||m>59) return null; return h*60+m;}
+function fT(m){m=((Math.round(m)%1440)+1440)%1440; return String(Math.floor(m/60)).padStart(2,'0')+String(m%60).padStart(2,'0');}
+function near(v,ref){ if(v==null) return null; while(v-ref>720) v-=1440; while(ref-v>720) v+=1440; return v; }
+let R=null;
+function calc(){
+  const E=pT($('iEOBT').value); if(E==null){$('res').innerHTML='<div><small>Error</small><b>EOBT?</b></div>'; return;}
+  let T=near(pT($('iTOBT').value),E); if(T==null) T=E;
+  const X=Math.max(0,parseInt($('iEXOT').value)||0), Q=Math.max(0,parseInt($('iQ').value)||0), DI=Math.max(0,parseInt($('iDI').value)||0);
+  const C=near(pT($('iCTOT').value),E);
+  let S=T+Q;
+  if(C!=null) S=Math.max(S, C-X-DI);
+  const TT=S+DI+X;
+  const al=[];
+  const dE=T-E;
+  if(dE>=15) al.push(['warn',`CDM08: TOBT is ${dE} min after EOBT (≥ 15). With the NM EOBT Update Service a DLA to ${fT(T)} is sent automatically; otherwise the AO must send the DLA.`]);
+  else if(dE<=-15) al.push(['warn',`CDM08: TOBT is ${-dE} min before EOBT (≥ 15). The flight must not depart more than 15 min before EOBT — the flight plan needs updating (earlier EOBT = cancel and refile).`]);
+  else al.push(['ok',`TOBT within 15 min of EOBT (${dE>=0?'+':''}${dE} min) — no CDM08.`]);
+  if(C!=null){
+    const lo=C-5, hi=C+10;
+    if(T+Q+DI+X>hi) al.push(['bad',`Slot cannot be met: earliest TTOT ${fT(T+Q+DI+X)} is after CTOT +10 (${fT(hi)}). Expect a revised CTOT (T-DPI → NM), or act: DLA / ask NM for a new slot.`]);
+    else if(S>T+Q) al.push(['ok',`TSAT held to ${fT(S)} (${S-T} min after TOBT) so that TTOT ${fT(TT)} meets the CTOT ${fT(C)} (window ${fT(lo)}–${fT(hi)}). An earlier TOBT alone will not move you up — NM may improve the CTOT from the DPI.`]);
+    else al.push(['ok',`TTOT ${fT(TT)} is inside the CTOT window ${fT(lo)}–${fT(hi)}.`]);
+  } else al.push(['ok','Unregulated flight — TSAT set by TOBT and the departure sequence only.']);
+  al.push(['warn',`Watch: TOBT removed if no "ready"/update by TOBT +10 (${fT(T+10)}); TSAT/TOBT removed if no start-up request by TSAT +10 (${fT(S+10)}).`]);
+  R={E,T,X,Q,DI,C,S,TT};
+  $('res').innerHTML=[['EOBT',fT(E)],['TOBT',fT(T)],['TSAT issue window',fT(T-40)+'–'+fT(T-30)],['TSAT',fT(S)],['Start-up window',fT(S-5)+'–'+fT(S+5)],['TTOT',fT(TT)],C!=null?['CTOT window',fT(C-5)+'–'+fT(C+10)]:null].filter(Boolean).map(r=>`<div><small>${r[0]}</small><b>${r[1]}</b></div>`).join('');
+  $('alerts').innerHTML=al.map(a=>`<div class="a-${a[0]}">${a[1]}</div>`).join('');
+  drawTL(); buildSteps();
+}
+function drawTL(){
+  const {E,T,X,DI,C,S,TT}=R;
+  const pts=[E-60,T-45,E,T,S,TT]; if(C!=null) pts.push(C-5,C+10);
+  let t0=Math.floor((Math.min(...pts)-5)/15)*15, t1=Math.ceil((Math.max(...pts)+10)/15)*15;
+  const W=1000,L=120,Rr=980, x=t=>L+(t-t0)/(t1-t0)*(Rr-L);
+  const css=getComputedStyle(document.documentElement), col=v=>css.getPropertyValue(v).trim();
+  const ink=col('--ink'), grid=col('--grid'), gray=col('--gray');
+  let s='';
+  for(let t=t0;t<=t1;t+=15){ s+=`<line x1="${x(t)}" y1="30" x2="${x(t)}" y2="275" stroke="${grid}"/><text x="${x(t)}" y="22" font-size="13" text-anchor="middle" fill="${gray}">${fT(t)}</text>`; }
+  const lanes=[['FPL',60,col('--c-ao')],['AO/GH',105,col('--c-ao')],['ATC',150,col('--c-atc')],['Runway',195,col('--c-atc')],['NM',240,col('--c-nm')]];
+  lanes.forEach(l=>{ s+=`<text x="10" y="${l[1]+5}" font-size="14" font-weight="700" fill="${l[2]}">${l[0]}</text>`; });
+  const mk=(t,y,lbl,c)=>`<line x1="${x(t)}" y1="${y-14}" x2="${x(t)}" y2="${y+14}" stroke="${c}" stroke-width="4" stroke-linecap="round"/><text x="${x(t)}" y="${y-19}" font-size="13" font-weight="800" text-anchor="middle" fill="${c}">${lbl} ${fT(t)}</text>`;
+  const band=(a,b,y,c,lbl)=>`<rect x="${x(a)}" y="${y-10}" width="${Math.max(2,x(b)-x(a))}" height="20" rx="5" fill="${c}" opacity=".22"/><text x="${(x(a)+x(b))/2}" y="${y+26}" font-size="11.5" text-anchor="middle" fill="${gray}">${lbl}</text>`;
+  s+=mk(E,60,'EOBT',col('--c-ao'));
+  s+=band(E-15,E+15,60,col('--c-ao'),'EOBT ±15');
+  s+=band(T-40,T-30,105,col('--c-atc'),'TSAT issue');
+  s+=mk(T,105,'TOBT',col('--c-ao'));
+  s+=band(S-5,S+5,150,col('--c-atc'),'start-up window');
+  s+=mk(S,150,'TSAT',col('--c-atc'));
+  if(DI) s+=band(S,S+DI,195,col('--c-ap'),'de-icing');
+  s+=`<line x1="${x(S+DI)}" y1="195" x2="${x(TT)}" y2="195" stroke="${col('--c-atc')}" stroke-width="3" stroke-dasharray="6 5"/>`;
+  s+=mk(TT,195,'TTOT',col('--c-atc'));
+  if(C!=null){ s+=band(C-5,C+10,240,col('--c-nm'),'CTOT −5/+10'); s+=mk(C,240,'CTOT',col('--c-nm')); }
+  if(stepNow!=null){ const off=stepNow<t0, nx=x(Math.max(t0,Math.min(t1,stepNow))); s+=`<line x1="${nx}" y1="30" x2="${nx}" y2="275" stroke="${col('--red')}" stroke-width="2" ${off?'stroke-dasharray="4 4"':''}/><text x="${nx+4}" y="290" font-size="12" font-weight="800" fill="${col('--red')}">${off?'◀ ':''}now ${fT(stepNow)}</text>`; }
+  $('tlsvg').innerHTML=s;
+}
+let steps=[], si=-1, stepNow=null;
+function buildSteps(){
+  const {E,T,X,DI,C,S,TT}=R;
+  steps=[
+    [E-180,'MST1 · FPL activated → E-DPI. Flight appears on the CDM platform.'],
+    [E-120,'MST2 · EOBT −2 h → first T-DPI-t'+(C!=null?`. CTOT ${fT(C)} allocated (SAM).`:'. No regulation — no CTOT.')],
+    [Math.min(T-60,E-60),'MST8/9 · Handling under way; TOBT '+fT(T)+' confirmed by the TOBT responsible person → T-DPI-t.'+((T-E)>=15?' TOBT ≥ EOBT+15 → CDM08, DLA.':'')],
+    [T-40,`MST10 · TSAT ${fT(S)} issued (between ${fT(T-40)} and ${fT(T-30)}) → T-DPI-s with TTOT ${fT(TT)}.`],
+    [T-25,'MST11 · Boarding starts — last chance to update TOBT cleanly if it will slip ≥ 5 min.'],
+    [T,'MST12 · Aircraft ready (ARDT) — doors closed, tug connected. DCL obtained.'],
+    [Math.max(T,S-5),`MST13 · Start-up request inside the window ${fT(S-5)}–${fT(S+5)}.`],
+    [S,'MST14 · Start-up approved (ASAT) → last T-DPI-s. Push promptly (CDM10 at ASAT +5).'],
+    [S+2,'MST15 · Off-block (AOBT) → A-DPI. CTOT frozen'+(C==null?' (n/a)':'')+'. TTOT = AOBT + EXOT.'],
+    [TT,'MST16 · Take-off (ATOT) '+fT(TT)+(C!=null?` — CTOT window ${fT(C-5)}–${fT(C+10)} ${TT>=C-5&&TT<=C+10?'met ✓':'NOT met ✗'}`:'')+'. FSA to destination.'],
+  ];
+  si=-1; stepNow=null; showSteps(); drawTL();
+}
+function showSteps(){
+  $('steps').innerHTML=steps.map((s,i)=>`<li class="${i<si?'done':i===si?'now':''}"><span class="tm">${fT(s[0])}</span>${s[1]}</li>`).join('');
+  $('stClock').textContent=si>=0?'Clock '+fT(steps[si][0])+'Z':'';
+}
+$('stNext').onclick=()=>{ if(si<steps.length-1){si++; stepNow=steps[si][0]; showSteps(); drawTL();} };
+$('stReset').onclick=()=>{ si=-1; stepNow=null; showSteps(); drawTL(); };
+['iEOBT','iTOBT','iEXOT','iCTOT','iQ','iDI'].forEach(id=>$(id).addEventListener('input',calc));
+const PRE={a:['1000','1005','12','','0','0'],b:['1000','1005','12','1045','0','0'],c:['1000','1040','15','1030','0','0'],d:['1000','1030','10','','5','0']};
+document.querySelectorAll('[data-pre]').forEach(b=>b.onclick=()=>{ const p=PRE[b.dataset.pre]; ['iEOBT','iTOBT','iEXOT','iCTOT','iQ','iDI'].forEach((id,i)=>$(id).value=p[i]); calc(); });
+calc();
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>drawTL());
+
+/* ---------- quiz ---------- */
+const QZ=[
+// basics
+['basics','Who is responsible for the TOBT?',['The aircraft operator (may delegate to the ground handler)','ATC tower','The airport operator','The Network Manager'],0,'The AO owns the TOBT and may delegate it to the ground handler, who then becomes the "TOBT responsible person".'],
+['basics','Who issues the TSAT?',['ATC / the pre-departure sequencer','The ground handler','The Network Manager','The aircraft operator'],0,'The TSAT is produced by ATC (pre-departure sequencer) from TOBT, EXOT, CTOT and the traffic situation.'],
+['basics','Who issues the CTOT?',['The Network Manager','The airport A-CDM platform','Tower','The slot coordinator'],0,'CTOT = ATFM slot from the Network Manager for regulated flights.'],
+['basics','TOBT is best defined as the time the aircraft will be…',['Ready: doors closed, bridge removed, tug present, ready to start/push immediately on clearance','Boarding complete','Engines running','Airborne'],0,'TOBT includes everything needed to push/start immediately when cleared.'],
+['basics','What does "first-come-first-ready" mean in pre-departure sequencing?',['Start-up order is based on readiness (TOBT) and constraints, not on who calls first','The first aircraft to call gets start-up','Heavy aircraft go first','Slots are allocated by airport slot time only'],0,'The sequencer uses TOBT and constraints; calling early does not move you up.'],
+['basics','Which message family carries A-CDM data from the airport to the Network Manager?',['DPI','FUM','SAM','ACH'],0,'Departure Planning Information (E-, T-DPI-t, T-DPI-s, A-, C-DPI). FUM goes the other way (NM → arrival airport).'],
+['basics','Which of these is NOT one of the A-CDM building blocks?',['Free-route airspace','Variable taxi time','Pre-departure sequencing','Milestone approach'],0,'Free-route is an en-route airspace concept, not an A-CDM element.'],
+['basics','If local A-CDM procedures differ from the generic EUROCONTROL values, which apply?',['The local procedures','The generic EUROCONTROL values','Whichever is more conservative','ICAO Doc 4444 only'],0,'Airports publish their own windows and rules (AIP AD 2.20/2.22, CDM brochure).'],
+// milestones
+['ms','How many standard A-CDM milestones are there (excluding de-icing)?',['16','12','10','20'],0,'MST1 FPL activated … MST16 Take-off, plus D1–D3 for de-icing.'],
+['ms','Milestone 1 (ATC flight plan activated) typically occurs at…',['EOBT −3 h','EOBT −2 h','EOBT −1 h','TOBT −40 min'],0,'MST1 = EOBT −3 h (or on receipt if later); E-DPI sent.'],
+['ms','At milestone 2 (EOBT −2 h)…',['The first T-DPI-t is sent and a CTOT may be allocated','The TSAT is issued','The A-DPI is sent','Boarding starts'],0,'MST2 = EOBT −2 h: first T-DPI-t; NM allocates CTOT for regulated flights.'],
+['ms','When is the TSAT issued (MST10)?',['Between TOBT −40 and TOBT −30 min','At EOBT −2 h','At TOBT −10 min','At start-up request'],0,'Generic value from the A-CDM Specification: 40 to 30 min before TOBT.'],
+['ms','Which milestone sends the A-DPI and freezes the CTOT?',['MST15 Off-block','MST14 Start-up approved','MST16 Take-off','MST12 Aircraft ready'],0,'Off-block (AOBT) triggers the A-DPI; NM then freezes the CTOT.'],
+['ms','For a flight with no inbound (first flight of the day), which milestone replaces the inbound milestones 3–7?',['MST8 Ground handling starts','MST9 TOBT update','MST1 FPL activated','MST11 Boarding'],0,'Without an inbound leg the turnaround begins with ACGT (MST8).'],
+['ms','MST11 "Boarding starts" is mainly used to…',['Check the reliability of the TOBT','Issue the TSAT','Send the E-DPI','Allocate the stand'],0,'If boarding starts too late for the TOBT, the TOBT should be updated.'],
+['ms','Generic rule: if no TOBT update and no "aircraft ready" by TOBT + … the TOBT is removed.',['10 min','5 min','15 min','30 min'],0,'TOBT +5 → alert; TOBT +10 → TOBT removed (C-DPI).'],
+['ms','Generic rule: if start-up has not been requested by TSAT + …, TSAT and TOBT are removed.',['10 min','5 min','15 min','20 min'],0,'TSAT +5 → ATC informed and may re-sequence; TSAT +10 → TSAT & TOBT removed.'],
+['ms','The take-off milestone (MST16) sends which message to the destination?',['FSA (becomes their MST3)','A-DPI','C-DPI','SAM'],0,'ATOT → FSA; the destination uses it as "take-off from outstation".'],
+['ms','Which milestone records the crew request for de-icing?',['D1','D2','D3','MST13'],0,'D1 request (EDIT added), D2 commencement (ACZT), D3 end (AEZT).'],
+['ms','Automatic TOBT once the inbound is on blocks equals…',['AIBT + MTTT','ALDT + EXIT','EOBT + 15','TSAT − EXOT'],0,'TOBT = AIBT + MTTT (before in-block: EIBT + MTTT).'],
+// times & DPI
+['times','TTOT before sequencing is…',['TOBT + EXOT','EOBT + EXIT','CTOT − 5','TSAT − EXOT'],0,'Then TSAT-based once sequenced, and AOBT + EXOT after off-block.'],
+['times','EXOT includes…',['Push-back, taxi-out and line-up time','Only runway occupancy','De-icing time','Engine start and warm-up only'],0,'Taxi time includes push-back and time on the runway lining up/vacating.'],
+['times','EIBT is calculated as…',['ELDT + EXIT','ALDT + EXOT','ETOT + EET','TOBT − MTTT'],0,'Estimated in-block = estimated landing + taxi-in.'],
+['times','The CTOT tolerance window for ATC is…',['−5 / +10 min','±5 min','−10 / +5 min','±15 min'],0,'Standard ATFM slot tolerance.'],
+['times','A T-DPI-s is sent when…',['The TSAT is issued (and updated until start-up approval)','The FPL is activated','The aircraft goes off-block','The flight is cancelled'],0,'"s" = sequenced (TSAT-based). Last one at MST14.'],
+['times','A new T-DPI-t is sent when the TTOT changes by at least…',['5 min','1 min','10 min','15 min'],0,'TTOT change ≥ 5 min → updated DPI.'],
+['times','What does a C-DPI mean for NM?',['Previous DPI data is cancelled (e.g. TOBT deleted, TSAT expired, return to stand)','The flight plan is cancelled','The CTOT is frozen','The aircraft has landed'],0,'The flight falls back to flight-plan data; it is not an FPL cancellation.'],
+['times','Alert CDM08 is generated when…',['TOBT and EOBT differ by 15 min or more','TSAT is missed by 5 min','Off-block not recorded by ASAT +5','No airport slot'],0,'EOBT/TOBT discrepancy check.'],
+['times','Alert CDM10 refers to…',['AOBT not recorded by ASAT +5 min','TOBT missing','SOBT/EOBT mismatch','Turnaround not feasible'],0,'Start-up approved but aircraft not off-block within 5 min.'],
+['times','With de-icing on a remote pad, TTOT becomes…',['ECZT + EDIT + EXOT','TOBT + EDIT','AEZT − EXOT','CTOT + EDIT'],0,'Start of de-icing + duration + taxi.'],
+['times','What is the NM "EOBT Update Service"?',['NM sends a DLA automatically when TOBT exceeds EOBT by more than 15 min (for AOs using it)','NM moves the TOBT to match EOBT','The airport cancels the flight plan','ATC changes the CTOT'],0,'Available at CDM airports for AOs that subscribe; the AO still owns the FPL.'],
+['times','Which letter prefix is used for times provided by the Network Manager\'s slot allocation?',['C (Calculated)','T (Target)','E (Estimated)','S (Scheduled)'],0,'CTOT = Calculated Take-Off Time.'],
+// crew scenarios
+['crew','Pax will be 20 min late. TSAT has not yet been issued. What should happen?',['Handler updates the TOBT now','Wait and request start-up late','Call tower for an earlier start-up','Do nothing — ATC will adjust'],0,'Update as soon as known (change ≥ 5 min), ideally before TSAT issue.'],
+['crew','Your TSAT is 1030. When should you request start-up (generic window)?',['Between 1025 and 1035','Any time after 1015','Exactly at 1030 only','At TOBT'],0,'Commonly TSAT ±5 min — check local rules.'],
+['crew','You are ready 10 min before TSAT and call tower for start-up. Most likely result?',['"Expect start-up at TSAT" — no gain','Immediate start-up','Your CTOT is improved','Your TOBT is deleted'],0,'Start-up follows TSAT; readiness earlier only helps if the TOBT is updated before sequencing.'],
+['crew','You missed TSAT +10 without calling. What now?',['TOBT/TSAT removed — new TOBT via handler, then a new TSAT','Call tower, you keep your TSAT','NM gives a new CTOT automatically and you go','Refile the flight plan'],0,'The flight drops out of the sequence until a new TOBT is entered.'],
+['crew','EOBT 1000, CTOT 1045, EXOT 12, TOBT 1005. Roughly what TSAT would the sequencer give?',['About 1033','1005','1045','1000'],0,'TSAT ≈ CTOT − EXOT = 1033 so that TTOT ≈ 1045 (window 1040–1055).'],
+['crew','EOBT 1000, CTOT 1030, EXOT 15, TOBT now 1040. What is expected?',['Slot cannot be met — expect/obtain a revised CTOT','TSAT 1015','Take off at 1030 anyway','Nothing, the window is −5/+30'],0,'TOBT + EXOT = 1055, after CTOT +10 (1040).'],
+['crew','Your TOBT will be 25 min after EOBT at an airport with the EOBT Update Service (your AO subscribes). DLA?',['Sent automatically by NM from the TOBT','Must be sent by the crew by radio','Not needed at all, EOBT is ignored','ATC cancels the flight plan'],0,'TOBT > EOBT + 15 → automatic DLA. Elsewhere, the AO sends it.'],
+['crew','The flight is ready 30 min before EOBT. Can a DLA move the EOBT earlier?',['No — DLA only delays; cancel and refile','Yes, DLA works both ways','Yes, via TOBT update only','Yes, tower changes the EOBT'],0,'An earlier EOBT needs a new flight plan (CNL + refile). Departure must not be more than 15 min before EOBT.'],
+['crew','Start-up has been approved. Generic expectation for off-block?',['Promptly — CDM10 alert if not off-block by ASAT +5','Within 20 min','Any time before TTOT','Only after TSAT +10'],0,'Many airports require push within ~5 min of approval.'],
+['crew','On a remote stand with a mandatory tow, the TOBT should…',['Include the time needed so the aircraft is ready to move at TOBT','Be set when the tug arrives','Ignore the tow','Be the tow completion time + 30'],0,'TOBT = ready for push/start at that time; build in the local constraints.'],
+['crew','Ready 15 min early on a regulated flight. Best action?',['Update TOBT earlier — the T-DPI lets NM improve the CTOT if possible','Call tower for immediate departure','Send a DLA','Nothing can change a CTOT'],0,'An earlier TOBT → earlier TTOT in the DPI → NM may improve the slot.'],
+['crew','Who normally enters TOBT updates for a business jet at a CDM airport?',['The handler/FBO acting as TOBT responsible person','The PIC via tower frequency','The Network Manager','The airport duty manager'],0,'Agree in advance how the crew passes updates to the handler.'],
+];
+let qMode='all', qList=[], qi=0, qOK=0, qDone=0;
+function getMiss(){try{return JSON.parse(localStorage.getItem('lracdm.miss')||'[]');}catch(e){return [];}}
+function setMiss(a){try{localStorage.setItem('lracdm.miss',JSON.stringify(a));}catch(e){}}
+function shuf(a){a=a.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a;}
+function qStart(){
+  const miss=getMiss();
+  let idx=QZ.map((_,i)=>i).filter(i=>qMode==='all'||(qMode==='miss'?miss.includes(i):QZ[i][0]===qMode));
+  qList=shuf(idx); qi=0; qOK=0; qDone=0; qShow();
+}
+function qShow(){
+  const box=$('qbox');
+  $('qbar').style.width=(qList.length?qi/qList.length*100:0)+'%';
+  $('qstat').textContent=qList.length?`Question ${Math.min(qi+1,qList.length)} of ${qList.length} · correct ${qOK}/${qDone}`:'';
+  if(!qList.length){box.innerHTML='<p>'+(qMode==='miss'?'No missed questions — well done.':'No questions.')+'</p>'; return;}
+  if(qi>=qList.length){box.innerHTML=`<p class="qq">Done: ${qOK} / ${qList.length} (${Math.round(qOK/qList.length*100)}%)</p><button class="btn" id="qAgain">Again</button>`; $('qAgain').onclick=qStart; return;}
+  const k=qList[qi], q=QZ[k];
+  const ord=shuf(q[2].map((_,i)=>i));
+  box.innerHTML=`<p class="qq">${q[1]}</p>`+ord.map(i=>`<button class="opt" data-i="${i}">${q[2][i]}</button>`).join('')+`<div class="info expl" id="qex">${q[4]}</div><div class="row" style="margin-top:10px"><button class="btn" id="qNext" style="display:none">Next ▶</button></div>`;
+  box.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{
+    if(box.dataset.ans==='1') return; box.dataset.ans='1';
+    const i=+b.dataset.i, ok=i===q[3]; qDone++; if(ok) qOK++;
+    box.querySelectorAll('.opt').forEach(o=>{ if(+o.dataset.i===q[3]) o.classList.add('ok'); });
+    if(!ok) b.classList.add('bad');
+    let m=getMiss(); if(ok) m=m.filter(x=>x!==k); else if(!m.includes(k)) m.push(k); setMiss(m);
+    $('qex').style.display='block'; $('qNext').style.display='';
+    $('qstat').textContent=`Question ${qi+1} of ${qList.length} · correct ${qOK}/${qDone}`;
+  });
+  box.dataset.ans='0';
+  $('qNext').onclick=()=>{qi++; qShow();};
+}
+document.querySelectorAll('#qf .chip').forEach(c=>c.onclick=()=>{document.querySelectorAll('#qf .chip').forEach(x=>x.classList.toggle('on',x===c)); qMode=c.dataset.f; qStart();});
+qStart();
+
+</script>
+<script>
+if('serviceWorker' in navigator){ window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{})); }
+</script>
+</body>
+</html>
