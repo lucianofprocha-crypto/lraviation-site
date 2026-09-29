@@ -1,6 +1,6 @@
 {
-  "name": "A-CDM 101",
-  "short_name": "A-CDM 101",
+  "name": "A-CDM",
+  "short_name": "A-CDM",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
