@@ -109,6 +109,15 @@ select,input[type=date],input[type=time]{width:100%; font:500 16px -apple-system
 .summary{font-size:14px; margin:0 0 10px; line-height:1.5;}
 .legend{display:flex; gap:6px; flex-wrap:wrap; margin-top:8px;}
 .disc{font-size:12px; color:var(--gray); text-align:center; margin-top:20px; line-height:1.5;}
+.fs{position:fixed; inset:0; z-index:50; background:rgba(0,0,0,.55); display:none;}
+.fs.on{display:flex; flex-direction:column;}
+.fs .bar{display:flex; align-items:center; gap:10px; background:var(--card); border-bottom:1px solid var(--line); padding:calc(10px + env(safe-area-inset-top)) 14px 10px;}
+.fs .bar b{flex:1; font-size:14px; color:var(--navy); line-height:1.3;}
+.fs .bar a{font-size:13px; color:var(--accent); white-space:nowrap;}
+.fs .close{border:none; background:var(--navy); color:var(--card); font:600 15px -apple-system,sans-serif; padding:10px 16px; border-radius:8px; cursor:pointer;}
+.fs .body{flex:1; overflow:auto; -webkit-overflow-scrolling:touch; padding:12px 12px calc(16px + env(safe-area-inset-bottom)); background:var(--bg);}
+.fs .body img{display:block; width:100%; max-width:900px; margin:0 auto; background:#fff; border-radius:6px; box-shadow:0 2px 10px rgba(0,0,0,.25);}
+.fs .body p{max-width:900px; margin:10px auto 0; font-size:12px; color:var(--gray); text-align:center;}
 @media (max-width:600px){
   .grid{grid-template-columns:1fr;}
   dl{grid-template-columns:104px 1fr;}
@@ -122,7 +131,7 @@ select,input[type=date],input[type=time]{width:100%; font:500 16px -apple-system
 <div class="wrap">
   <div class="header">
     <h1>Metro Area Airports</h1>
-    <div class="ver">v1 · 01/10/2026</div>
+    <div class="ver">v2 · 01/10/2026</div>
     <p>London · New York · Paris: hours, curfews, slots, customs and a departure/arrival checker</p>
   </div>
 
@@ -167,6 +176,11 @@ select,input[type=date],input[type=time]{width:100%; font:500 16px -apple-system
   <p class="disc"><b>Planning reference only. Not for operational use and not a substitute for the AIP, NOTAMs or the airport/handler.</b><br>
   Compiled 01/10/2026 from public official sources: UK AIP (AIRAC 10/26), UK MIL AIP, FAA Chart Supplement, Federal Register, CBP General Aviation fact sheets and eAIP France (AIRAC 01 OCT 2026). Hours, curfews and procedures change; check the current publications before every flight. Car times are estimates.<br>
   <a href="../legal/" style="color:inherit">Operational disclaimer · Privacy · Terms of use</a> · <a href="../" style="color:inherit">lraviation.com.br</a></p>
+</div>
+
+<div class="fs" id="fsBox" role="dialog" aria-modal="true" aria-labelledby="fsTitle">
+  <div class="bar"><button class="close" onclick="closeCbp()">✕ Close</button><b id="fsTitle"></b><a id="fsWeb" href="#" target="_blank" rel="noopener">cbp.gov ↗</a></div>
+  <div class="body" id="fsBody"><img id="fsImg" alt=""><p>U.S. Customs and Border Protection publication (U.S. Government work), reproduced unchanged. Check cbp.gov for the latest version.</p></div>
 </div>
 
 <script>
@@ -282,7 +296,7 @@ NYC:{
     '<b>KJFK / KEWR / KLGA:</b> possible for the G550 but need a reservation or FAA approval, and each has only one FBO. KLGA has only 3 GA reservations per hour.',
     '<b>CBP:</b> only KJFK and KEWR clear H24. KTEB/KHPN until 23:15 ET; KFRG 23:00; KISP/KLGA 22:00. Out of hours: KFRG, KISP, KLGA via RSP/559 (paid, enrolled operators); KMMU, KSWF on request by 12:00 ET (Friday for the weekend); KTEB, KHPN no provision. KFRG, KISP, KLGA need the PTL e-mail ≥ 24 h before arrival.'
   ],
-  sources:'FAA Chart Supplement Northeast (cycle in effect 29 Sep 2026); PANYNJ Teterboro noise rules; Westchester County Airport noise programme; Republic Airport noise programme; Federal Register 23 Jun 2026 (LGA reservations; EWR operating limitations); CBP General Aviation Airport Fact Sheets (Nov 2025–Mar 2026; copies on each card, U.S. Government works) and the <a href="https://www.cbp.gov/travel/general-aviation-processing/general-aviation-airports" target="_blank" rel="noopener">CBP General Aviation Airports list</a> (25 Sep 2026). Car times are estimates. Confirm hours, reservations, CBP permission to land and NOTAMs before each flight.',
+  sources:'FAA Chart Supplement Northeast (cycle in effect 29 Sep 2026); PANYNJ Teterboro noise rules; Westchester County Airport noise programme; Republic Airport noise programme; Federal Register 23 Jun 2026 (LGA reservations; EWR operating limitations); CBP General Aviation Airport Fact Sheets (Nov 2025–Mar 2026; viewable on each card, U.S. Government works) and the <a href="https://www.cbp.gov/travel/general-aviation-processing/general-aviation-airports" target="_blank" rel="noopener">CBP General Aviation Airports list</a> (25 Sep 2026). Car times are estimates. Confirm hours, reservations, CBP permission to land and NOTAMs before each flight.',
   fields:[['hours','Operating hours'],['depS','Departure window, EDT (UTC−4, until 1 Nov 2026)'],['depW','Departure window, EST (UTC−5, from 1 Nov 2026)'],['night','Night / restrictions'],['rwy','Main runway'],['elev','Elevation'],['cbp','CBP hours (ET)'],['ptl','CBP permission to land (PTL)'],['cbpc','CBP contact / clearing point'],['cbpo','CBP outside normal hours'],['cbpfs','CBP fact sheet'],['slot','Slot / PPR'],['handling','Handling (FBO)'],['drive','From Midtown by car']],
   aps:[
    {icao:'KTEB', name:'Teterboro', lat:40.8501, lon:-74.0608, tags:[['n','H24'],['d','Vol. curfew 23–06 LT']],
@@ -418,7 +432,26 @@ const CBPFS={
   KLGA:['21 Nov 2025','laguardia-airport-klga']
 };
 DATA.NYC.aps.forEach(a=>{ const f=CBPFS[a.icao]; if(!f) return;
-  a.cbpfs=`<a href="cbp/CBP-${a.icao}-fact-sheet.pdf" target="_blank" rel="noopener">PDF copy (${f[0]})</a> · <a href="https://www.cbp.gov/document/general-aviation/${f[1]}-fact-sheet-details" target="_blank" rel="noopener">latest on cbp.gov</a>`; });
+  a.cbpUrl=`https://www.cbp.gov/document/general-aviation/${f[1]}-fact-sheet-details`; a.cbpDate=f[0];
+  a.cbpfs=`<a href="#" class="cbpv" data-cbp="${a.icao}">View fact sheet (${f[0]})</a> · <a href="${a.cbpUrl}" target="_blank" rel="noopener">latest on cbp.gov</a>`; });
+
+/* in-app viewer for the CBP fact sheets (works offline and in the installed iPad app, with a Close button) */
+function openCbp(icao){
+  const a=DATA.NYC.aps.find(x=>x.icao===icao); if(!a) return;
+  $('fsTitle').textContent=`${icao} ${a.name} · CBP fact sheet (${a.cbpDate})`;
+  $('fsImg').src=`cbp/CBP-${icao}-fact-sheet.jpg`; $('fsImg').alt=`CBP General Aviation Airport Fact Sheet, ${a.name} (${icao})`;
+  $('fsWeb').href=a.cbpUrl;
+  $('fsBox').classList.add('on'); document.body.style.overflow='hidden'; $('fsBody').scrollTop=0;
+  try{ history.pushState({fs:icao},''); }catch(e){}
+}
+function closeCbp(fromPop){
+  if(!$('fsBox').classList.contains('on')) return;
+  $('fsBox').classList.remove('on'); document.body.style.overflow='';
+  if(!fromPop){ try{ if(history.state&&history.state.fs) history.back(); }catch(e){} }
+}
+document.addEventListener('click',e=>{ const l=e.target.closest('.cbpv'); if(l){ e.preventDefault(); openCbp(l.dataset.cbp); } });
+window.addEventListener('popstate',()=>closeCbp(true));
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeCbp(); });
 
 /* ---------------- render metro views ---------------- */
 const esc=s=>String(s);
