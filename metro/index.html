@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Metro Airports">
+<meta name="theme-color" content="#1B2A4A">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-180.png">
+<title>Metro Area Airports</title>
+<style>
+:root{
+  --navy:#1B2A4A; --accent:#0B5A8A; --gray:#5b5f66; --line:#e2e5ea;
+  --bg:#f5f7fa; --card:#ffffff; --soft:#f7f9fb; --ink:#1c1f24;
+  --ok:#1b7a3d; --ok-bg:#e7f5ec; --ok-line:#bfe3cc;
+  --cond:#0B5A8A; --cond-bg:#eef5fa; --cond-line:#cfe0ec;
+  --warn:#a15c00; --warn-bg:#fdf3e3; --warn-line:#f1d6a8;
+  --bad:#b71c1c; --bad-bg:#fdeceb; --bad-line:#f3c4c0;
+  --q:#6b4fa0; --q-bg:#f3eefb; --q-line:#dcd0f0;
+  --pin:#0B5A8A; --ring:#d5dbe3;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --navy:#cfe0f5; --accent:#5fb0e8; --gray:#9aa3ad; --line:#2c333d;
+    --bg:#12161c; --card:#1a2029; --soft:#20262f; --ink:#e6e9ee;
+    --ok:#5fcf8a; --ok-bg:#15291d; --ok-line:#24503a;
+    --cond:#6fb8ec; --cond-bg:#16232f; --cond-line:#264158;
+    --warn:#f0b860; --warn-bg:#2e2515; --warn-line:#5a4520;
+    --bad:#ff8a80; --bad-bg:#2e1716; --bad-line:#5a2a27;
+    --q:#c3a8f0; --q-bg:#241c33; --q-line:#43365e;
+    --pin:#5fb0e8; --ring:#2c333d;
+  }
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+html,body{overscroll-behavior-y:none;}
+body{margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; background:var(--bg); color:var(--ink);
+  padding:calc(22px + env(safe-area-inset-top)) 16px calc(60px + env(safe-area-inset-bottom));}
+.wrap{max-width:1200px; margin:0 auto;}
+.header{text-align:center; margin-bottom:14px;}
+.header h1{font-size:22px; margin:0 0 4px; color:var(--navy);}
+.header .ver{font-size:12px; color:var(--gray); font-variant-numeric:tabular-nums;}
+.header p{font-size:13px; color:var(--gray); margin:4px 0 0;}
+.tabs{display:flex; gap:6px; background:var(--soft); border:1px solid var(--line); padding:4px; border-radius:10px; margin:0 auto 16px; max-width:640px; position:sticky; top:calc(6px + env(safe-area-inset-top)); z-index:5;}
+.tabs button{flex:1; border:none; background:none; padding:10px 6px; border-radius:7px; font:600 14px -apple-system,sans-serif; color:var(--gray); cursor:pointer;}
+.tabs button.on{background:var(--card); color:var(--navy); box-shadow:0 1px 3px rgba(0,0,0,.12);}
+.view{display:none;} .view.on{display:block;}
+.card{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px 18px; margin-bottom:14px;}
+.card h2{font-size:13.5px; text-transform:uppercase; letter-spacing:.04em; color:var(--accent); margin:0 0 10px; display:flex; gap:10px; align-items:center; flex-wrap:wrap;}
+.card h2 .r{margin-left:auto; text-transform:none; letter-spacing:0; font-weight:600; color:var(--gray); font-size:12px;}
+.card p,.card li{font-size:14.5px; line-height:1.5;}
+.card ul{padding-left:20px; margin:6px 0;}
+.muted{color:var(--gray); font-size:12.5px; line-height:1.45;}
+.clock{display:flex; flex-wrap:wrap; gap:10px 22px; align-items:baseline;}
+.clock b{font-size:24px; font-variant-numeric:tabular-nums; color:var(--navy);}
+.clock span.l{display:block; font-size:11.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--gray);}
+.chips{display:flex; gap:6px; flex-wrap:wrap; margin:0 0 12px;}
+.chip{border:1px solid var(--line); background:var(--card); color:var(--gray); padding:7px 12px; border-radius:999px; font:600 13px -apple-system,sans-serif; cursor:pointer;}
+.chip.on{background:var(--navy); border-color:var(--navy); color:var(--card);}
+.grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(340px,1fr)); gap:14px;}
+.ap{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px 16px; scroll-margin-top:80px;}
+.ap.flash{outline:2px solid var(--accent);}
+.ap .top{display:flex; align-items:flex-start; gap:10px; margin-bottom:8px;}
+.ap .code{font:700 20px ui-monospace,SFMono-Regular,Menlo,monospace; color:var(--navy);}
+.ap .nm{font-size:14px; color:var(--gray);}
+.ap .top .st{margin-left:auto;}
+.tags{display:flex; gap:5px; flex-wrap:wrap; margin-bottom:8px;}
+.tag{font:600 11.5px -apple-system,sans-serif; padding:3px 8px; border-radius:6px; background:var(--soft); color:var(--gray); border:1px solid var(--line);}
+.tag.n{background:var(--ok-bg); color:var(--ok); border-color:var(--ok-line);}
+.tag.d{background:var(--warn-bg); color:var(--warn); border-color:var(--warn-line);}
+.tag.x{background:var(--bad-bg); color:var(--bad); border-color:var(--bad-line);}
+dl{margin:0; display:grid; grid-template-columns:128px 1fr; gap:6px 10px; font-size:13.5px; line-height:1.4;}
+dt{color:var(--gray); font-size:12px; padding-top:1px;}
+dd{margin:0;}
+.st{display:inline-block; font:700 11.5px -apple-system,sans-serif; padding:4px 9px; border-radius:6px; white-space:nowrap; border:1px solid;}
+.st.ok{background:var(--ok-bg); color:var(--ok); border-color:var(--ok-line);}
+.st.cond{background:var(--cond-bg); color:var(--cond); border-color:var(--cond-line);}
+.st.warn{background:var(--warn-bg); color:var(--warn); border-color:var(--warn-line);}
+.st.closed{background:var(--bad-bg); color:var(--bad); border-color:var(--bad-line);}
+.st.confirm{background:var(--q-bg); color:var(--q); border-color:var(--q-line);}
+.why{font-size:12.5px; color:var(--gray); margin:-2px 0 8px; line-height:1.4;}
+.mapbox{width:100%; max-width:560px; margin:0 auto; display:block;}
+.mapbox text{font:600 11px ui-monospace,Menlo,monospace; fill:var(--ink);}
+.mapbox .rl{font:500 10px -apple-system,sans-serif; fill:var(--gray);}
+.mapbox .pin{cursor:pointer;}
+.tblwrap{overflow-x:auto; -webkit-overflow-scrolling:touch; border:1px solid var(--line); border-radius:10px;}
+table{border-collapse:collapse; font-size:12.5px; min-width:900px; width:100%;}
+th,td{border-bottom:1px solid var(--line); padding:7px 9px; text-align:left; vertical-align:top; line-height:1.35;}
+th{background:var(--soft); color:var(--navy); position:sticky; top:0;}
+td:first-child,th:first-child{position:sticky; left:0; background:var(--soft); color:var(--gray); font-weight:600; min-width:120px; z-index:1;}
+details>summary{cursor:pointer; font:600 13.5px -apple-system,sans-serif; color:var(--accent); text-transform:uppercase; letter-spacing:.04em; list-style:none;}
+details>summary::-webkit-details-marker{display:none;}
+details>summary::before{content:"▸ ";} details[open]>summary::before{content:"▾ ";}
+.form{display:grid; grid-template-columns:repeat(auto-fill,minmax(170px,1fr)); gap:10px 14px; align-items:end;}
+.form label{font-size:12px; color:var(--gray); display:block; margin-bottom:4px;}
+select,input[type=date],input[type=time]{width:100%; font:500 16px -apple-system,sans-serif; padding:9px 10px; border:1px solid var(--line); border-radius:8px; background:var(--card); color:var(--ink);}
+.seg{display:flex; border:1px solid var(--line); border-radius:8px; overflow:hidden;}
+.seg button{flex:1; border:none; background:var(--card); color:var(--gray); padding:10px 6px; font:600 14px -apple-system,sans-serif; cursor:pointer;}
+.seg button.on{background:var(--navy); color:var(--card);}
+.btn{border:1px solid var(--accent); background:var(--accent); color:#fff; padding:10px 14px; border-radius:8px; font:600 14px -apple-system,sans-serif; cursor:pointer;}
+.chk{display:flex; gap:8px; align-items:center; font-size:14px; padding:10px 0;}
+.chk input{width:20px; height:20px;}
+.res{display:grid; gap:8px;}
+.row{display:grid; grid-template-columns:70px 120px 1fr; gap:10px; align-items:start; padding:10px 12px; border:1px solid var(--line); border-radius:10px; background:var(--card);}
+.row .c{font:700 16px ui-monospace,Menlo,monospace; color:var(--navy);}
+.row .c small{display:block; font:500 11px -apple-system,sans-serif; color:var(--gray);}
+.row .t{font-size:13.5px; line-height:1.4;}
+.summary{font-size:14px; margin:0 0 10px; line-height:1.5;}
+.legend{display:flex; gap:6px; flex-wrap:wrap; margin-top:8px;}
+.disc{font-size:12px; color:var(--gray); text-align:center; margin-top:20px; line-height:1.5;}
+@media (max-width:600px){
+  .grid{grid-template-columns:1fr;}
+  dl{grid-template-columns:104px 1fr;}
+  .row{grid-template-columns:60px 1fr;}
+  .row .t{grid-column:1 / -1;}
+  .tabs button{font-size:13px; padding:9px 2px;}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <h1>Metro Area Airports</h1>
+    <div class="ver">v1 · 01/10/2026</div>
+    <p>London · New York · Paris: hours, curfews, slots, customs and a departure/arrival checker</p>
+  </div>
+
+  <div class="tabs" id="tabs">
+    <button data-v="LON">London</button>
+    <button data-v="NYC">New York</button>
+    <button data-v="PAR">Paris</button>
+    <button data-v="CHK">Check time</button>
+  </div>
+
+  <div class="view" id="v-LON"></div>
+  <div class="view" id="v-NYC"></div>
+  <div class="view" id="v-PAR"></div>
+
+  <div class="view" id="v-CHK">
+    <div class="card">
+      <h2>Which airports work at this time?</h2>
+      <div class="form">
+        <div><label>Area</label>
+          <select id="cMetro"><option value="LON">London</option><option value="NYC">New York</option><option value="PAR">Paris</option></select></div>
+        <div><label>Movement</label>
+          <div class="seg" id="cMode"><button data-m="dep" class="on">Departure</button><button data-m="arr">Int'l arrival</button></div></div>
+        <div><label>Date</label><input type="date" id="cDate"></div>
+        <div><label>Time</label><input type="time" id="cTime"></div>
+        <div><label>Time is in</label>
+          <div class="seg" id="cTz"><button data-z="utc" class="on">UTC</button><button data-z="lt">Local</button></div></div>
+        <div><label class="chk" style="padding:0 0 10px;"><input type="checkbox" id="cHol"> Public holiday</label>
+          <button class="btn" id="cNow" style="width:100%;">Now</button></div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Result <span class="r" id="cHead"></span></h2>
+      <p class="summary" id="cSum"></p>
+      <div class="res" id="cRes"></div>
+      <div class="legend">
+        <span class="st ok">OPEN</span><span class="st cond">OPEN · SLOT/PPR</span><span class="st warn">RESTRICTED</span><span class="st closed">CLOSED</span><span class="st confirm">CONFIRM</span>
+      </div>
+      <p class="muted" style="margin-top:10px;">The statuses are this app's interpretation of the published hours, not an official determination. Departure = off-blocks/take-off window; international arrival = runway hours combined with customs/CBP hours. The checker does not know about NOTAMs, slot availability, fuel, RFFS or FBO hours.</p>
+    </div>
+  </div>
+
+  <p class="disc"><b>Planning reference only. Not for operational use and not a substitute for the AIP, NOTAMs or the airport/handler.</b><br>
+  Compiled 01/10/2026 from public official sources: UK AIP (AIRAC 10/26), UK MIL AIP, FAA Chart Supplement, Federal Register, CBP General Aviation fact sheets and eAIP France (AIRAC 01 OCT 2026). Hours, curfews and procedures change; check the current publications before every flight. Car times are estimates.<br>
+  <a href="../legal/" style="color:inherit">Operational disclaimer · Privacy · Terms of use</a> · <a href="../" style="color:inherit">lraviation.com.br</a></p>
+</div>
+
+<script>
+"use strict";
+/* ---------------- time helpers ---------------- */
+const M = (h,m=0)=>h*60+m;
+function inW(x,a,b){ return a<=b ? (x>=a && x<b) : (x>=a || x<b); }  // [a,b) with midnight wrap
+const pad=n=>String(n).padStart(2,'0');
+const hm=m=>pad(Math.floor(((m%1440)+1440)%1440/60))+':'+pad(((m%60)+60)%60);
+function lastSunday(y,mo){ const d=new Date(Date.UTC(y,mo+1,0)); d.setUTCDate(d.getUTCDate()-d.getUTCDay()); return d; }
+function nthSunday(y,mo,n){ const d=new Date(Date.UTC(y,mo,1)); const add=(7-d.getUTCDay())%7; d.setUTCDate(1+add+7*(n-1)); return d; }
+function euSummer(t){ const y=new Date(t).getUTCFullYear();
+  const s=lastSunday(y,2).getTime()+M(1)*60000, e=lastSunday(y,9).getTime()+M(1)*60000; return t>=s && t<e; }
+function usSummer(t){ const y=new Date(t).getUTCFullYear();
+  const s=nthSunday(y,2,2).getTime()+M(7)*60000, e=nthSunday(y,10,1).getTime()+M(6)*60000; return t>=s && t<e; }
+const TZ={
+  LON:{std:0, dst:1, rule:euSummer, sName:'BST (UTC+1)', wName:'GMT (UTC+0)', city:'London'},
+  NYC:{std:-5,dst:-4,rule:usSummer, sName:'EDT (UTC−4)', wName:'EST (UTC−5)', city:'New York'},
+  PAR:{std:1, dst:2, rule:euSummer, sName:'CEST (UTC+2)', wName:'CET (UTC+1)', city:'Paris'}
+};
+function nextChange(metro,t){ // next DST switch after t
+  const z=TZ[metro], now=z.rule(t); let lo=t, hi=t+864e5;
+  while(z.rule(hi)===now){ lo=hi; hi+=864e5; if(hi-t>400*864e5) return null; }
+  while(hi-lo>60000){ const mid=Math.floor((lo+hi)/2); if(z.rule(mid)===now) lo=mid; else hi=mid; }
+  return hi;
+}
+function ctxFor(metro,t,hol){
+  const z=TZ[metro], S=z.rule(t), off=S?z.dst:z.std;
+  const u=new Date(t), l=new Date(t+off*3600e3);
+  return {t, S, off, utc:M(u.getUTCHours(),u.getUTCMinutes()), lt:M(l.getUTCHours(),l.getUTCMinutes()),
+    dow:l.getUTCDay(), lmon:l.getUTCMonth(), lday:l.getUTCDate(), hol:!!hol,
+    get wkday(){ return this.dow>=1 && this.dow<=5 && !this.hol; } };
+}
+const R=(s,txt)=>({s,txt});
+const RANK={closed:0, confirm:1, warn:2, cond:3, ok:4};
+const LABEL={ok:'OPEN', cond:'SLOT / PPR', warn:'RESTRICTED', closed:'CLOSED', confirm:'CONFIRM'};
+function worst(a,b){ return RANK[a.s]<=RANK[b.s] ? {s:a.s, txt:a.txt+' '+b.txt} : {s:b.s, txt:b.txt+' '+a.txt}; }
+const w2=(c,sa,sb,wa,wb)=>c.S?[sa,sb]:[wa,wb];
+
+/* ---------------- data ---------------- */
+const DATA={
+LON:{
+  title:'London Area Airports', center:{n:'Mayfair', lat:51.510, lon:-0.148}, rings:[25,50,75], driveLabel:'From central London (Mayfair), by car, off-peak',
+  seasonNote:'Summer = BST (UTC+1) until 25 Oct 2026 · Winter = GMT (UTC+0) from 25 Oct 2026. UK AIP times are UTC (summer in brackets).',
+  notes:[
+    '<b>Day-only airports (EGLF, EGWU, EGKB):</b> no movement outside published hours; plan off-blocks with margin. EGWU runway is the shortest (1,683 m) and the approaches are CAT I only.',
+    '<b>Night-friendly (EGGW, EGSS, EGMC):</b> H24; EGGW and EGSS need an ACL slot for every movement, EGMC needs ATC PPR and London Southend Jet Centre approval between 22:00 and 06:30 LT (quota and surcharge).',
+    '<b>EGLL / EGKK:</b> business aviation needs written prior permission and an ACL slot for both arrival and departure; slots at peak times are rarely available. Night quota period 23:30–06:00 LT.'
+  ],
+  sources:'UK AIP AD 2 (AIRAC 10/26, eff. 01 Oct 2026) for EGGW, EGLF, EGSS, EGKB, EGMC, EGLL, EGKK; UK MIL AIP AD 2 EGWU (AIRAC 09/26). UK AIP times are UTC, summer in brackets, converted here to LT/Z. Car times are estimates. Confirm hours and slots in the current AIP, Directors\' Notices and NOTAMs.',
+  fields:[['hours','Operating hours'],['depS','Departure window, summer (UTC+1, until 25 Oct 2026)'],['depW','Departure window, winter (UTC+0, from 25 Oct 2026)'],['night','Night / restrictions'],['rwy','Main runway'],['elev','Elevation'],['customs','Customs'],['rff','RFF (G550: cat 6)'],['slot','Slot / PPR'],['handling','Handling'],['drive','From Mayfair by car']],
+  aps:[
+   {icao:'EGGW', name:'Luton', lat:51.8747, lon:-0.3683, tags:[['n','H24'],['','ACL slot']],
+    hours:'H24', depS:'H24 (slot)', depW:'H24 (slot)',
+    night:'23:00–07:00 LT: no aircraft with QC > 1; 78 dB night noise limit', rwy:'07/25 · 2,162 × 45 m', elev:'527 ft', customs:'H24', rff:'cat 7 (8/9 by arrangement)',
+    slot:'ACL slot for all flights', handling:'Mandatory: Harrods, Signature (T1/T2), others', drive:'~55 km · ~1 h 10',
+    dep(c){ let r=R('cond','H24 · ACL slot required.'); if(inW(c.lt,M(23),M(7))) r.txt+=' Night 23:00–07:00 LT: QC > 1 banned, 78 dB limit.'; return r; },
+    arr(c){ return this.dep(c); } },
+   {icao:'EGLF', name:'Farnborough', lat:51.2758, lon:-0.7763, tags:[['d','Day only'],['','PPR']],
+    hours:'Mon–Fri 07:00–22:00 LT; Sat, Sun, PH 08:00–20:00 LT; PPR', depS:'Mon–Fri 06:00–21:00Z; weekend 07:00–19:00Z', depW:'Mon–Fri 07:00–22:00Z; weekend 08:00–20:00Z',
+    night:'No movements outside hours; closed 25–26 Dec', rwy:'06/24 · 2,440 × 45 m', elev:'238 ft', customs:'By arrangement', rff:'cat 6 (7 under remission)',
+    slot:'PPR from Farnborough Airport Ops; no FPL before PPR', handling:'Farnborough Airport Ops only', drive:'~60 km · ~1 h 15',
+    dep(c){ if(c.lmon===11 && (c.lday===25||c.lday===26)) return R('closed','Closed 25–26 Dec.');
+      const [a,b]= c.wkday ? w2(c,M(6),M(21),M(7),M(22)) : w2(c,M(7),M(19),M(8),M(20));
+      return inW(c.utc,a,b) ? R('cond',`Open ${hm(a)}–${hm(b)}Z (${c.wkday?'Mon–Fri':'weekend/PH'}) · PPR from Airport Ops.`) : R('closed',`Outside hours ${hm(a)}–${hm(b)}Z (${c.wkday?'Mon–Fri':'weekend/PH'}). No movements.`); },
+    arr(c){ const r=this.dep(c); if(r.s!=='closed') r.txt+=' Customs by arrangement.'; return r; } },
+   {icao:'EGWU', name:'Northolt (RAF)', lat:51.5530, lon:-0.4182, tags:[['d','Day only'],['','PPR'],['x','CAT I only']],
+    hours:'Business aviation: Mon–Fri 08:00–20:00 LT; Sat, Sun, PH 10:00–17:00 LT', depS:'Mon–Fri 07:00–19:00Z; weekend 09:00–16:00Z', depW:'Mon–Fri 08:00–20:00Z; weekend 10:00–17:00Z',
+    night:'No movements outside hours', rwy:'07/25 · 1,683 × 40 m', elev:'126 ft', customs:'By arrangement', rff:'cat 6 (4 at night)',
+    slot:'PPR required; no movement without PPR (UK MIL AIP AD 2 EGWU)', handling:'Arranged with the PPR (see UK MIL AIP)', drive:'~25 km · ~45 min',
+    dep(c){ const [a,b]= c.wkday ? w2(c,M(7),M(19),M(8),M(20)) : w2(c,M(9),M(16),M(10),M(17));
+      return inW(c.utc,a,b) ? R('cond',`Open ${hm(a)}–${hm(b)}Z (${c.wkday?'Mon–Fri':'weekend/PH'}) · PPR required.`) : R('closed',`Outside business-aviation hours ${hm(a)}–${hm(b)}Z.`); },
+    arr(c){ const r=this.dep(c); if(r.s!=='closed') r.txt+=' Customs by arrangement.'; return r; } },
+   {icao:'EGSS', name:'Stansted', lat:51.8850, lon:0.2350, tags:[['n','H24'],['','ACL slot']],
+    hours:'H24', depS:'H24 (slot)', depW:'H24 (slot)',
+    night:'Night quota period 23:30–06:00 LT; ad-hoc slots very limited', rwy:'04/22 · 3,049 × 46 m', elev:'348 ft', customs:'H24; routine 07:30–21:30 LT, notice by 21:00 LT for 23:00–07:00 LT', rff:'cat 7 (8–10 on request)',
+    slot:'ACL slot + PPR ≥ 4 h via handler', handling:'Mandatory: Harrods, Universal, Inflite, Diamond Hangar', drive:'~60 km · ~1 h 15',
+    dep(c){ return inW(c.lt,M(23,30),M(6)) ? R('warn','Night quota period 23:30–06:00 LT; ad-hoc slots very limited. ACL slot + PPR ≥ 4 h.') : R('cond','H24 · ACL slot + PPR ≥ 4 h via handler.'); },
+    arr(c){ const r=this.dep(c); if(inW(c.lt,M(23),M(7))) r.txt+=' Customs: notice by 21:00 LT for 23:00–07:00 LT.'; else if(!inW(c.lt,M(7,30),M(21,30))) r.txt+=' Customs outside routine 07:30–21:30 LT.'; return r; } },
+   {icao:'EGKB', name:'Biggin Hill', lat:51.3308, lon:0.0325, tags:[['d','Day only'],['','PPR']],
+    hours:'Mon–Fri 06:30–23:00 LT; Sat, Sun, PH 08:00–22:00 LT', depS:'Mon–Fri 05:30–22:00Z; weekend 07:00–21:00Z', depW:'Mon–Fri 06:30–23:00Z; weekend 08:00–22:00Z',
+    night:'No movements outside hours', rwy:'03/21 · 1,806 × 45 m', elev:'584 ft', customs:'AD hours; GAR required', rff:'cat 6 (7 under remission)',
+    slot:'PPR for all movements (booking or FPL)', handling:'Mandatory > 6 t: Biggin Hill Executive Handling', drive:'~30 km · ~1 h',
+    dep(c){ const [a,b]= c.wkday ? w2(c,M(5,30),M(22),M(6,30),M(23)) : w2(c,M(7),M(21),M(8),M(22));
+      return inW(c.utc,a,b) ? R('cond',`Open ${hm(a)}–${hm(b)}Z (${c.wkday?'Mon–Fri':'weekend/PH'}) · PPR for all movements.`) : R('closed',`Outside hours ${hm(a)}–${hm(b)}Z.`); },
+    arr(c){ const r=this.dep(c); if(r.s!=='closed') r.txt+=' Customs in AD hours, GAR required.'; return r; } },
+   {icao:'EGMC', name:'Southend', lat:51.5714, lon:0.6956, tags:[['n','H24'],['','Strictly PPR']],
+    hours:'H24; 22:00–06:30 LT by prior permission', depS:'H24 (21:00–05:30Z by PPR)', depW:'H24 (22:00–06:30Z by PPR)',
+    night:'23:00–06:30 LT: noise quota, approval from London Southend Jet Centre; night surcharge', rwy:'05/23 · 1,856 × 36 m', elev:'58 ft', customs:'H24', rff:'cat 7',
+    slot:'Strictly PPR', handling:'Mandatory > 2.5 t: London Southend Jet Centre (H24)', drive:'~70 km · ~1 h 30',
+    dep(c){ return inW(c.lt,M(22),M(6,30)) ? R('warn','22:00–06:30 LT by prior permission: ATC PPR + London Southend Jet Centre approval; noise quota and night surcharge.') : R('cond','H24 · strictly PPR.'); },
+    arr(c){ return this.dep(c); } },
+   {icao:'EGLL', name:'Heathrow', lat:51.4700, lon:-0.4543, tags:[['n','H24'],['x','Written permission + slot']],
+    hours:'H24, subject to permission + slot', depS:'H24 (slot)', depW:'H24 (slot)',
+    night:'Night quota period 23:30–06:00 LT', rwy:'09L/27R · 3,901 × 50 m', elev:'83 ft', customs:'H24', rff:'cat 10',
+    slot:'Written permission (10 days–24 h) + ACL slot', handling:'Heathrow-based agent mandatory', drive:'~25 km · ~45 min',
+    dep(c){ return inW(c.lt,M(23,30),M(6)) ? R('warn','Night quota period 23:30–06:00 LT. Written permission + ACL slot.') : R('cond','Written permission (10 days–24 h) + ACL slot; peak slots rarely available.'); },
+    arr(c){ return this.dep(c); } },
+   {icao:'EGKK', name:'Gatwick', lat:51.1481, lon:-0.1903, tags:[['n','H24'],['','ACL slot']],
+    hours:'H24', depS:'H24 (slot)', depW:'H24 (slot)',
+    night:'Night quota period 23:30–06:00 LT', rwy:'08R/26L · 3,317 × 45 m', elev:'203 ft', customs:'H24', rff:'cat 10',
+    slot:'ACL slot; PPR 10 days–24 h', handling:'Nominated agent mandatory', drive:'~45 km · ~1 h 15',
+    dep(c){ return inW(c.lt,M(23,30),M(6)) ? R('warn','Night quota period 23:30–06:00 LT. ACL slot + PPR.') : R('cond','ACL slot; PPR 10 days–24 h.'); },
+    arr(c){ return this.dep(c); } }
+  ]
+},
+NYC:{
+  title:'New York Area Airports', center:{n:'Midtown', lat:40.754, lon:-73.984}, rings:[25,50,75,100], driveLabel:'From Midtown Manhattan, by car, off-peak',
+  seasonNote:'Summer = EDT (UTC−4) until 1 Nov 2026 · Winter = EST (UTC−5) from 1 Nov 2026.',
+  notes:[
+    '<b>Closest to Manhattan for business jets:</b> KTEB (no slot, H24), but respect the voluntary curfew 23:00–06:00 LT and the RWY 24 night noise limit. KHPN is the usual alternative for Westchester and Connecticut (voluntary curfew 00:00–06:30 LT).',
+    '<b>Night or unrestricted:</b> KISP and KSWF have no curfew and long runways (KSWF 11,817 ft); more than one hour by car. KMMU is H24 but the tower closes at 22:30 LT and TWY K is too narrow for the G550.',
+    '<b>KJFK / KEWR / KLGA:</b> possible for the G550 but need a reservation or FAA approval, and each has only one FBO. KLGA has only 3 GA reservations per hour.',
+    '<b>CBP:</b> only KJFK and KEWR clear H24. KTEB/KHPN until 23:15 ET; KFRG 23:00; KISP/KLGA 22:00. Out of hours: KFRG, KISP, KLGA via RSP/559 (paid, enrolled operators); KMMU, KSWF on request by 12:00 ET (Friday for the weekend); KTEB, KHPN no provision. KFRG, KISP, KLGA need the PTL e-mail ≥ 24 h before arrival.'
+  ],
+  sources:'FAA Chart Supplement Northeast (cycle in effect 29 Sep 2026); PANYNJ Teterboro noise rules; Westchester County Airport noise programme; Republic Airport noise programme; Federal Register 23 Jun 2026 (LGA reservations; EWR operating limitations); CBP General Aviation Airport Fact Sheets (Nov 2025–Mar 2026; copies on each card, U.S. Government works) and the <a href="https://www.cbp.gov/travel/general-aviation-processing/general-aviation-airports" target="_blank" rel="noopener">CBP General Aviation Airports list</a> (25 Sep 2026). Car times are estimates. Confirm hours, reservations, CBP permission to land and NOTAMs before each flight.',
+  fields:[['hours','Operating hours'],['depS','Departure window, EDT (UTC−4, until 1 Nov 2026)'],['depW','Departure window, EST (UTC−5, from 1 Nov 2026)'],['night','Night / restrictions'],['rwy','Main runway'],['elev','Elevation'],['cbp','CBP hours (ET)'],['ptl','CBP permission to land (PTL)'],['cbpc','CBP contact / clearing point'],['cbpo','CBP outside normal hours'],['cbpfs','CBP fact sheet'],['slot','Slot / PPR'],['handling','Handling (FBO)'],['drive','From Midtown by car']],
+  aps:[
+   {icao:'KTEB', name:'Teterboro', lat:40.8501, lon:-74.0608, tags:[['n','H24'],['d','Vol. curfew 23–06 LT']],
+    hours:'H24; ATCT H24', depS:'10:00–03:00Z (voluntary curfew)', depW:'11:00–04:00Z (voluntary curfew)',
+    night:'Voluntary curfew 23:00–06:00 LT; RWY 24 max 80 dB 22:00–07:00 LT; MTOW ≤ 100,000 lb (weight certification)', rwy:'01/19 · 6,997 × 150 ft (2,133 × 46 m)', elev:'8 ft',
+    cbp:'7 days 07:30–23:15', ptl:'≥ 2 h before foreign departure; ±30 min', cbpc:'KTEB_GAP@cbp.dhs.gov · (201) 288-8799; FIS Hangar 1 or Jet Aviation (choose in PTL request)', cbpo:'Not provided',
+    slot:'None', handling:'Jet Aviation, Signature (East/West/South), Atlantic', drive:'~20 km · ~30 min',
+    dep(c){ let r= inW(c.lt,M(6),M(23)) ? R('ok','No slot. MTOW ≤ 100,000 lb.') : R('warn','Voluntary curfew 23:00–06:00 LT.');
+      if(inW(c.lt,M(22),M(7))) r.txt+=' RWY 24 max 80 dB 22:00–07:00 LT.'; return r; },
+    arr(c){ return worst(this.dep(c), inW(c.lt,M(7,30),M(23,15)) ? R('ok','CBP 07:30–23:15 ET.') : R('closed','CBP closed (07:30–23:15 ET), no out-of-hours service.')); } },
+   {icao:'KHPN', name:'Westchester', lat:41.0670, lon:-73.7076, tags:[['n','H24'],['d','Vol. curfew 00–0630 LT']],
+    hours:'H24; ATCT 06:00–23:00 LT', depS:'10:30–04:00Z (voluntary curfew)', depW:'11:30–05:00Z (voluntary curfew)',
+    night:'Voluntary curfew 00:00–06:30 LT; PPR above 120,000 lb', rwy:'16/34 · 6,549 × 150 ft (1,996 × 46 m)', elev:'439 ft',
+    cbp:'7 days 07:30–23:15', ptl:'≥ 2 h before foreign departure; ±30 min', cbpc:'KHPN_GAP@cbp.dhs.gov · (914) 428-7858; Signature-West, Million Air or Atlantic-East', cbpo:'Not provided',
+    slot:'None (PPR only above 120,000 lb)', handling:'Signature, Atlantic, Million Air', drive:'~50 km · ~45 min',
+    dep(c){ let r= inW(c.lt,M(6,30),M(24)) ? R('ok','No slot.') : R('warn','Voluntary curfew 00:00–06:30 LT.');
+      if(!inW(c.lt,M(6),M(23))) r.txt+=' ATCT closed (06:00–23:00 LT).'; return r; },
+    arr(c){ return worst(this.dep(c), inW(c.lt,M(7,30),M(23,15)) ? R('ok','CBP 07:30–23:15 ET.') : R('closed','CBP closed (07:30–23:15 ET), no out-of-hours service.')); } },
+   {icao:'KMMU', name:'Morristown', lat:40.7994, lon:-74.4149, tags:[['n','H24'],['x','TWY K 79 ft']],
+    hours:'H24; ATCT 06:45–22:30 LT', depS:'H24 (ATCT 10:45–02:30Z)', depW:'H24 (ATCT 11:45–03:30Z)',
+    night:'Voluntary noise programme; TWY K max wingspan 79 ft (G550: 93.5 ft)', rwy:'05/23 · 5,998 × 150 ft (1,828 × 46 m)', elev:'187 ft',
+    cbp:'Mon–Fri 10:00–18:00 (user-fee airport)', ptl:'≥ 2 h before foreign departure; ±30 min; out-of-hours / weekend: request by 12:00 ET (Fri for weekend)', cbpc:'KMMU_GAP@cbp.dhs.gov · (973) 267-0302; CBP ramp', cbpo:'Yes, user-fee: request by 12:00 ET',
+    slot:'None', handling:'Atlantic, Signature', drive:'~50 km · ~50 min',
+    dep(c){ return inW(c.lt,M(6,45),M(22,30)) ? R('ok','ATCT open. TWY K not usable by G550 (79 ft limit).') : R('cond','H24 but ATCT closed (06:45–22:30 LT). TWY K not usable by G550.'); },
+    arr(c){ const cbpIn = c.dow>=1 && c.dow<=5 && inW(c.lt,M(10),M(18));
+      return worst(this.dep(c), cbpIn ? R('ok','CBP Mon–Fri 10:00–18:00 ET (user-fee).') : R('cond','CBP outside hours: user-fee request by 12:00 ET (Friday for weekend).')); } },
+   {icao:'KFRG', name:'Republic', lat:40.7288, lon:-73.4134, tags:[['n','H24'],['d','Vol. curfew 22–07 LT']],
+    hours:'H24; ATCT 07:00–23:00 LT', depS:'11:00–02:00Z (voluntary curfew)', depW:'12:00–03:00Z (voluntary curfew)',
+    night:'Voluntary curfew 22:00–07:00 LT for aircraft > 12,500 lb', rwy:'14/32 · 6,833 × 150 ft (2,083 × 46 m)', elev:'82 ft',
+    cbp:'7 days 09:00–23:00', ptl:'E-mail ≥ 24 h before arrival; ±60 min; max 20 pax; FBO rep must meet flight', cbpc:'KFRG_GAP@cbp.dhs.gov · (631) 753-2691', cbpo:'Yes, RSP 559 (enrolled)',
+    slot:'None', handling:'Atlantic, Modern Aviation', drive:'~55 km · ~1 h',
+    dep(c){ let r= inW(c.lt,M(7),M(22)) ? R('ok','No slot.') : R('warn','Voluntary curfew 22:00–07:00 LT (> 12,500 lb).');
+      if(!inW(c.lt,M(7),M(23))) r.txt+=' ATCT closed (07:00–23:00 LT).'; return r; },
+    arr(c){ return worst(this.dep(c), inW(c.lt,M(9),M(23)) ? R('cond','CBP 09:00–23:00 ET; PTL e-mail ≥ 24 h before.') : R('cond','CBP out of hours via RSP 559 (enrolled); PTL ≥ 24 h.')); } },
+   {icao:'KISP', name:'Long Island MacArthur', lat:40.7952, lon:-73.1002, tags:[['n','H24'],['n','No curfew']],
+    hours:'H24; ATCT 06:00–24:00 LT', depS:'H24 (ATCT 10:00–04:00Z)', depW:'H24 (ATCT 11:00–05:00Z)',
+    night:'No curfew; voluntary noise procedures', rwy:'06/24 · 7,006 × 150 ft (2,135 × 46 m)', elev:'99 ft',
+    cbp:'7 days 09:00–22:00', ptl:'E-mail ≥ 24 h before arrival; ±60 min; max 20 pax', cbpc:'KISP_GAP@cbp.dhs.gov · (631) 753-2691', cbpo:'Yes, RSP 559 (enrolled)',
+    slot:'None', handling:'Modern Aviation, New York Jet', drive:'~80 km · ~1 h 15',
+    dep(c){ return inW(c.lt,M(6),M(24)) ? R('ok','No curfew, no slot.') : R('ok','No curfew. ATCT closed (06:00–24:00 LT).'); },
+    arr(c){ return worst(this.dep(c), inW(c.lt,M(9),M(22)) ? R('cond','CBP 09:00–22:00 ET; PTL e-mail ≥ 24 h before.') : R('cond','CBP out of hours via RSP 559 (enrolled); PTL ≥ 24 h.')); } },
+   {icao:'KSWF', name:'Stewart', lat:41.5041, lon:-74.1048, tags:[['n','H24'],['n','No curfew'],['','11,817 ft']],
+    hours:'H24; ATCT H24', depS:'H24', depW:'H24',
+    night:'No curfew; noise abatement procedures', rwy:'09/27 · 11,817 × 150 ft (3,602 × 46 m)', elev:'491 ft',
+    cbp:'Mon–Fri 08:00–16:00 (user-fee airport)', ptl:'≥ 2 h before foreign departure; ±30 min; out-of-hours / weekend: request by 12:00 ET (Fri for weekend)', cbpc:'KSWF_GAP@cbp.dhs.gov · (845) 567-0969; CBP office at main terminal', cbpo:'Yes, user-fee: request by 12:00 ET',
+    slot:'None (PPR for Army ramp)', handling:'Atlantic, Signature', drive:'~95 km · ~1 h 20',
+    dep(c){ return R('ok','H24, no curfew, no slot.'); },
+    arr(c){ const cbpIn = c.dow>=1 && c.dow<=5 && inW(c.lt,M(8),M(16));
+      return worst(this.dep(c), cbpIn ? R('ok','CBP Mon–Fri 08:00–16:00 ET (user-fee).') : R('cond','CBP outside hours: user-fee request by 12:00 ET (Friday for weekend).')); } },
+   {icao:'KJFK', name:'Kennedy', lat:40.6413, lon:-73.7781, tags:[['n','H24'],['','Part 93 reservation']],
+    hours:'H24', depS:'H24; reservation 10:00–03:00Z', depW:'H24; reservation 11:00–04:00Z',
+    night:'Part 93 high-density airport; designated hours 06:00–23:00 LT', rwy:'13R/31L · 14,511 × 200 ft (4,423 × 61 m)', elev:'13 ft',
+    cbp:'H24', ptl:'E-mail ≥ 2 h before arrival; ±30 min', cbpc:'KJFK_GAP@cbp.dhs.gov · (718) 487-5201', cbpo:'N/A (CBP H24)',
+    slot:'Prior reservation (Part 93)', handling:'Modern Aviation', drive:'~25 km · ~40 min',
+    dep(c){ return inW(c.lt,M(6),M(23)) ? R('cond','Part 93 reservation required (06:00–23:00 LT). One FBO.') : R('ok','Outside reservation hours. One FBO.'); },
+    arr(c){ return worst(this.dep(c), R('ok','CBP H24.')); } },
+   {icao:'KEWR', name:'Newark', lat:40.6925, lon:-74.1687, lab:[-8,4,'end'], tags:[['n','H24'],['','FAA approval']],
+    hours:'H24', depS:'H24; FAA approval 10:00–03:59Z', depW:'H24; FAA approval 11:00–04:59Z',
+    night:'FAA order: max 36 arr + 36 dep per hour 06:00–22:59 LT (until 30 Oct 2027)', rwy:'04L/22R · 11,000 × 150 ft (3,353 × 46 m)', elev:'18 ft',
+    cbp:'H24', ptl:'≥ 2 h before foreign departure; ±30 min', cbpc:'KEWR_GAP@cbp.dhs.gov · (973) 565-8000 ext. 8099; CBP ramp at Signature', cbpo:'N/A (CBP H24)',
+    slot:'FAA Slot Administration approval (7-awa-slotadmin@faa.gov) + terminal approval', handling:'Signature', drive:'~25 km · ~35 min',
+    dep(c){ return inW(c.lt,M(6),M(24)) ? R('cond','FAA Slot Administration approval (06:00–23:59 LT) + terminal approval. One FBO.') : R('ok','Outside FAA approval hours. One FBO.'); },
+    arr(c){ return worst(this.dep(c), R('ok','CBP H24.')); } },
+   {icao:'KLGA', name:'LaGuardia', lat:40.7769, lon:-73.8740, tags:[['n','H24'],['x','3 GA res./h']],
+    hours:'H24', depS:'H24; reservation 10:00–01:59Z', depW:'H24; reservation 11:00–02:59Z',
+    night:'Part 93 high-density; 3 GA reservations/h, Mon–Fri 06:00–21:59 LT, Sun 12:00–21:59 LT', rwy:'04/22 and 13/31 · 7,002 × 150 ft (2,134 × 46 m)', elev:'21 ft',
+    cbp:'7 days 09:00–22:00', ptl:'E-mail ≥ 24 h before arrival; ±60 min; max 20 pax', cbpc:'KLGA_GAP@cbp.dhs.gov · (631) 753-2691', cbpo:'Yes, RSP 559 (enrolled)',
+    slot:'ARO reservation via e-CVRS', handling:'Modern Aviation', drive:'~15 km · ~25 min',
+    dep(c){ return inW(c.lt,M(6),M(22)) ? R('cond','ARO reservation via e-CVRS (06:00–21:59 LT); only 3 GA/h (Mon–Fri 06:00–21:59, Sun 12:00–21:59 LT). One FBO.') : R('ok','Outside reservation hours. One FBO.'); },
+    arr(c){ return worst(this.dep(c), inW(c.lt,M(9),M(22)) ? R('cond','CBP 09:00–22:00 ET; PTL e-mail ≥ 24 h before.') : R('cond','CBP out of hours via RSP 559 (enrolled); PTL ≥ 24 h.')); } }
+  ]
+},
+PAR:{
+  title:'Paris Region Airports', center:{n:'Concorde', lat:48.8656, lon:2.3212}, rings:[50,100,150,200], driveLabel:'From Paris (Concorde), by car at night',
+  seasonNote:'Summer = CEST (UTC+2) until 25 Oct 2026 · Winter = CET (UTC+1) from 25 Oct 2026. AIP France publishes hours in UTC for winter; in summer they are 1 h earlier in UTC (AIP rule "SKED SUM −1 HR"), so the local times stay the same all year. This app applies that rule.',
+  notes:[
+    '<b>LFPB Le Bourget:</b> no jet may leave the parking stand for take-off between 22:15 and 06:00 LT, so plan <i>off-blocks</i> before 22:15 LT, not the take-off time. Landings H24 for jets certified Chapter 3, 4 or 14 (others not 23:30–06:15 LT). Waivers only as set out in AD 2 LFPB.21. Handling is compulsory: destination apron and handler name in FPL item 18 (RMK/). Fuel 06:00–23:00 LT.',
+    '<b>LFPG Charles de Gaulle:</b> coordinated airport: every IFR landing and take-off needs a COHOR slot, and business/GA flights put the COHOR number in item 18 (RMK/ASL…). No aircraft may leave the stand for take-off 00:00–04:59 LT unless it holds a COHOR departure slot in that window (AD 2 LFPG.21.4).',
+    '<b>LFOK Paris-Vatry:</b> TWR Mon–Fri 07:00–19:00 LT, Sat–Sun 09:30–12:45 and 14:00–19:00 LT. Outside TWR hours AFIS on request from airport operations; other hours PPR from Vatry Operations by 16:00 LT on the last working day before. Customs 07:00–23:00 LT, extension on PPR 24 h via CODT. No slot coordination.',
+    '<b>LFOB Beauvais-Tillé:</b> TWR 07:15–23:00 LT; extensions are published for scheduled commercial flights only. RFFS hours by NOTAM (level 7 for scheduled commercial flights): confirm cat 6 cover for a business jet. Marshaller required for every arrival.',
+    '<b>LFRG Deauville:</b> AD/TWR 01 Nov–31 Mar 0800–1800, 01 Apr–31 Oct 0700–1900 (AIP, UTC winter basis); extension PPR 48 h. RFFS level 5 in ATS hours; level 7 only for scheduled flights or on PPR 48 h, so a G550 (cat 6) needs that PPR. Customs PPR 24 h Mon–Fri, 48 h weekends/PH, GENDEC by e-mail.'
+  ],
+  sources:'eAIP France AIRAC 01 OCT 2026 (SIA): AD 2 LFPB, LFPG, LFOB, LFOK, LFRG (sections 2.3, 2.6, 2.12, 2.20, 2.21) and ENR 1.10 (COHOR slots, RMK/ASL). Local times derived with the AIP rule (UTC winter; summer −1 h). Car times are estimates. Confirm in the current eAIP France, NOTAMs and with the airport.',
+  fields:[['hours','Operating hours (LT)'],['depS','Departure window, summer (UTC+2, until 25 Oct 2026)'],['depW','Departure window, winter (UTC+1, from 25 Oct 2026)'],['night','Night / restrictions'],['rwy','Main runway'],['elev','Elevation'],['customs','Customs'],['rff','RFF (G550: cat 6)'],['slot','Slot / PPR'],['handling','Handling'],['drive','From Concorde by car at night']],
+  aps:[
+   {icao:'LFPB', name:'Le Bourget', lat:48.9694, lon:2.4414, lab:[-8,10,'end'], tags:[['n','Landings H24'],['x','Dep. curfew 22:15–06 LT']],
+    hours:'H24 (AD, ATS, customs)', depS:'Off-blocks 04:00–20:15Z', depW:'Off-blocks 05:00–21:15Z',
+    night:'Jets: no off-blocks for take-off 22:15–06:00 LT; landings H24 if Chapter 3/4/14', rwy:'07/25 · 2,991 × 45 m', elev:'220 ft', customs:'H24', rff:'cat 8',
+    slot:'COHOR slot where required (ENR 1.10)', handling:'Compulsory; apron + handler name in FPL item 18 (RMK/)', drive:'~15 km · ~25 min',
+    dep(c){ return inW(c.lt,M(6),M(22,15)) ? R('cond',`Off-blocks allowed until 22:15 LT (${c.S?'20:15':'21:15'}Z). Handler in item 18.`) : R('closed','Curfew: no jet off-blocks for take-off 22:15–06:00 LT (waivers per AD 2 LFPB.21 only).'); },
+    arr(c){ return R('cond','Landings H24 (Chapter 3/4/14 jets). Customs H24; handling compulsory.'); } },
+   {icao:'LFPG', name:'Charles de Gaulle', lat:49.0097, lon:2.5479, lab:[8,-4,'start'], tags:[['n','H24'],['','COHOR slot'],['d','00–05 LT dep. only with slot']],
+    hours:'H24 (AD, customs)', depS:'H24 with COHOR slot; 22:00–02:59Z only with a night slot', depW:'H24 with COHOR slot; 23:00–03:59Z only with a night slot',
+    night:'Off-blocks 00:00–04:59 LT only with a COHOR departure slot in that window', rwy:'09R/27L · 4,200 × 45 m', elev:'392 ft', customs:'H24', rff:'cat 10',
+    slot:'Coordinated: COHOR slot for every IFR movement; RMK/ASL in item 18', handling:'H24', drive:'~30 km · ~35 min',
+    dep(c){ return inW(c.lt,M(0),M(5)) ? R('warn','00:00–04:59 LT: take-off only with a COHOR departure slot inside this window.') : R('cond','COHOR slot required (RMK/ASL in item 18).'); },
+    arr(c){ return R('cond','H24 with COHOR slot. Customs H24.'); } },
+   {icao:'LFOB', name:'Beauvais-Tillé', lat:49.4544, lon:2.1128, tags:[['d','TWR 07:15–23:00 LT'],['x','RFFS by NOTAM']],
+    hours:'AD 06:00–23:00 LT; TWR 07:15–23:00 LT (extensions for scheduled flights)', depS:'05:15–21:00Z', depW:'06:15–22:00Z',
+    night:'No published extension for non-scheduled flights', rwy:'12/30 · 2,429 × 45 m', elev:'359 ft', customs:'On request (contacts in AD 2.3)', rff:'cat 7 for scheduled commercial flights; hours by NOTAM',
+    slot:'Check COHOR (ENR 1.10)', handling:'Marshaller required for every arrival', drive:'~85 km · ~1 h 05',
+    dep(c){ return inW(c.lt,M(7,15),M(23)) ? R('cond','TWR open (07:15–23:00 LT). Confirm RFFS cat 6 cover (hours by NOTAM).') : R('closed','Outside TWR hours (07:15–23:00 LT); extensions published for scheduled flights only.'); },
+    arr(c){ const r=this.dep(c); if(r.s!=='closed') r.txt+=' Customs on request.'; return r; } },
+   {icao:'LFOK', name:'Paris-Vatry', lat:48.7761, lon:4.1844, tags:[['d','TWR Mon–Fri 07–19 LT'],['','Extension on request'],['','No slot']],
+    hours:'AD 07:00–19:00 LT, extension on request. TWR Mon–Fri 07:00–19:00, Sat–Sun 09:30–12:45 / 14:00–19:00 LT', depS:'TWR Mon–Fri 05:00–17:00Z; weekend 07:30–10:45 / 12:00–17:00Z', depW:'TWR Mon–Fri 06:00–18:00Z; weekend 08:30–11:45 / 13:00–18:00Z',
+    night:'Outside TWR hours: AFIS on request; other hours PPR from Vatry Operations', rwy:'10/28 · 3,860 × 45 m', elev:'586 ft', customs:'07:00–23:00 LT; extension PPR 24 h (CODT)', rff:'cat 9',
+    slot:'Not coordinated', handling:'On request', drive:'~190 km · ~2 h 00',
+    dep(c){ const wk=c.dow>=1 && c.dow<=5 && !c.hol;
+      const open= wk ? inW(c.lt,M(7),M(19)) : (inW(c.lt,M(9,30),M(12,45)) || inW(c.lt,M(14),M(19)));
+      return open ? R('ok',`TWR open (${wk?'Mon–Fri 07:00–19:00':'weekend 09:30–12:45 / 14:00–19:00'} LT). Not coordinated.`) : R('cond','Outside TWR hours: AFIS / extension on request from airport operations (PPR by 16:00 LT on the last working day before).'); },
+    arr(c){ return worst(this.dep(c), inW(c.lt,M(7),M(23)) ? R('ok','Customs 07:00–23:00 LT.') : R('cond','Customs outside 07:00–23:00 LT: PPR 24 h via CODT.')); } },
+   {icao:'LFRG', name:'Deauville', lat:49.3653, lon:0.1542, tags:[['d','Day hours (seasonal)'],['','PPR 48 h outside'],['x','RFFS 7 on PPR']],
+    hours:'01 Nov–31 Mar 0800–1800, 01 Apr–31 Oct 0700–1900 (AIP, UTC winter basis); extension PPR 48 h', depS:'06:00–18:00Z (Apr–Oct)', depW:'08:00–18:00Z (Nov–Mar); 07:00–19:00Z late Oct',
+    night:'Outside hours: extension PPR 48 h', rwy:'12/30 · 2,550 × 45 m', elev:'479 ft', customs:'PPR 24 h Mon–Fri; 48 h Sat, Sun, PH; GENDEC by e-mail', rff:'Level 5 in ATS hours; level 7 for scheduled flights or PPR 48 h',
+    slot:'Not coordinated', handling:'See AD 2.4', drive:'~200 km · ~2 h 05',
+    win(c){ const mo=c.lmon; const sum = mo>=3 && mo<=9; let a=sum?M(7):M(8), b=sum?M(19):M(18); if(c.S){a-=60;b-=60;} return [a,b]; },
+    dep(c){ const [a,b]=this.win(c);
+      return inW(c.utc,a,b) ? R('cond',`Open ${hm(a)}–${hm(b)}Z. RFFS level 5 only: G550 needs level 7 on PPR 48 h.`) : R('cond',`Outside ${hm(a)}–${hm(b)}Z: extension PPR 48 h (and RFFS level 7 PPR).`); },
+    arr(c){ const r=this.dep(c); r.txt+=' Customs PPR 24 h (48 h weekend/PH), GENDEC.'; return r; } }
+  ]
+}};
+
+/* CBP General Aviation fact sheets: local copy (offline) + official page */
+const CBPFS={
+  KTEB:['01 Dec 2025','teterboro-airport-kteb'],
+  KHPN:['16 Mar 2026','westchester-county-airport-khpn'],
+  KMMU:['16 Jan 2026','morristown-municipal-airport-kmmu'],
+  KFRG:['18 Nov 2025','republic-airport-kfrg'],
+  KISP:['21 Nov 2025','long-island-macarthur-airport-kisp'],
+  KSWF:['16 Mar 2026','stewart-international-airport-kswf'],
+  KJFK:['18 Nov 2025','john-f-kennedy-international-airport-kjfk'],
+  KEWR:['16 Mar 2026','newark-liberty-international-airport-kewr'],
+  KLGA:['21 Nov 2025','laguardia-airport-klga']
+};
+DATA.NYC.aps.forEach(a=>{ const f=CBPFS[a.icao]; if(!f) return;
+  a.cbpfs=`<a href="cbp/CBP-${a.icao}-fact-sheet.pdf" target="_blank" rel="noopener">PDF copy (${f[0]})</a> · <a href="https://www.cbp.gov/document/general-aviation/${f[1]}-fact-sheet-details" target="_blank" rel="noopener">latest on cbp.gov</a>`; });
+
+/* ---------------- render metro views ---------------- */
+const esc=s=>String(s);
+function distKm(a,b){ const R6=6371, toR=Math.PI/180; const dLat=(b.lat-a.lat)*toR, dLon=(b.lon-a.lon)*toR;
+  const h=Math.sin(dLat/2)**2+Math.cos(a.lat*toR)*Math.cos(b.lat*toR)*Math.sin(dLon/2)**2; return 2*R6*Math.asin(Math.sqrt(h)); }
+function mapSVG(key){
+  const d=DATA[key], c=d.center, W=560, H=400, cx=W/2, cy=H/2;
+  const maxR=d.rings[d.rings.length-1], sc=(Math.min(W,H)/2-22)/maxR, k=Math.cos(c.lat*Math.PI/180);
+  const P=p=>[cx+(p.lon-c.lon)*111.32*k*sc, cy-(p.lat-c.lat)*110.57*sc];
+  let s=`<svg class="mapbox" viewBox="0 0 ${W} ${H}" role="img" aria-label="Airport positions relative to ${c.n}">`;
+  d.rings.forEach(r=>{ s+=`<circle cx="${cx}" cy="${cy}" r="${r*sc}" fill="none" stroke="var(--ring)" stroke-dasharray="3 4"/><text class="rl" x="${cx+4}" y="${cy-r*sc+12}">${r} km</text>`; });
+  s+=`<line x1="${cx-6}" y1="${cy}" x2="${cx+6}" y2="${cy}" stroke="var(--gray)"/><line x1="${cx}" y1="${cy-6}" x2="${cx}" y2="${cy+6}" stroke="var(--gray)"/><text class="rl" x="${cx+6}" y="${cy+14}">${c.n}</text>`;
+  s+=`<text class="rl" x="${W-18}" y="16">N</text><line x1="${W-15}" y1="20" x2="${W-15}" y2="36" stroke="var(--gray)"/>`;
+  d.aps.forEach(a=>{ const [x,y]=P(a); const L=a.lab||(x<W-60?[8,4,'start']:[-8,4,'end']);
+    s+=`<g class="pin" data-go="${a.icao}"><circle cx="${x}" cy="${y}" r="11" fill="transparent"/><circle cx="${x}" cy="${y}" r="5" fill="var(--pin)" id="pin-${a.icao}"/><text x="${x+L[0]}" y="${y+L[1]}" text-anchor="${L[2]}">${a.icao}</text></g>`; });
+  return s+'</svg>';
+}
+function apCard(key,a){
+  const d=DATA[key];
+  const tags=a.tags.map(t=>`<span class="tag ${t[0]}">${t[1]}</span>`).join('');
+  const rows=d.fields.map(f=>a[f[0]]!==undefined?`<dt>${f[1]}</dt><dd>${esc(a[f[0]])}</dd>`:'').join('');
+  const km=Math.round(distKm(d.center,a));
+  return `<div class="ap" id="ap-${a.icao}" data-tags="${a.tags.map(t=>t[1]).join('|')}">
+    <div class="top"><div><div class="code">${a.icao}</div><div class="nm">${a.name} · ${km} km direct</div></div><span class="st" id="now-${a.icao}"></span></div>
+    <div class="why" id="why-${a.icao}"></div>
+    <div class="tags">${tags}</div><dl>${rows}</dl></div>`;
+}
+function tableHTML(key){
+  const d=DATA[key];
+  let h='<div class="tblwrap"><table><thead><tr><th></th>'+d.aps.map(a=>`<th>${a.icao} ${a.name}</th>`).join('')+'</tr></thead><tbody>';
+  d.fields.forEach(f=>{ h+=`<tr><td>${f[1]}</td>`+d.aps.map(a=>`<td>${a[f[0]]??''}</td>`).join('')+'</tr>'; });
+  return h+'</tbody></table></div>';
+}
+const FILTERS={
+  LON:[['all','All'],['night','Night-friendly (H24)'],['day','Day only']],
+  NYC:[['all','All'],['nocurfew','No curfew'],['close','≤ 30 km from Midtown'],['cbp','CBP H24']],
+  PAR:[['all','All'],['late','Late departure (slot / on request)'],['nearby','≤ 35 km']]
+};
+function passFilter(key,a,f){
+  if(f==='all') return true;
+  if(key==='LON'){ const day=['EGLF','EGWU','EGKB'].includes(a.icao); return f==='day'?day:!day; }
+  if(key==='NYC'){ if(f==='nocurfew') return ['KISP','KSWF','KMMU','KJFK','KEWR','KLGA'].includes(a.icao);
+    if(f==='close') return distKm(DATA.NYC.center,a)<=30; if(f==='cbp') return a.cbp==='H24'; }
+  if(key==='PAR'){ if(f==='late') return ['LFPG','LFOK','LFRG'].includes(a.icao); if(f==='nearby') return distKm(DATA.PAR.center,a)<=35; }
+  return true;
+}
+function renderMetro(key){
+  const d=DATA[key], el=document.getElementById('v-'+key);
+  el.innerHTML=`
+   <div class="card"><h2>${d.title} <span class="r" id="season-${key}"></span></h2>
+     <div class="clock"><div><span class="l">Local now</span><b id="lt-${key}">--:--</b></div><div><span class="l">UTC now</span><b id="utc-${key}">--:--</b></div>
+       <div><span class="l">Season</span><b id="sz-${key}" style="font-size:17px;"></b></div></div>
+     <p class="muted" style="margin:8px 0 0;">${d.seasonNote} <span id="chg-${key}"></span></p>
+     ${d.context?`<p class="muted" style="margin:8px 0 0;">${d.context}</p>`:''}
+   </div>
+   <div class="card"><h2>Distance from ${d.center.n} <span class="r">tap a pin</span></h2>${mapSVG(key)}
+     <p class="muted" style="text-align:center;margin:4px 0 0;">Straight-line positions (schematic). Car time on each card.</p></div>
+   <div class="chips" id="flt-${key}">${FILTERS[key].map((f,i)=>`<button class="chip${i?'':' on'}" data-f="${f[0]}">${f[1]}</button>`).join('')}</div>
+   <p class="muted" style="margin:-4px 0 10px;">Status badge = departure right now, as interpreted from the published hours.</p>
+   <div class="grid">${d.aps.map(a=>apCard(key,a)).join('')}</div>
+   <div class="card" style="margin-top:14px;"><h2>Planning notes</h2><ul>${d.notes.map(n=>`<li>${n}</li>`).join('')}</ul></div>
+   <div class="card"><details><summary>Compare table</summary><div style="margin-top:10px;">${tableHTML(key)}</div></details></div>
+   <div class="card"><h2>Sources</h2><p class="muted" style="margin:0;">${d.sources}</p></div>`;
+  el.querySelectorAll('#flt-'+key+' .chip').forEach(b=>b.onclick=()=>{
+    el.querySelectorAll('#flt-'+key+' .chip').forEach(x=>x.classList.toggle('on',x===b));
+    d.aps.forEach(a=>{ document.getElementById('ap-'+a.icao).style.display = passFilter(key,a,b.dataset.f)?'':'none'; });
+  });
+  el.querySelectorAll('.pin').forEach(p=>p.onclick=()=>{
+    const c=document.getElementById('ap-'+p.dataset.go); c.style.display=''; c.scrollIntoView({behavior:'smooth',block:'start'});
+    c.classList.add('flash'); setTimeout(()=>c.classList.remove('flash'),1400);
+  });
+}
+function fmtDate(t){ const d=new Date(t); return pad(d.getUTCDate())+'/'+pad(d.getUTCMonth()+1)+'/'+d.getUTCFullYear()+' '+hm(M(d.getUTCHours(),d.getUTCMinutes()))+'Z'; }
+function tick(){
+  const t=Date.now();
+  Object.keys(DATA).forEach(key=>{
+    const c=ctxFor(key,t,false), z=TZ[key];
+    const set=(id,v)=>{ const e=document.getElementById(id); if(e) e.textContent=v; };
+    set('lt-'+key, hm(c.lt)+' '+['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][c.dow]); set('utc-'+key, hm(c.utc)+'Z');
+    set('sz-'+key, c.S?'Summer · '+z.sName:'Winter · '+z.wName); set('season-'+key, 'UTC'+(c.off>=0?'+':'−')+Math.abs(c.off));
+    const n=nextChange(key,t); set('chg-'+key, n?'Next clock change: '+fmtDate(n)+'.':'');
+    DATA[key].aps.forEach(a=>{ const r=a.dep(c); const b=document.getElementById('now-'+a.icao), w=document.getElementById('why-'+a.icao);
+      if(b){ b.className='st '+r.s; b.textContent='NOW: '+LABEL[r.s]; } if(w) w.textContent=r.txt; });
+  });
+}
+
+/* ---------------- checker ---------------- */
+const $=id=>document.getElementById(id);
+let mode='dep', tzIn='utc';
+function store(k,v){ try{ localStorage.setItem('lrmetro.'+k,v); }catch(e){} }
+function load(k){ try{ return localStorage.getItem('lrmetro.'+k); }catch(e){ return null; } }
+function checkerInstant(){
+  const metro=$('cMetro').value, ds=$('cDate').value, ts=$('cTime').value; if(!ds||!ts) return null;
+  const [y,mo,da]=ds.split('-').map(Number), [h,mi]=ts.split(':').map(Number);
+  let t=Date.UTC(y,mo-1,da,h,mi);
+  if(tzIn==='lt'){ const z=TZ[metro]; let g=t-z.std*3600e3; const off=z.rule(g)?z.dst:z.std; t=t-off*3600e3; }
+  return t;
+}
+function runCheck(){
+  const metro=$('cMetro').value, t=checkerInstant(); if(t===null) return;
+  const c=ctxFor(metro,t,$('cHol').checked), d=DATA[metro];
+  const rows=d.aps.map(a=>({a, r:(mode==='dep'?a.dep(c):a.arr(c))})).sort((x,y)=>RANK[y.r.s]-RANK[x.r.s]);
+  $('cHead').textContent=`${hm(c.utc)}Z = ${hm(c.lt)} LT ${['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][c.dow]} · ${c.S?TZ[metro].sName:TZ[metro].wName}`;
+  const cnt=s=>rows.filter(x=>x.r.s===s).length;
+  $('cSum').innerHTML=`<b>${mode==='dep'?'Departure':'International arrival'}</b> in the ${TZ[metro].city} area: ${cnt('ok')} open, ${cnt('cond')} with slot/PPR/reservation, ${cnt('warn')} restricted, ${cnt('closed')} closed${cnt('confirm')?', '+cnt('confirm')+' to confirm':''}.`;
+  $('cRes').innerHTML=rows.map(({a,r})=>`<div class="row"><div class="c">${a.icao}<small>${a.name}</small></div><div><span class="st ${r.s}">${LABEL[r.s]}</span></div><div class="t">${r.txt}</div></div>`).join('');
+  store('metro',metro); store('mode',mode); store('tz',tzIn);
+}
+function setNow(){
+  const n=new Date(); let t=n.getTime();
+  if(tzIn==='lt'){ const c=ctxFor($('cMetro').value,t,false); t+=c.off*3600e3; }
+  const d=new Date(t); $('cDate').value=d.getUTCFullYear()+'-'+pad(d.getUTCMonth()+1)+'-'+pad(d.getUTCDate()); $('cTime').value=pad(d.getUTCHours())+':'+pad(d.getUTCMinutes());
+  runCheck();
+}
+function segInit(id,attr,cb){ $(id).querySelectorAll('button').forEach(b=>b.onclick=()=>{ $(id).querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b)); cb(b.dataset[attr]); }); }
+function convertInputs(newTz){ // keep same instant when switching UTC/Local
+  const t=checkerInstant(); tzIn=newTz; if(t===null) return;
+  let s=t; if(tzIn==='lt'){ const c=ctxFor($('cMetro').value,t,false); s=t+c.off*3600e3; }
+  const d=new Date(s); $('cDate').value=d.getUTCFullYear()+'-'+pad(d.getUTCMonth()+1)+'-'+pad(d.getUTCDate()); $('cTime').value=pad(d.getUTCHours())+':'+pad(d.getUTCMinutes());
+  runCheck();
+}
+
+/* ---------------- tabs & init ---------------- */
+function show(v){ document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
+  document.querySelectorAll('.view').forEach(x=>x.classList.toggle('on',x.id==='v-'+v)); store('tab',v); }
+document.querySelectorAll('#tabs button').forEach(b=>b.onclick=()=>{ show(b.dataset.v); window.scrollTo(0,0); });
+Object.keys(DATA).forEach(renderMetro);
+const sm=load('metro'); if(sm && DATA[sm]) $('cMetro').value=sm;
+const smode=load('mode'); if(smode==='arr'){ mode='arr'; $('cMode').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.m==='arr')); }
+const stz=load('tz'); if(stz==='lt'){ tzIn='lt'; $('cTz').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.z==='lt')); }
+segInit('cMode','m',m=>{ mode=m; runCheck(); });
+segInit('cTz','z',z=>convertInputs(z));
+$('cMetro').onchange=runCheck;
+$('cDate').onchange=runCheck; $('cTime').onchange=runCheck; $('cHol').onchange=runCheck; $('cNow').onclick=setNow;
+show(load('tab')||'LON'); setNow(); tick(); setInterval(tick,30000);
+if('serviceWorker' in navigator){ window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{})); }
+</script>
+</body>
+</html>
