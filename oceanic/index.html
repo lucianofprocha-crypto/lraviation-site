@@ -115,7 +115,7 @@
   .clock{display:flex; flex-wrap:wrap; gap:8px 22px; align-items:baseline;}
   .clock b{font-size:22px; font-variant-numeric:tabular-nums; color:var(--navy);}
   .clock span.l{display:block; font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:var(--gray);}
-  .seg{display:flex; border:1px solid var(--line); border-radius:8px; overflow:hidden; max-width:260px;}
+  .seg{display:flex; border:1px solid var(--line); border-radius:8px; overflow:hidden; max-width:300px;}
   .seg button{flex:1; border:none; background:#fff; color:var(--gray); padding:9px 6px; font-weight:700; font-size:13px; cursor:pointer;}
   .seg button.on{background:var(--navy); color:#fff;}
   .aform{display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:10px; align-items:end; margin-top:10px;}
@@ -226,11 +226,14 @@
         <div class="aform" style="margin-top:0">
           <div class="field"><label>Lat (°N)</label><input type="number" id="alt_lat" step="0.5" min="20" max="80" inputmode="decimal"></div>
           <div class="field"><label>Long (°W)</label><input type="number" id="alt_lon" step="0.5" min="0" max="80" inputmode="decimal"></div>
+          <div class="field"><label>Diversion TAS (kt)</label><input type="number" id="alt_tas" step="10" min="100" max="600" inputmode="numeric"></div>
+          <div><label>Rings 60 / 120 / 180 min around</label>
+            <div class="seg" id="alt_ring"><button data-r="pos" class="on">Position</button><button data-r="ap">Alternates</button><button data-r="off">Off</button></div></div>
           <div class="field"><label>Cards order</label>
-            <div class="seg" id="alt_sort"><button data-s="dist" class="on">Nearest</button><button data-s="geo">West → East</button></div></div>
+            <div class="seg" id="alt_sort"><button data-s="dist" class="on">Nearest</button><button data-s="geo">W → E</button><button data-s="geoE">E → W</button></div></div>
         </div>
         <svg class="natmap" id="alt_map" viewBox="0 0 720 440" role="img" aria-label="Schematic map of NAT en-route alternates"></svg>
-        <p class="refnote" style="text-align:center; margin-top:2px">Schematic lat/long grid (not a chart). Tap a pin to jump to its card. Distances are great-circle NM from the position above.</p>
+        <p class="refnote" style="text-align:center; margin-top:2px">Schematic lat/long grid (not a chart). Tap a pin to jump to its card. Distances are great-circle NM from the position above; times and rings are still air at the diversion TAS (no wind). “Alternates” draws the rings of the airports shown by the filter below.</p>
       </div>
 
       <div class="chips" id="alt_flt"></div>
@@ -877,7 +880,7 @@ var NOTES = [
 var SOURCES = 'OPSGROUP — NAT Ops Guide 2026 (diversions, airport data QRH, NAT quick-map) · OPSGROUP Opsicle “4 Tech Stop Options” (BIKF, LPLA, EINN) · OPSGROUP “The Lajes Lowdown”, 18 Oct 2026 · Portugal AIP LPLA AD 2.3 (operational hours) · Portugal AIP LPAZ AD 2.2–2.3 (06 AUG 2026) · AIP Ireland EINN AD 2.4–2.6 (01 OCT 2026) · ForeFlight airport info BGSF (hours, 21 Oct 2026). Pin positions are approximate (schematic). Hours, RFF and fees change: check the AIP, NOTAMs and your handler before relying on an alternate. Where the sources disagree, both values are shown with “confirm”.';
 
 /* ---------- state ---------- */
-var ST = {lat: 50, lon: 30, sort: 'dist', flt: 'all', mode: 'now', d: '', t: ''};
+var ST = {lat: 50, lon: 30, sort: 'dist', flt: 'all', mode: 'now', d: '', t: '', tas: 400, ring: 'pos'};
 try { var sv = JSON.parse(localStorage.getItem('oceanic_alt') || 'null'); if (sv) for (var k in sv) ST[k] = sv[k]; } catch(e){}
 function store(){ try { localStorage.setItem('oceanic_alt', JSON.stringify(ST)); } catch(e){} }
 function $(id){ return document.getElementById(id); }
@@ -894,8 +897,25 @@ function instant(){
   return Date.now();
 }
 
+/* ---------- rings (still air) ---------- */
+function tas(){ var v = parseFloat(ST.tas); return (isFinite(v) && v >= 50) ? v : null; }
+function dest(lat, lon, brg, d){ var r = Math.PI / 180, dr = d / 3440.065, la = lat * r, lo = lon * r, b = brg * r;
+  var la2 = Math.asin(Math.sin(la) * Math.cos(dr) + Math.cos(la) * Math.sin(dr) * Math.cos(b));
+  var lo2 = lo + Math.atan2(Math.sin(b) * Math.sin(dr) * Math.cos(la), Math.cos(dr) - Math.sin(la) * Math.sin(la2));
+  return [la2 / r, lo2 / r]; }
+var RING = [[60, '#0B5A8A', 0.10], [120, '#0B5A8A', 0.06], [180, '#0B5A8A', 0.035]];
+function ringSVG(c, label){ var v = tas(); if (!v) return '';
+  var out = '';
+  RING.slice().reverse().forEach(function(rg){ var d = v * rg[0] / 60, pts = [];
+    for (var b = 0; b <= 360; b += 5){ var q = dest(c.lat, c.lon, b, d), p = P(q[0], q[1]); pts.push(p[0].toFixed(1) + ',' + p[1].toFixed(1)); }
+    out += '<polygon points="' + pts.join(' ') + '" fill="' + rg[1] + '" fill-opacity="' + (label ? rg[2] : rg[2] * 0.35) + '" stroke="' + rg[1] + '" stroke-opacity=".55" stroke-width="1" stroke-dasharray="' + (rg[0] === 180 ? '6 4' : rg[0] === 120 ? '3 3' : '0') + '"/>';
+    if (label){ var top = dest(c.lat, c.lon, 0, d), tp = P(top[0], top[1]);
+      out += '<text class="rl" x="' + tp[0] + '" y="' + (tp[1] - 3) + '" text-anchor="middle" style="fill:#0B5A8A; font-weight:700">' + rg[0] + '′ · ' + Math.round(d) + ' NM</text>'; } });
+  return out; }
+function hmin(m){ m = Math.round(m); return Math.floor(m / 60) + ':' + pad(m % 60); }
+
 /* ---------- map ---------- */
-var LON0 = -82, LAT1 = 71, SY = 9.6, SX = SY * Math.cos(50 * Math.PI / 180), X0 = (720 - 84 * SX) / 2, Y0 = 14;
+var LON0 = -82, LAT1 = 71, LAT0 = 29, SY = 9.6, SX = SY * Math.cos(50 * Math.PI / 180), X0 = (720 - 84 * SX) / 2, Y0 = 14;
 function P(lat, lon){ return [X0 + (lon - LON0) * SX, Y0 + (LAT1 - lat) * SY]; }
 function mapSVG(){
   var s = '<rect x="0" y="0" width="720" height="440" fill="#f9fbfd"/>';
@@ -909,6 +929,11 @@ function mapSVG(){
    ['PORTUGAL', 44.5, -5], ['BERMUDA', 34.4, -66]].forEach(function(g){ var p = P(g[1], g[2]);
     s += '<text class="rg" x="' + p[0] + '" y="' + p[1] + '" text-anchor="middle">' + g[0] + '</text>'; });
   var me = pos(), near = [];
+  var a0 = P(LAT1, LON0), a1 = P(LAT0, 2);
+  s += '<defs><clipPath id="alt_clip"><rect x="' + a0[0] + '" y="' + a0[1] + '" width="' + (a1[0] - a0[0]) + '" height="' + (a1[1] - a0[1]) + '"/></clipPath></defs><g clip-path="url(#alt_clip)">';
+  if (ST.ring === 'pos' && me) s += ringSVG(me, true);
+  if (ST.ring === 'ap') APS.forEach(function(a){ if (pass(a)) s += ringSVG(a, false); });
+  s += '</g>';
   if (me){ near = APS.slice().sort(function(a, b){ return nm(me, a) - nm(me, b); }).slice(0, 3);
     var q = P(me.lat, me.lon);
     near.forEach(function(a){ var p = P(a.lat, a.lon);
@@ -950,6 +975,7 @@ function pass(a){ if (ST.flt === 'all') return true; if (ST.flt === 'open') retu
 function order(){
   var me = pos(), list = APS.slice();
   if (ST.sort === 'dist' && me) list.sort(function(a, b){ return nm(me, a) - nm(me, b); });
+  else if (ST.sort === 'geoE') list.sort(function(a, b){ return b.lon - a.lon; });
   else list.sort(function(a, b){ return a.lon - b.lon; });
   var g = $('alt_grid');
   list.forEach(function(a){ g.appendChild($('alt_ap_' + a.icao)); });
@@ -968,7 +994,8 @@ function update(){
   APS.forEach(function(a){ var c = ctx(a.tz, t), r = a.st(c); lastSt[a.icao] = r.s; if (r.s === 'ok') nOk++;
     var b = $('alt_now_' + a.icao); b.className = 'st ' + r.s; b.textContent = LABEL[r.s];
     $('alt_why_' + a.icao).textContent = r.txt + ' Local ' + hm(c.lt) + ' (' + offTxt(c.off) + ').';
-    $('alt_nm_' + a.icao).textContent = me ? '· ' + Math.round(nm(me, a)) + ' NM' : '';
+    var dd = me ? nm(me, a) : null, v = tas();
+    $('alt_nm_' + a.icao).textContent = me ? '· ' + Math.round(dd) + ' NM' + (v ? ' · ' + hmin(dd / v * 60) + ' at ' + v + ' kt' + (dd / v * 60 > 180 ? ' (> 180′)' : '') : '') : '';
     $('alt_ap_' + a.icao).style.display = pass(a) ? '' : 'none'; });
   $('altcount').textContent = APS.length + ' airports · ' + nOk + ' open';
 }
@@ -981,8 +1008,9 @@ function init(){
   $('alt_src').textContent = SOURCES;
   $('alt_flt').innerHTML = FLT.map(function(f){ return '<button class="chip' + (f[0] === ST.flt ? ' on' : '') + '" data-f="' + f[0] + '">' + f[1] + '</button>'; }).join('');
   $('alt_flt').onclick = function(e){ var b = e.target.closest('.chip'); if (!b) return; ST.flt = b.dataset.f; store();
-    [].forEach.call($('alt_flt').children, function(x){ x.classList.toggle('on', x === b); }); update(); };
-  $('alt_lat').value = ST.lat; $('alt_lon').value = ST.lon;
+    [].forEach.call($('alt_flt').children, function(x){ x.classList.toggle('on', x === b); }); update(); if (ST.ring === 'ap') redrawMap(); };
+  $('alt_lat').value = ST.lat; $('alt_lon').value = ST.lon; $('alt_tas').value = ST.tas;
+  $('alt_tas').addEventListener('input', function(){ ST.tas = $('alt_tas').value; store(); redrawMap(); update(); });
   ['alt_lat', 'alt_lon'].forEach(function(id){ $(id).addEventListener('input', function(){
     ST.lat = $('alt_lat').value; ST.lon = $('alt_lon').value; store(); redrawMap(); order(); update(); }); });
   function seg(id, key, after){ var el = $(id);
@@ -994,6 +1022,10 @@ function init(){
     $('alt_d').value = ST.d; $('alt_t').value = ST.t; update(); }
   seg('alt_mode', 'mode', etaVis);
   seg('alt_sort', 'sort', order);
+  (function(){ var el = $('alt_ring');
+    [].forEach.call(el.children, function(b){ b.classList.toggle('on', b.dataset.r === ST.ring); });
+    el.onclick = function(e){ var b = e.target.closest('button'); if (!b) return; ST.ring = b.dataset.r; store();
+      [].forEach.call(el.children, function(x){ x.classList.toggle('on', x === b); }); redrawMap(); }; })();
   ['alt_d', 'alt_t'].forEach(function(id){ $(id).addEventListener('change', function(){ ST.d = $('alt_d').value; ST.t = $('alt_t').value; store(); update(); }); });
   $('alt_map').addEventListener('click', function(e){ var g = e.target.closest('.pin'); if (!g) return;
     var card = $('alt_ap_' + g.dataset.go); if (card.style.display === 'none'){ ST.flt = 'all'; store();
