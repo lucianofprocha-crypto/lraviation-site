@@ -2,16 +2,16 @@
    All data stays on the device (IndexedDB). No network calls except loading the app itself. */
 'use strict';
 
-const APP_VERSION = '1.1.2';
+const APP_VERSION = '1.2.0';
 const RETENTION_DAYS = 42;
 const QR_PREFIX = 'LRAE1.';
 const QR_PREFIX_RAW = 'LRAE0.';
 const CDC_URL = 'https://www.cdc.gov/port-health/legal-authorities/attestation-order.html';
 
 const EXTRA = {
-  en: { shareSave: 'Share / Save', pdfReady: 'PDF ready. Use Share / Save.', role: 'Who is attesting?', rolePax: 'Passenger', roleCrew: 'Crew member', crew: 'Crew', expCrew: 'Expected crew', crewNote: 'Crew: the CDC text names passengers only and does not clarify crew. As a precaution, this app collects an attestation from every crew member too.', setExpected: 'Enter expected passengers and crew (Edit) to confirm everyone on board has attested. No one boards without an attestation.', readyAll: 'Everyone on board attested — ready for boarding', fullText: 'Full disclosure and Privacy Act statement', expected: 'Expected passengers', savePDF: 'View PDF copy', exportedOn: 'Exported', never: 'never', notes: 'Notes', persisted: 'Install to Home Screen so data is not cleared.', unsignedWarn: 'Some passengers are still pending.', delExpired: 'Delete expired flights', backupDone: 'Backup restored', fromQR: 'Passenger', import: 'Import', or: 'or', reqFields: 'Fill registration, departure, arrival and ETD.', effective: 'Applies to flights departing a foreign country at or after 3 Nov 2026 23:59 EST (4 Nov 04:59 UTC).' },
-  pt: { shareSave: 'Compartilhar / Salvar', pdfReady: 'PDF pronto. Use Compartilhar / Salvar.', role: 'Quem está declarando?', rolePax: 'Passageiro', roleCrew: 'Tripulante', crew: 'Tripulação', expCrew: 'Tripulantes previstos', crewNote: 'Tripulação: o texto do CDC cita só passageiros e não esclarece a tripulação. Por precaução, este app coleta a declaração de todos os tripulantes também.', setExpected: 'Informe passageiros e tripulantes previstos (Editar) para confirmar que todos a bordo declararam. Ninguém embarca sem declaração.', readyAll: 'Todos a bordo declararam — pronto para embarque', fullText: 'Aviso completo e declaração de privacidade', expected: 'Passageiros previstos', savePDF: 'Ver cópia em PDF', exportedOn: 'Exportado', never: 'nunca', notes: 'Notas', persisted: 'Instale na Tela de Início para os dados não serem apagados.', unsignedWarn: 'Ainda há passageiros pendentes.', delExpired: 'Excluir voos expirados', backupDone: 'Backup restaurado', fromQR: 'Passageiro', import: 'Importar', or: 'ou', reqFields: 'Preencha matrícula, origem, destino e ETD.', effective: 'Vale para voos que decolam do exterior a partir de 3 nov 2026 23h59 EST (4 nov 04:59 UTC).' },
-  es: { shareSave: 'Compartir / Guardar', pdfReady: 'PDF listo. Use Compartir / Guardar.', role: '¿Quién declara?', rolePax: 'Pasajero', roleCrew: 'Tripulante', crew: 'Tripulación', expCrew: 'Tripulantes previstos', crewNote: 'Tripulación: el texto del CDC menciona solo pasajeros y no aclara la tripulación. Por precaución, esta app recoge la declaración de todos los tripulantes también.', setExpected: 'Indique pasajeros y tripulantes previstos (Editar) para confirmar que todos a bordo declararon. Nadie embarca sin declaración.', readyAll: 'Todos a bordo declararon — listo para embarque', fullText: 'Aviso completo y declaración de privacidad', expected: 'Pasajeros previstos', savePDF: 'Ver copia PDF', exportedOn: 'Exportado', never: 'nunca', notes: 'Notas', persisted: 'Instale en la pantalla de inicio para que no se borren los datos.', unsignedWarn: 'Aún hay pasajeros pendientes.', delExpired: 'Eliminar vuelos vencidos', backupDone: 'Respaldo restaurado', fromQR: 'Pasajero', import: 'Importar', or: 'o', reqFields: 'Complete matrícula, origen, destino y ETD.', effective: 'Aplica a vuelos que salen del extranjero desde el 3 nov 2026 23:59 EST (4 nov 04:59 UTC).' }
+  en: { pdfSaved: 'PDF saved:', viewPDF: 'View PDF', shareSave: 'Share / Save', pdfReady: 'PDF ready. Use Share / Save.', role: 'Who is attesting?', rolePax: 'Passenger', roleCrew: 'Crew member', crew: 'Crew', expCrew: 'Expected crew', crewNote: 'Crew: the CDC text names passengers only and does not clarify crew. As a precaution, this app collects an attestation from every crew member too.', setExpected: 'Enter expected passengers and crew (Edit) to confirm everyone on board has attested. No one boards without an attestation.', readyAll: 'Everyone on board attested — ready for boarding', fullText: 'Full disclosure and Privacy Act statement', expected: 'Expected passengers', savePDF: 'View PDF copy', exportedOn: 'Exported', never: 'never', notes: 'Notes', persisted: 'Install to Home Screen so data is not cleared.', unsignedWarn: 'Some passengers are still pending.', delExpired: 'Delete expired flights', backupDone: 'Backup restored', fromQR: 'Passenger', import: 'Import', or: 'or', reqFields: 'Fill registration, departure, arrival and ETD.', effective: 'Applies to flights departing a foreign country at or after 3 Nov 2026 23:59 EST (4 Nov 04:59 UTC).' },
+  pt: { pdfSaved: 'PDF salvo:', viewPDF: 'Ver PDF', shareSave: 'Compartilhar / Salvar', pdfReady: 'PDF pronto. Use Compartilhar / Salvar.', role: 'Quem está declarando?', rolePax: 'Passageiro', roleCrew: 'Tripulante', crew: 'Tripulação', expCrew: 'Tripulantes previstos', crewNote: 'Tripulação: o texto do CDC cita só passageiros e não esclarece a tripulação. Por precaução, este app coleta a declaração de todos os tripulantes também.', setExpected: 'Informe passageiros e tripulantes previstos (Editar) para confirmar que todos a bordo declararam. Ninguém embarca sem declaração.', readyAll: 'Todos a bordo declararam — pronto para embarque', fullText: 'Aviso completo e declaração de privacidade', expected: 'Passageiros previstos', savePDF: 'Ver cópia em PDF', exportedOn: 'Exportado', never: 'nunca', notes: 'Notas', persisted: 'Instale na Tela de Início para os dados não serem apagados.', unsignedWarn: 'Ainda há passageiros pendentes.', delExpired: 'Excluir voos expirados', backupDone: 'Backup restaurado', fromQR: 'Passageiro', import: 'Importar', or: 'ou', reqFields: 'Preencha matrícula, origem, destino e ETD.', effective: 'Vale para voos que decolam do exterior a partir de 3 nov 2026 23h59 EST (4 nov 04:59 UTC).' },
+  es: { pdfSaved: 'PDF guardado:', viewPDF: 'Ver PDF', shareSave: 'Compartir / Guardar', pdfReady: 'PDF listo. Use Compartir / Guardar.', role: '¿Quién declara?', rolePax: 'Pasajero', roleCrew: 'Tripulante', crew: 'Tripulación', expCrew: 'Tripulantes previstos', crewNote: 'Tripulación: el texto del CDC menciona solo pasajeros y no aclara la tripulación. Por precaución, esta app recoge la declaración de todos los tripulantes también.', setExpected: 'Indique pasajeros y tripulantes previstos (Editar) para confirmar que todos a bordo declararon. Nadie embarca sin declaración.', readyAll: 'Todos a bordo declararon — listo para embarque', fullText: 'Aviso completo y declaración de privacidad', expected: 'Pasajeros previstos', savePDF: 'Ver copia PDF', exportedOn: 'Exportado', never: 'nunca', notes: 'Notas', persisted: 'Instale en la pantalla de inicio para que no se borren los datos.', unsignedWarn: 'Aún hay pasajeros pendientes.', delExpired: 'Eliminar vuelos vencidos', backupDone: 'Respaldo restaurado', fromQR: 'Pasajero', import: 'Importar', or: 'o', reqFields: 'Complete matrícula, origen, destino y ETD.', effective: 'Aplica a vuelos que salen del extranjero desde el 3 nov 2026 23:59 EST (4 nov 04:59 UTC).' }
 };
 
 /* ---------- helpers ---------- */
@@ -331,6 +331,19 @@ async function renderPdfPages(el, bytes) {
     await page.render({ canvasContext: c.getContext('2d'), viewport: vp }).promise;
   }
 }
+/* save straight to the device (Downloads / Files) without the share sheet */
+async function saveFile(bytes, name, mime) {
+  if (window.claude && window.claude.use) {
+    try {
+      const dl = await window.claude.use('downloads');
+      if (dl) { try { await dl.save({ filename: name, data: new Blob([bytes], { type: mime }) }); return true; } catch (e) { if (e && e.code === 'declined') return false; } }
+    } catch { }
+  }
+  const url = URL.createObjectURL(new Blob([bytes], { type: mime }));
+  const a = document.createElement('a'); a.href = url; a.download = name; a.rel = 'noopener'; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 60000);
+  return true;
+}
 async function deliverFile(bytes, name, mime) {
   const file = new File([bytes], name, { type: mime });
   if (window.claude && window.claude.use) {
@@ -462,7 +475,7 @@ async function renderFlight(id) {
       <label class="btn big">⇪ ${esc(t('importGD'))}<input type="file" id="gdimp" accept=".pdf,.csv,.txt,application/pdf,text/csv" hidden></label>
     </div>
     ${T.roster ? rosterHTML(f, pax) : paxListHTML(t('passengers'), pax.filter(r => !isCrew(r))) + paxListHTML(t('crew'), pax.filter(isCrew))}
-    <div class="row gap wrap"><button class="btn primary" id="pdf" ${n ? '' : 'disabled'}>⤓ ${esc(t('exportPDF'))}</button></div>
+    <div class="row gap wrap"><button class="btn primary" id="pdf" ${n ? '' : 'disabled'}>⤓ ${esc(t('exportPDF'))}</button><button class="btn" id="vpdf" ${n ? '' : 'disabled'}>${esc(t('viewPDF'))}</button></div>
     <div class="card"><h3>${esc(t('checklist'))}</h3>${ck('ck1')}${ck('ck3')}${ck('ck2')}<p class="small muted">${esc(t('crewNote'))}</p></div>`;
   $('#delF').onclick = async () => { if (await ask(t('confirmDelFlight'))) { await DB.delFlight(id); location.hash = '#/'; } };
   view().querySelectorAll('[data-delpax]').forEach(b => b.onclick = async () => { if (await ask(t('confirmDelPax'))) { await DB.del('pax', b.dataset.delpax); route(); } });
@@ -474,11 +487,17 @@ async function renderFlight(id) {
   $('#pdf').onclick = async () => {
     const b = $('#pdf'); b.disabled = true; b.textContent = '…';
     try {
+      const name = `EBOLA-ATTESTATIONS_${fileStem(f)}.pdf`;
       const bytes = await buildPDF(pax, f);
-      f.exportedAt = new Date().toISOString(); f.checks.ck2 = true; await DB.put('flights', f);
-      await showPDF(bytes, `EBOLA-ATTESTATIONS_${fileStem(f)}.pdf`);
+      if (await saveFile(bytes, name, 'application/pdf')) {
+        f.exportedAt = new Date().toISOString(); f.checks.ck2 = true; await DB.put('flights', f);
+        route(); toast(`${t('pdfSaved')} ${name}`, 4500); return;
+      }
     } catch (e) { console.error(e); toast('PDF error: ' + e.message, 4000); }
     route();
+  };
+  $('#vpdf').onclick = async () => {
+    try { await showPDF(await buildPDF(pax, f), `EBOLA-ATTESTATIONS_${fileStem(f)}.pdf`); } catch (e) { console.error(e); toast('PDF error: ' + e.message, 4000); }
   };
 }
 
@@ -655,7 +674,7 @@ async function startGendecImport(file, flightId) {
   if (!file) return;
   toast('…', 1500);
   try {
-    const gd = await readManifestFile(file);
+    const gd = await readManifestFile(file, p => toast(`${t('ocrRunning')} ${Math.round(p * 100)}%`, 4000));
     if (!gd.people || !gd.people.length) { toast(gd.why === 'noText' ? t('gdNoText') : gd.why === 'layout' ? t('gdLayout') : t('gdNone'), 8000); return; }
     gd.flightId = flightId; gd.fileName = file.name; PENDING_GD = gd;
     if (location.hash === '#/gd') renderGendec(); else location.hash = '#/gd';
@@ -670,10 +689,11 @@ async function renderGendec() {
   const crew = gd.people.filter(p => p.role === 'crew'), pax = gd.people.filter(p => p.role !== 'crew');
   const rows = list => list.map(p => `<tr><td><input type="checkbox" data-inc="${p.id}" ${p.include ? 'checked' : ''} aria-label="${esc(t('include'))}"></td>
     <td><select data-role="${p.id}"><option value="crew" ${p.role === 'crew' ? 'selected' : ''}>${esc(t('roleCrew'))}</option><option value="pax" ${p.role !== 'crew' ? 'selected' : ''}>${esc(t('rolePax'))}</option></select></td>
-    <td class="nm">${esc(p.name)}</td><td>${esc(p.rank || '')}</td><td>${p.minor ? `<span class="tag warn">${esc(t('minor'))}</span>` : ''}</td></tr>`).join('');
+    <td class="nm"><input class="nmin" data-nm="${p.id}" value="${esc(p.name)}" aria-label="${esc(t('name'))}"></td><td>${esc(p.rank || '')}</td><td>${p.minor ? `<span class="tag warn">${esc(t('minor'))}</span>` : ''}</td></tr>`).join('');
   view().innerHTML = `<div class="row"><a class="btn small ghost" href="${target ? '#/f/' + target.id : '#/'}">‹ ${esc(t('back'))}</a></div>
     <div class="card"><h2>${esc(t('gdTitle'))}</h2><p class="muted">${esc(t('gdIntro'))}</p>
       <p class="small">${esc(t('fileGD'))}: <b>${esc(gd.fileName)}</b></p>
+      ${gd.ocr ? `<div class="banner neutral">ⓘ ${esc(t('ocrNote'))}</div>` : ''}
       <div id="gdwarn"></div>
       <form class="form" id="gdf">
         ${target ? `<p class="warnc small">${esc(t('replaceRoster'))}</p>` : `
@@ -697,6 +717,7 @@ async function renderGendec() {
   warn(); if (!target) { form.dep.oninput = warn; form.arr.oninput = warn; }
   view().querySelectorAll('[data-inc]').forEach(c => c.onchange = () => { gd.people.find(p => p.id === c.dataset.inc).include = c.checked; });
   view().querySelectorAll('[data-role]').forEach(c => c.onchange = () => { gd.people.find(p => p.id === c.dataset.role).role = c.value; });
+  view().querySelectorAll('[data-nm]').forEach(c => c.oninput = () => { gd.people.find(p => p.id === c.dataset.nm).name = c.value.toUpperCase().replace(/\s+/g, ' ').trim(); });
   form.onsubmit = async e => {
     e.preventDefault();
     const roster = gd.people.filter(p => p.include).map(({ id, name, role, rank, minor }) => ({ id, name, role, rank, minor }));

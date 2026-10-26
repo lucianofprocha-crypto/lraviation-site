@@ -1,7 +1,7 @@
 /* LR Aviation · US Ebola Attestation — offline cache */
-const CACHE = 'lr-ebola-v1.1.2';
+const CACHE = 'lr-ebola-v1.2.0';
 const ASSETS = ['./', 'index.html', 'app.js', 'i18n.js', 'manifest.webmanifest', 'cdc-attestation-form.pdf',
-  'gendec.js', 'vendor/pdf-lib.min.js', 'vendor/pdf.min.js', 'vendor/pdf.worker.min.js', 'vendor/jsQR.js', 'vendor/qrcode.js', 'icon-180.png', 'icon-192.png', 'icon-512.png'];
+  'gendec.js', 'vendor/pdf-lib.min.js', 'vendor/pdf.min.js', 'vendor/pdf.worker.min.js', 'vendor/jsQR.js', 'vendor/tesseract/tesseract.min.js', 'vendor/tesseract/worker.min.js', 'vendor/tesseract/tesseract-core-lstm.wasm.js', 'vendor/tesseract/eng.traineddata.gz', 'vendor/qrcode.js', 'icon-180.png', 'icon-192.png', 'icon-512.png'];
 
 self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting())); });
 self.addEventListener('activate', e => {

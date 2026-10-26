@@ -9,7 +9,7 @@ const GSTR = {
     gdPrivacy: 'Only names, function and an under-18 flag are kept. Passport numbers and dates of birth are not stored.',
     gdLocal: 'GENDEC dates are local time. Set ETD/ETA in UTC.', createFlight: 'Create flight', applyFlight: 'Apply to this flight',
     gdNone: 'No crew or passenger list found in this file. Supported: GENDEC PDF with selectable text, or CSV (name, type, rank, date of birth).',
-    gdReadErr: 'Could not read this file.', gdNoText: 'This PDF has no selectable text (scanned or image). Export the GENDEC as a PDF from the system that generated it, or use CSV.', gdLayout: 'This GENDEC layout was not recognized. Send it to ops@lraviation.com.br so it can be supported, or use CSV (name, type, rank, date of birth).', minor: 'under 18', minorHint: 'Under 18: a parent or authorized adult signs on their behalf.',
+    gdReadErr: 'Could not read this file.', ocrRunning: 'This PDF has no text layer. Reading it by OCR…', ocrNote: 'Read by OCR (the PDF had no text layer). Check every name against the passports and correct any letter if needed.', gdNoText: 'This PDF has no selectable text (scanned or image). Export the GENDEC as a PDF from the system that generated it, or use CSV.', gdLayout: 'This GENDEC layout was not recognized. Send it to ops@lraviation.com.br so it can be supported, or use CSV (name, type, rank, date of birth).', minor: 'under 18', minorHint: 'Under 18: a parent or authorized adult signs on their behalf.',
     notUS: 'Arrival does not look like a US airport. The CDC attestation applies only to flights to the United States.',
     depUS: 'Departure is in the US. The order covers flights departing a foreign country.',
     roster: 'On board (GENDEC)', notOnList: 'Not on GENDEC', linkTo: 'Link to…', signNow: 'Sign', removeP: 'Remove from list',
@@ -19,7 +19,7 @@ const GSTR = {
     gdPrivacy: 'Só ficam guardados nomes, função e a marcação de menor de 18. Passaporte e data de nascimento não são armazenados.',
     gdLocal: 'As datas da GENDEC são hora local. Ajuste ETD/ETA em UTC.', createFlight: 'Criar voo', applyFlight: 'Aplicar a este voo',
     gdNone: 'Nenhuma lista de tripulantes ou passageiros encontrada. Aceito: GENDEC em PDF com texto selecionável, ou CSV (nome, tipo, função, data de nascimento).',
-    gdReadErr: 'Não foi possível ler este arquivo.', gdNoText: 'Este PDF não tem texto selecionável (escaneado ou imagem). Gere a GENDEC em PDF pelo sistema de origem, ou use CSV.', gdLayout: 'Este modelo de GENDEC não foi reconhecido. Envie para ops@lraviation.com.br para ser incluído, ou use CSV (nome, tipo, função, data de nascimento).', minor: 'menor de 18', minorHint: 'Menor de 18: pai, mãe ou adulto autorizado assina por ele.',
+    gdReadErr: 'Não foi possível ler este arquivo.', ocrRunning: 'Este PDF não tem camada de texto. Lendo por OCR…', ocrNote: 'Lido por OCR (o PDF não tinha texto). Confira cada nome com os passaportes e corrija alguma letra se precisar.', gdNoText: 'Este PDF não tem texto selecionável (escaneado ou imagem). Gere a GENDEC em PDF pelo sistema de origem, ou use CSV.', gdLayout: 'Este modelo de GENDEC não foi reconhecido. Envie para ops@lraviation.com.br para ser incluído, ou use CSV (nome, tipo, função, data de nascimento).', minor: 'menor de 18', minorHint: 'Menor de 18: pai, mãe ou adulto autorizado assina por ele.',
     notUS: 'O destino não parece ser aeroporto dos EUA. A declaração do CDC só vale para voos com destino aos Estados Unidos.',
     depUS: 'A origem é nos EUA. A ordem cobre voos que partem do exterior.',
     roster: 'A bordo (GENDEC)', notOnList: 'Fora da GENDEC', linkTo: 'Vincular a…', signNow: 'Assinar', removeP: 'Tirar da lista',
@@ -29,7 +29,7 @@ const GSTR = {
     gdPrivacy: 'Solo se guardan nombres, función y la marca de menor de 18. Pasaporte y fecha de nacimiento no se almacenan.',
     gdLocal: 'Las fechas de la GENDEC son hora local. Ajuste ETD/ETA en UTC.', createFlight: 'Crear vuelo', applyFlight: 'Aplicar a este vuelo',
     gdNone: 'No se encontró lista de tripulantes ni pasajeros. Se acepta: GENDEC en PDF con texto seleccionable, o CSV (nombre, tipo, función, fecha de nacimiento).',
-    gdReadErr: 'No se pudo leer este archivo.', gdNoText: 'Este PDF no tiene texto seleccionable (escaneado o imagen). Genere la GENDEC en PDF desde el sistema de origen, o use CSV.', gdLayout: 'Este modelo de GENDEC no fue reconocido. Envíelo a ops@lraviation.com.br para incluirlo, o use CSV (nombre, tipo, función, fecha de nacimiento).', minor: 'menor de 18', minorHint: 'Menor de 18: padre, madre o adulto autorizado firma en su nombre.',
+    gdReadErr: 'No se pudo leer este archivo.', ocrRunning: 'Este PDF no tiene capa de texto. Leyendo por OCR…', ocrNote: 'Leído por OCR (el PDF no tenía texto). Verifique cada nombre con los pasaportes y corrija alguna letra si hace falta.', gdNoText: 'Este PDF no tiene texto seleccionable (escaneado o imagen). Genere la GENDEC en PDF desde el sistema de origen, o use CSV.', gdLayout: 'Este modelo de GENDEC no fue reconocido. Envíelo a ops@lraviation.com.br para incluirlo, o use CSV (nombre, tipo, función, fecha de nacimiento).', minor: 'menor de 18', minorHint: 'Menor de 18: padre, madre o adulto autorizado firma en su nombre.',
     notUS: 'El destino no parece un aeropuerto de EE. UU. La declaración del CDC aplica solo a vuelos hacia Estados Unidos.',
     depUS: 'El origen está en EE. UU. La orden cubre vuelos que salen del extranjero.',
     roster: 'A bordo (GENDEC)', notOnList: 'Fuera de la GENDEC', linkTo: 'Vincular a…', signNow: 'Firmar', removeP: 'Quitar de la lista',
@@ -106,7 +106,20 @@ async function pdfLinesOnce(buf) {
   return lines;
 }
 
+function mergeLineItems(lines, gap = 6) {
+  for (const l of lines) {
+    const out = [];
+    for (const it of l.items) {
+      const prev = out[out.length - 1];
+      if (prev && it.x - (prev.x + prev.w) < gap && it.x >= prev.x) { prev.s += ' ' + it.s; prev.w = it.x + it.w - prev.x; }
+      else out.push({ ...it });
+    }
+    l.items = out;
+  }
+  return lines;
+}
 function parseGendecLines(lines) {
+  lines = mergeLineItems(lines);
   const all = lines.map(l => l.text).join('\n');
   const grab = re => { const m = all.match(re); return m ? m[1].trim() : ''; };
   const out = {
@@ -207,12 +220,74 @@ function parseCSV(text) {
   return { people };
 }
 
-async function readManifestFile(file) {
+/* ---------- OCR (PDFs whose text was converted to drawings, e.g. Microsoft Print to PDF) ---------- */
+let _tess = null;
+function loadTesseract() {
+  if (_tess) return _tess;
+  _tess = new Promise((res, rej) => {
+    if (window.Tesseract) return res(window.Tesseract);
+    const s = document.createElement('script'); s.src = 'vendor/tesseract/tesseract.min.js';
+    s.onload = () => res(window.Tesseract); s.onerror = () => { _tess = null; rej(new Error('tesseract')); };
+    document.head.appendChild(s);
+  });
+  return _tess;
+}
+/* whiten long horizontal/vertical dark runs (table borders) so OCR sees the text in the cells */
+function removeRules(ctx, W, H, minRun) {
+  const img = ctx.getImageData(0, 0, W, H), d = img.data;
+  const dark = new Uint8Array(W * H);
+  for (let i = 0, p = 0; i < dark.length; i++, p += 4) dark[i] = (d[p] * 0.3 + d[p + 1] * 0.59 + d[p + 2] * 0.11) < 140 ? 1 : 0;
+  const kill = new Uint8Array(W * H);
+  for (let y = 0; y < H; y++) { let x = 0; const o = y * W; while (x < W) { if (dark[o + x]) { const s0 = x; while (x < W && dark[o + x]) x++; if (x - s0 >= minRun) kill.fill(1, o + s0, o + x); } else x++; } }
+  for (let x = 0; x < W; x++) { let y = 0; while (y < H) { if (dark[y * W + x]) { const s0 = y; while (y < H && dark[y * W + x]) y++; if (y - s0 >= minRun) for (let k = s0; k < y; k++) kill[k * W + x] = 1; } else y++; } }
+  for (let i = 0, p = 0; i < kill.length; i++, p += 4) if (kill[i]) { d[p] = d[p + 1] = d[p + 2] = 255; }
+  ctx.putImageData(img, 0, 0);
+}
+async function ocrLines(buf, onProgress) {
+  const pdfjs = await loadPdfJs();
+  let doc;
+  try { doc = await pdfjs.getDocument({ data: new Uint8Array(buf.slice(0)), isEvalSupported: false }).promise; }
+  catch { await loadMainThreadWorker(); doc = await pdfjs.getDocument({ data: new Uint8Array(buf.slice(0)), isEvalSupported: false }).promise; }
+  const T = await loadTesseract();
+  const abs = p => new URL(p, location.href).href;
+  const worker = await T.createWorker('eng', 1, {
+    workerPath: abs('vendor/tesseract/worker.min.js'), corePath: abs('vendor/tesseract/tesseract-core-lstm.wasm.js'),
+    langPath: abs('vendor/tesseract/'), gzip: true, workerBlobURL: false, cacheMethod: 'none',
+    logger: m => { if (onProgress && m.status === 'recognizing text') onProgress(m.progress); }
+  });
+  await worker.setParameters({ preserve_interword_spaces: '1' });
+  const lines = [];
+  try {
+    for (let pn = 1; pn <= Math.min(doc.numPages, 3); pn++) {
+      const page = await doc.getPage(pn);
+      const scale = 4, vp = page.getViewport({ scale }), H = page.getViewport({ scale: 1 }).height;
+      const c = document.createElement('canvas'); c.width = Math.round(vp.width); c.height = Math.round(vp.height);
+      const ctx = c.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height);
+      await page.render({ canvasContext: ctx, viewport: vp }).promise;
+      removeRules(ctx, c.width, c.height, Math.round(19 * scale));
+      const { data } = await worker.recognize(c);
+      const words = (data.words || []).filter(w => w.text && w.text.trim() && w.confidence > 20)
+        .map(w => ({ s: w.text.trim(), x: w.bbox.x0 / scale, w: (w.bbox.x1 - w.bbox.x0) / scale, y: H - ((w.bbox.y0 + w.bbox.y1) / 2) / scale, h: (w.bbox.y1 - w.bbox.y0) / scale }));
+      words.sort((a, b) => b.y - a.y || a.x - b.x);
+      const pl = [];
+      for (const it of words) {
+        const L = pl.find(l => Math.abs(l.y - it.y) < Math.max(2.5, Math.min(it.h, 8) * 0.55));
+        if (L) L.items.push(it); else pl.push({ y: it.y, items: [it] });
+      }
+      for (const l of pl) { l.items.sort((a, b) => a.x - b.x); l.text = l.items.map(i => i.s).join(' '); l.page = pn; lines.push(l); }
+    }
+  } finally { await worker.terminate(); }
+  return lines;
+}
+
+async function readManifestFile(file, onProgress) {
   const buf = await file.arrayBuffer();
   const head = new TextDecoder('latin1').decode(new Uint8Array(buf.slice(0, 1024)));
   if (head.includes('%PDF') || /\.pdf$/i.test(file.name) || file.type === 'application/pdf') {
-    const lines = await pdfLines(buf);
+    let lines = await pdfLines(buf), ocr = false;
+    if (!lines.length) { ocr = true; lines = await ocrLines(buf, onProgress); }
     const gd = parseGendecLines(lines);
+    gd.ocr = ocr;
     if (!lines.length) gd.why = 'noText';
     else if (!gd.people.length) gd.why = 'layout';
     return gd;
