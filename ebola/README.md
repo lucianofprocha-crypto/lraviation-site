@@ -1,4 +1,4 @@
-# US Ebola Attestation — LR Aviation (v1.1.0)
+# US Ebola Attestation — LR Aviation (v1.1.2)
 
 Ferramenta gratuita e offline (PWA) para operadores coletarem e arquivarem a declaração de Ebola do CDC
 (Attachment A, OMB 0920-1474) em voos do exterior para os EUA — decolagens a partir de 3 nov 2026 23:59 EST (4 nov 04:59 UTC).
@@ -18,6 +18,7 @@ Ao lançar nova versão: altere `APP_VERSION` em `app.js` **e** `CACHE` em `sw.j
 - **PDF por voo**: capa com manifesto + o **formulário oficial do CDC preenchido** para cada passageiro (nome, opção marcada, representante/relação, assinatura, data), com rodapé de registro eletrônico (UTC, método, voo, SHA-256).
 - **Dados só no aparelho** (IndexedDB). Nada vai para servidor. Backup/restore em JSON nos Ajustes.
 - Idiomas da interface: EN / PT / ES. O texto oficial em inglês prevalece; PT/ES são traduções não oficiais marcadas como tal.
+- **Exportar PDF** abre o PDF dentro do app (todas as páginas); de lá, "Compartilhar / Salvar" manda para Arquivos, e-mail, AirDrop ou impressão.
 - Duplicados (mesmo QR lido duas vezes) são detectados pelo hash.
 - **Importar GENDEC** (PDF com texto selecionável, ou CSV com colunas nome/tipo/função/data de nascimento): cria o voo com matrícula, origem, destino e datas, e monta a lista de tripulantes e passageiros. Cada pessoa aparece como pendente, com botão "Assinar" já preenchido. Menores de 18 (pela data de nascimento) vêm marcados e abrem direto no modo representante. QR/arquivos recebidos são ligados automaticamente ao nome da lista; quem não estiver na GENDEC aparece separado, com opção de vincular manualmente. O PDF lista quem ainda não declarou.
 - Da GENDEC só ficam nome, função e a marcação de menor. Passaporte e data de nascimento são lidos na memória e descartados.

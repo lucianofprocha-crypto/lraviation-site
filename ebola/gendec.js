@@ -9,7 +9,7 @@ const GSTR = {
     gdPrivacy: 'Only names, function and an under-18 flag are kept. Passport numbers and dates of birth are not stored.',
     gdLocal: 'GENDEC dates are local time. Set ETD/ETA in UTC.', createFlight: 'Create flight', applyFlight: 'Apply to this flight',
     gdNone: 'No crew or passenger list found in this file. Supported: GENDEC PDF with selectable text, or CSV (name, type, rank, date of birth).',
-    gdReadErr: 'Could not read this file.', minor: 'under 18', minorHint: 'Under 18: a parent or authorized adult signs on their behalf.',
+    gdReadErr: 'Could not read this file.', gdNoText: 'This PDF has no selectable text (scanned or image). Export the GENDEC as a PDF from the system that generated it, or use CSV.', gdLayout: 'This GENDEC layout was not recognized. Send it to ops@lraviation.com.br so it can be supported, or use CSV (name, type, rank, date of birth).', minor: 'under 18', minorHint: 'Under 18: a parent or authorized adult signs on their behalf.',
     notUS: 'Arrival does not look like a US airport. The CDC attestation applies only to flights to the United States.',
     depUS: 'Departure is in the US. The order covers flights departing a foreign country.',
     roster: 'On board (GENDEC)', notOnList: 'Not on GENDEC', linkTo: 'Link to…', signNow: 'Sign', removeP: 'Remove from list',
@@ -19,7 +19,7 @@ const GSTR = {
     gdPrivacy: 'Só ficam guardados nomes, função e a marcação de menor de 18. Passaporte e data de nascimento não são armazenados.',
     gdLocal: 'As datas da GENDEC são hora local. Ajuste ETD/ETA em UTC.', createFlight: 'Criar voo', applyFlight: 'Aplicar a este voo',
     gdNone: 'Nenhuma lista de tripulantes ou passageiros encontrada. Aceito: GENDEC em PDF com texto selecionável, ou CSV (nome, tipo, função, data de nascimento).',
-    gdReadErr: 'Não foi possível ler este arquivo.', minor: 'menor de 18', minorHint: 'Menor de 18: pai, mãe ou adulto autorizado assina por ele.',
+    gdReadErr: 'Não foi possível ler este arquivo.', gdNoText: 'Este PDF não tem texto selecionável (escaneado ou imagem). Gere a GENDEC em PDF pelo sistema de origem, ou use CSV.', gdLayout: 'Este modelo de GENDEC não foi reconhecido. Envie para ops@lraviation.com.br para ser incluído, ou use CSV (nome, tipo, função, data de nascimento).', minor: 'menor de 18', minorHint: 'Menor de 18: pai, mãe ou adulto autorizado assina por ele.',
     notUS: 'O destino não parece ser aeroporto dos EUA. A declaração do CDC só vale para voos com destino aos Estados Unidos.',
     depUS: 'A origem é nos EUA. A ordem cobre voos que partem do exterior.',
     roster: 'A bordo (GENDEC)', notOnList: 'Fora da GENDEC', linkTo: 'Vincular a…', signNow: 'Assinar', removeP: 'Tirar da lista',
@@ -29,7 +29,7 @@ const GSTR = {
     gdPrivacy: 'Solo se guardan nombres, función y la marca de menor de 18. Pasaporte y fecha de nacimiento no se almacenan.',
     gdLocal: 'Las fechas de la GENDEC son hora local. Ajuste ETD/ETA en UTC.', createFlight: 'Crear vuelo', applyFlight: 'Aplicar a este vuelo',
     gdNone: 'No se encontró lista de tripulantes ni pasajeros. Se acepta: GENDEC en PDF con texto seleccionable, o CSV (nombre, tipo, función, fecha de nacimiento).',
-    gdReadErr: 'No se pudo leer este archivo.', minor: 'menor de 18', minorHint: 'Menor de 18: padre, madre o adulto autorizado firma en su nombre.',
+    gdReadErr: 'No se pudo leer este archivo.', gdNoText: 'Este PDF no tiene texto seleccionable (escaneado o imagen). Genere la GENDEC en PDF desde el sistema de origen, o use CSV.', gdLayout: 'Este modelo de GENDEC no fue reconocido. Envíelo a ops@lraviation.com.br para incluirlo, o use CSV (nombre, tipo, función, fecha de nacimiento).', minor: 'menor de 18', minorHint: 'Menor de 18: padre, madre o adulto autorizado firma en su nombre.',
     notUS: 'El destino no parece un aeropuerto de EE. UU. La declaración del CDC aplica solo a vuelos hacia Estados Unidos.',
     depUS: 'El origen está en EE. UU. La orden cubre vuelos que salen del extranjero.',
     roster: 'A bordo (GENDEC)', notOnList: 'Fuera de la GENDEC', linkTo: 'Vincular a…', signNow: 'Firmar', removeP: 'Quitar de la lista',
@@ -73,7 +73,21 @@ function loadPdfJs() {
   return _pdfjs;
 }
 
+function loadMainThreadWorker() {
+  return new Promise((res, rej) => {
+    if (window.pdfjsWorker) return res();
+    const s = document.createElement('script'); s.src = 'vendor/pdf.worker.min.js';
+    s.onload = () => res(); s.onerror = () => rej(new Error('pdf.worker'));
+    document.head.appendChild(s);
+  });
+}
 async function pdfLines(buf) {
+  let lines = [];
+  try { lines = await pdfLinesOnce(buf.slice(0)); } catch (e) { console.warn('pdf.js worker failed, retrying on main thread', e); }
+  if (!lines.length) { await loadMainThreadWorker(); lines = await pdfLinesOnce(buf.slice(0)); }
+  return lines;
+}
+async function pdfLinesOnce(buf) {
   const pdfjs = await loadPdfJs();
   const doc = await pdfjs.getDocument({ data: new Uint8Array(buf), isEvalSupported: false }).promise;
   const lines = [];
@@ -142,7 +156,34 @@ function parseGendecLines(lines) {
     }
   });
   out.people.forEach(p => delete p._sec);
+  if (!out.people.length) textFallback(lines, out);
   return out;
+}
+
+/* fallback: read rows from the plain text of each line (no column geometry) */
+function textFallback(lines, out) {
+  const DATE = /\b(\d{1,2})\s*([A-Za-z]{3,4})\.?\s*(\d{4})\b/g;
+  const RANK = '(PIC|SIC|CPT|CAPT|CMD|CDR|FO|F\\/O|COP|FA|FM|CA|MEC|FE|TCP|CC|PURSER|CREW|ENG)';
+  const crewRe = new RegExp('^([A-ZÀ-Ü][A-ZÀ-Ü\' .\\-]+?)\\s+' + RANK + '\\s+([A-Z]{3})\\b', 'i');
+  const paxRe = /^([A-ZÀ-Ü][A-ZÀ-Ü' .\-]+?)\s+([A-Z]{3})\s+\d{1,2}\s*[A-Za-z]{3,4}\.?\s*\d{4}\b/;
+  let section = 'crew';
+  const ref = out.depDate || new Date();
+  for (const L of lines) {
+    const txt = L.text.replace(/\s+/g, ' ').trim();
+    if (/PASSENGER|PASSAGEIRO|PASAJERO/i.test(txt) && !/\d{4}/.test(txt)) { section = 'pax'; continue; }
+    if (/^I declare|DECLARO/i.test(txt)) break;
+    let m = section === 'crew' ? txt.match(crewRe) : null, role = section, rank = '', name = '';
+    if (m) { rank = m[2].toUpperCase(); name = m[1].trim(); }
+    else {
+      m = txt.match(paxRe); if (!m) continue; name = m[1].trim();
+      if (section === 'crew') { const w = name.split(' '); if (w.length > 2 && w[w.length - 1].length <= 4) rank = w.pop(); name = w.join(' '); }
+    }
+    if (!looksLikeName(name) || /^(NAME|NOME|NOMBRE)\b/i.test(name)) continue;
+    const dates = [...txt.matchAll(DATE)].map(d => parseDay(d[0])).filter(Boolean).filter(d => d < ref);
+    const dob = dates.length ? dates.reduce((a, b) => a < b ? a : b) : null;
+    const age = ageOn(dob, ref);
+    out.people.push({ id: uid(), name: name.toUpperCase(), role, rank, minor: age !== null && age < 18, include: true });
+  }
 }
 
 /* ---------- CSV ---------- */
@@ -168,8 +209,14 @@ function parseCSV(text) {
 
 async function readManifestFile(file) {
   const buf = await file.arrayBuffer();
-  const head = new TextDecoder().decode(new Uint8Array(buf.slice(0, 5)));
-  if (head.startsWith('%PDF')) return parseGendecLines(await pdfLines(buf));
+  const head = new TextDecoder('latin1').decode(new Uint8Array(buf.slice(0, 1024)));
+  if (head.includes('%PDF') || /\.pdf$/i.test(file.name) || file.type === 'application/pdf') {
+    const lines = await pdfLines(buf);
+    const gd = parseGendecLines(lines);
+    if (!lines.length) gd.why = 'noText';
+    else if (!gd.people.length) gd.why = 'layout';
+    return gd;
+  }
   return parseCSV(new TextDecoder().decode(new Uint8Array(buf))) || { people: [] };
 }
 

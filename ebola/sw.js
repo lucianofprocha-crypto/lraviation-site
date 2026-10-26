@@ -1,5 +1,5 @@
 /* LR Aviation · US Ebola Attestation — offline cache */
-const CACHE = 'lr-ebola-v1.1.0';
+const CACHE = 'lr-ebola-v1.1.2';
 const ASSETS = ['./', 'index.html', 'app.js', 'i18n.js', 'manifest.webmanifest', 'cdc-attestation-form.pdf',
   'gendec.js', 'vendor/pdf-lib.min.js', 'vendor/pdf.min.js', 'vendor/pdf.worker.min.js', 'vendor/jsQR.js', 'vendor/qrcode.js', 'icon-180.png', 'icon-192.png', 'icon-512.png'];
 
