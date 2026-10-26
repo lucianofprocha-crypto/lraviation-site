@@ -1,0 +1,190 @@
+/* LR Aviation · US Ebola Attestation — UI strings and attestation texts
+   ATTEST.en  = text of CDC Order Attachment A (English controls).
+   ATTEST.pt / ATTEST.es = unofficial translations for passenger reference only. */
+'use strict';
+
+const ATTEST = {
+  // Verbatim from CDC Order, Attachment A (OMB 0920-1474, exp. 03/31/2027). English text controls.
+  en: {
+    title: 'Passenger Disclosure and Attestation to the United States of America',
+    lead: 'All airlines or other aircraft operators covered by the Order must provide the following disclosure to their passengers and confirm completion of the attestation prior to embarkation.',
+    readPre: 'I', readPost: '[name of passenger or authorized representative] have read the following disclosure pertaining to not having been present in the Democratic Republic of the Congo in the past 21 days. Presence in the Democratic Republic of the Congo means any physical presence, including entering or traveling through the country by air (excluding overflights), land, or sea. Presence also includes connecting through an airport in the Democratic Republic of the Congo, even if the passenger did not disembark the plane or leave the airport.',
+    checkOne: 'Check exactly one of the options below:',
+    opt1: 'I attest that I have not been present in the Democratic Republic of the Congo in the past 21 days prior to boarding a flight to the United States.',
+    opt2: 'On behalf of [name of passenger], for whom I am authorized to act because such person is unable to act on their own behalf by reason of age, or physical or mental impairment ([specify relationship to passenger]) I attest that such person has not been present in the Democratic Republic of the Congo in the past 21 days preceding boarding a flight to the United States.',
+    truth: 'I attest that I have responded truthfully and understand that willfully providing false or misleading information may lead to criminal fines and imprisonment under 18 U.S.C. § 1001, and that I may be subject to criminal penalties under 42 U.S.C. § 271 and 42 C.F.R. §71.2, in conjunction with 18 U.S.C. §§ 3559 and 3571 for failure to comply with these requirements.',
+    more: [
+      'AIRLINE AND AIRCRAFT OPERATOR DISCLOSURE REQUIREMENT: As required by United States federal law, all airlines or other aircraft operators must, for all passengers on flights departing for the United States from a foreign country, collect and retain for at least 42 days a completed passenger attestation on behalf of the U.S. Centers for Disease Control and Prevention (CDC) and provide the attestation to the U.S. Government upon request. All airlines or other aircraft operators must not board any passenger who has failed to complete and present such an attestation.',
+      'Each individual must provide a separate attestation. Unless otherwise permitted by law, a parent or other authorized individual should attest on behalf of a passenger under 18 years old. An individual may attest on behalf of another passenger for whom the individual is authorized to submit the required information (for example, immediate family member(s), legal guardian, or travel agent), if that person is unable to attest on his or her own behalf (e.g., because of physical or mental impairment).',
+      'Under United States federal law, each passenger must present either a printed or digital copy of this attestation. The information provided must be accurate and complete to the best of the individual\u2019s knowledge. Failure to provide this attestation, or submitting false or misleading information, could result in delay of travel, denial of boarding, or denial of boarding on future travel. Any passenger who fails to comply with these requirements may be subject to criminal penalties under, among others, 42 U.S.C. § 271 and 42 C.F.R. § 71.2, in conjunction with 18 U.S.C. §§ 3559 and 3571 (providing for fines and/or imprisonment of up to one year). Willfully providing false or misleading information may lead to criminal fines and imprisonment under, among others, 18 U.S.C. § 1001. The U.S. Department of Justice may seek to prosecute individuals who knowingly and willfully submit false attestations in violation of 18 U.S.C. § 1001.',
+      'Translations of this attestation approved by CDC will be made available online. In the event of any inconsistency between the English text of this attestation and any translation, the English text controls.',
+      'PRIVACY ACT STATEMENT: The U.S. Centers for Disease Control and Prevention (CDC) requires airlines and other aircraft operators to collect this information pursuant to 42 C.F.R. §§ 71.20 and 71.31(b), as authorized by 42 U.S.C. § 264. Providing this information is mandatory for all passengers arriving by aircraft into the United States. Failure to provide this information may prevent you from boarding the plane. CDC may use this information to help prevent the introduction, transmission, and spread of communicable diseases by performing contact tracing investigations, notifying exposed individuals and public health authorities, and other appropriate public health interventions, including the implementation of travel restrictions. The Privacy Act of 1974, 5 U.S.C. § 552a, governs the collection and use of this information (CDC System of Records No. 09-20-0171). Questions: dgmhpolicyoffice@cdc.gov.'
+    ],
+    omb: 'OMB Control No. 0920-1474 · Expiration Date 03/31/2027',
+    official: true
+  },
+  pt: {
+    title: 'Declaração e Atestado do Passageiro para os Estados Unidos da América',
+    lead: 'Todas as companhias aéreas e operadores de aeronaves abrangidos pela Ordem devem fornecer este aviso aos passageiros e confirmar o preenchimento do atestado antes do embarque.',
+    readPre: 'Eu', readPost: '[nome do passageiro ou representante autorizado] li o aviso a seguir sobre não ter estado na República Democrática do Congo nos últimos 21 dias. Estar na República Democrática do Congo significa qualquer presença física, inclusive entrar ou passar pelo país por via aérea (exceto sobrevoos), terrestre ou marítima. Inclui também conexão em aeroporto da República Democrática do Congo, mesmo que o passageiro não tenha desembarcado do avião nem saído do aeroporto.',
+    checkOne: 'Marque exatamente uma das opções abaixo:',
+    opt1: 'Atesto que não estive na República Democrática do Congo nos últimos 21 dias antes de embarcar em um voo para os Estados Unidos.',
+    opt2: 'Em nome de [nome do passageiro], por quem estou autorizado a agir porque essa pessoa não pode agir por si devido à idade ou a limitação física ou mental ([relação com o passageiro]), atesto que essa pessoa não esteve na República Democrática do Congo nos últimos 21 dias antes de embarcar em um voo para os Estados Unidos.',
+    truth: 'Atesto que respondi com veracidade e entendo que prestar intencionalmente informação falsa ou enganosa pode resultar em multa e prisão (18 U.S.C. § 1001), e que posso estar sujeito a penalidades criminais (42 U.S.C. § 271 e 42 C.F.R. §71.2, c/c 18 U.S.C. §§ 3559 e 3571) por descumprir estas exigências.',
+    more: [
+      'O operador deve coletar e guardar o atestado por no mínimo 42 dias e entregá-lo ao governo dos EUA quando solicitado. Passageiro sem atestado não pode embarcar.',
+      'Cada pessoa faz um atestado próprio. Pai, mãe ou responsável atesta por menor de 18 anos. Um familiar, tutor legal ou agente de viagem autorizado pode atestar por passageiro incapaz de fazê-lo (por exemplo, por limitação física ou mental).',
+      'Privacidade: o CDC exige estas informações (42 C.F.R. §§ 71.20 e 71.31(b); 42 U.S.C. § 264). O preenchimento é obrigatório e a recusa pode impedir o embarque. O CDC usa os dados para saúde pública, como rastreamento de contatos.'
+    ],
+    omb: 'Tradução não oficial — em caso de divergência, prevalece o texto em inglês.',
+    official: false
+  },
+  es: {
+    title: 'Declaración y Atestación del Pasajero a los Estados Unidos de América',
+    lead: 'Todas las aerolíneas y operadores de aeronaves alcanzados por la Orden deben entregar este aviso a sus pasajeros y confirmar que la atestación esté completa antes del embarque.',
+    readPre: 'Yo', readPost: '[nombre del pasajero o representante autorizado] he leído el siguiente aviso sobre no haber estado en la República Democrática del Congo en los últimos 21 días. Estar en la República Democrática del Congo significa cualquier presencia física, incluido entrar o transitar por el país por vía aérea (excepto sobrevuelos), terrestre o marítima. También incluye hacer conexión en un aeropuerto de la República Democrática del Congo, aunque el pasajero no haya desembarcado del avión ni salido del aeropuerto.',
+    checkOne: 'Marque exactamente una de las opciones:',
+    opt1: 'Atesto que no he estado en la República Democrática del Congo en los últimos 21 días antes de abordar un vuelo a los Estados Unidos.',
+    opt2: 'En nombre de [nombre del pasajero], por quien estoy autorizado a actuar porque esa persona no puede actuar por sí misma por edad o limitación física o mental ([relación con el pasajero]), atesto que esa persona no ha estado en la República Democrática del Congo en los últimos 21 días antes de abordar un vuelo a los Estados Unidos.',
+    truth: 'Atesto que he respondido con veracidad y entiendo que proporcionar intencionalmente información falsa o engañosa puede acarrear multas y prisión (18 U.S.C. § 1001), y que puedo estar sujeto a sanciones penales (42 U.S.C. § 271 y 42 C.F.R. §71.2, junto con 18 U.S.C. §§ 3559 y 3571) por incumplir estos requisitos.',
+    more: [
+      'El operador debe recopilar y conservar la atestación al menos 42 días y entregarla al gobierno de EE. UU. si la solicita. Un pasajero sin atestación no puede embarcar.',
+      'Cada persona presenta su propia atestación. Un padre, madre o persona autorizada atesta por un menor de 18 años. Un familiar, tutor legal o agente de viajes autorizado puede atestar por un pasajero que no pueda hacerlo (por ejemplo, por limitación física o mental).',
+      'Privacidad: el CDC exige esta información (42 C.F.R. §§ 71.20 y 71.31(b); 42 U.S.C. § 264). Es obligatoria y negarse puede impedir el embarque. El CDC usa los datos con fines de salud pública, como el rastreo de contactos.'
+    ],
+    omb: 'Traducción no oficial — ante cualquier diferencia, prevalece el texto en inglés.',
+    official: false
+  }
+};
+
+const UI = {
+  en: {
+    appName: 'US Ebola Attestation',
+    tagline: 'CDC passenger attestation for US-bound flights · offline',
+    flights: 'Flights', settings: 'Settings', about: 'About',
+    newFlight: 'New flight', noFlights: 'No flights yet. Create one for each leg departing to the US.',
+    reg: 'Registration', callsign: 'Callsign / Flight no.', operator: 'Operator',
+    dep: 'Departure (last foreign airport)', arr: 'Arrival (US)', etd: 'ETD (UTC)', eta: 'ETA (UTC)',
+    save: 'Save', cancel: 'Cancel', del: 'Delete', edit: 'Edit', back: 'Back', close: 'Close',
+    passengers: 'Passengers', addPax: 'Sign on this device', scanQR: 'Import QR', importFile: 'Import file',
+    sendLink: 'Passenger link', exportPDF: 'Export PDF', exportJSON: 'Backup (JSON)', restore: 'Restore backup',
+    keepUntil: 'Keep until', expired: 'Retention ended — may be deleted',
+    ready: 'All passengers attested — ready for boarding', notReady: 'Do not board anyone (passengers or crew) without an attestation',
+    pending: 'pending', signed: 'attested',
+    paxCount: 'Expected passengers', attested: 'Attested',
+    name: 'Passenger full name', repName: 'Name of person signing (representative)', relation: 'Relationship to passenger',
+    whoSigns: 'Who is signing?', self: 'The passenger', rep: 'Authorized representative (minor / impaired)',
+    sign: 'Sign below with your finger', clear: 'Clear', confirm: 'Confirm attestation',
+    readFirst: 'Read the disclosure, then attest.', textLang: 'Text',
+    officialNote: 'Official English text (controls).', unofficialNote: 'Unofficial translation for reference. The English text controls.',
+    needName: 'Enter the passenger name.', needSig: 'Signature required.', needRep: 'Enter representative name and relationship.',
+    savedOK: 'Attestation recorded.', handBack: 'Please hand the device back to the crew.',
+    paxModeTitle: 'Pre-fill your attestation', paxModeIntro: 'Fill in and sign. Nothing is sent anywhere: the app makes a QR code (and a file) that you show or send to the aircraft operator.',
+    generate: 'Generate QR', showQR: 'Show this QR to the crew or send the file.', shareFile: 'Send file', newOne: 'Next passenger',
+    linkTitle: 'Passenger self-service link', linkIntro: 'Passengers open this link on their own phone, fill and sign, then show the QR at boarding or send you the file.',
+    copy: 'Copy link', copied: 'Copied',
+    scanning: 'Point the camera at the passenger QR', camErr: 'Camera not available. Use "Import file".',
+    imported: 'Imported', dup: 'Already in this flight', badQR: 'Not a valid attestation code',
+    checklist: 'Before departure', ck1: 'Every passenger has an attestation', ck2: 'PDF exported and archived', ck3: 'Manifest matches attestations',
+    confirmDelFlight: 'Delete this flight and all its attestations from this device?',
+    confirmDelPax: 'Delete this attestation?',
+    settingsOperator: 'Default operator', settingsReg: 'Default registration', language: 'Language',
+    storage: 'Storage', persistOK: 'Persistent storage granted.', persistNo: 'Storage may be cleared by the browser. Install to Home Screen and export PDFs/backups.',
+    install: 'Install: Safari → Share → Add to Home Screen.',
+    method: 'Method', mDevice: 'signed on operator device', mQR: 'QR from passenger device', mFile: 'file from passenger device',
+    signedAt: 'Signed (UTC)', record: 'Record',
+    aboutText: [
+      'Free tool by LR Aviation for operators of all sizes to comply with the CDC Ebola attestation order for flights departing a foreign country to the United States (effective for departures at or after 3 Nov 2026 23:59 EST / 4 Nov 04:59 UTC).',
+      'All data stays on this device (IndexedDB). Nothing is uploaded. Export a PDF per flight and keep it at least 42 days after arrival in the US; provide it to the US Government on request.',
+      'Not affiliated with or endorsed by CDC or any government. The operator remains responsible for compliance. Check the CDC page for the current form and instructions.',
+      'Attestations must NOT be sent through APIS.'
+    ],
+    cdcLink: 'CDC — Ebola attestation order'
+  },
+  pt: {
+    appName: 'Declaração Ebola EUA',
+    tagline: 'Declaração CDC de passageiros para voos aos EUA · offline',
+    flights: 'Voos', settings: 'Ajustes', about: 'Sobre',
+    newFlight: 'Novo voo', noFlights: 'Nenhum voo. Crie um para cada perna com destino aos EUA.',
+    reg: 'Matrícula', callsign: 'Callsign / Nº do voo', operator: 'Operador',
+    dep: 'Origem (último aeroporto estrangeiro)', arr: 'Destino (EUA)', etd: 'ETD (UTC)', eta: 'ETA (UTC)',
+    save: 'Salvar', cancel: 'Cancelar', del: 'Excluir', edit: 'Editar', back: 'Voltar', close: 'Fechar',
+    passengers: 'Passageiros', addPax: 'Assinar neste aparelho', scanQR: 'Ler QR', importFile: 'Importar arquivo',
+    sendLink: 'Link do passageiro', exportPDF: 'Exportar PDF', exportJSON: 'Backup (JSON)', restore: 'Restaurar backup',
+    keepUntil: 'Guardar até', expired: 'Retenção encerrada — pode excluir',
+    ready: 'Todos os passageiros declararam — pronto para embarque', notReady: 'Ninguém embarca (passageiro ou tripulante) sem declaração',
+    pending: 'pendente', signed: 'declarado',
+    paxCount: 'Passageiros previstos', attested: 'Declarados',
+    name: 'Nome completo do passageiro', repName: 'Nome de quem assina (representante)', relation: 'Relação com o passageiro',
+    whoSigns: 'Quem assina?', self: 'O próprio passageiro', rep: 'Representante autorizado (menor / incapaz)',
+    sign: 'Assine abaixo com o dedo', clear: 'Limpar', confirm: 'Confirmar declaração',
+    readFirst: 'Leia o aviso e depois declare.', textLang: 'Texto',
+    officialNote: 'Texto oficial em inglês (prevalece).', unofficialNote: 'Tradução não oficial, só para referência. O texto em inglês prevalece.',
+    needName: 'Informe o nome do passageiro.', needSig: 'Assinatura obrigatória.', needRep: 'Informe nome do representante e relação.',
+    savedOK: 'Declaração registrada.', handBack: 'Devolva o aparelho à tripulação.',
+    paxModeTitle: 'Preencha sua declaração', paxModeIntro: 'Preencha e assine. Nada é enviado pela internet: o app gera um QR (e um arquivo) para mostrar ou enviar ao operador.',
+    generate: 'Gerar QR', showQR: 'Mostre este QR à tripulação ou envie o arquivo.', shareFile: 'Enviar arquivo', newOne: 'Próximo passageiro',
+    linkTitle: 'Link de autoatendimento', linkIntro: 'O passageiro abre o link no próprio celular, preenche e assina, e mostra o QR no embarque ou envia o arquivo.',
+    copy: 'Copiar link', copied: 'Copiado',
+    scanning: 'Aponte a câmera para o QR do passageiro', camErr: 'Câmera indisponível. Use "Importar arquivo".',
+    imported: 'Importado', dup: 'Já está neste voo', badQR: 'Código de declaração inválido',
+    checklist: 'Antes da partida', ck1: 'Todo passageiro tem declaração', ck2: 'PDF exportado e arquivado', ck3: 'Manifesto confere com as declarações',
+    confirmDelFlight: 'Excluir este voo e todas as declarações deste aparelho?',
+    confirmDelPax: 'Excluir esta declaração?',
+    settingsOperator: 'Operador padrão', settingsReg: 'Matrícula padrão', language: 'Idioma',
+    storage: 'Armazenamento', persistOK: 'Armazenamento persistente concedido.', persistNo: 'O navegador pode apagar os dados. Instale na Tela de Início e exporte PDFs/backups.',
+    install: 'Instalar: Safari → Compartilhar → Adicionar à Tela de Início.',
+    method: 'Método', mDevice: 'assinado no aparelho do operador', mQR: 'QR do aparelho do passageiro', mFile: 'arquivo do aparelho do passageiro',
+    signedAt: 'Assinado (UTC)', record: 'Registro',
+    aboutText: [
+      'Ferramenta gratuita da LR Aviation para operadores de qualquer porte cumprirem a ordem do CDC sobre a declaração de Ebola em voos do exterior para os EUA (vale para decolagens a partir de 3 nov 2026 23h59 EST / 4 nov 04:59 UTC).',
+      'Os dados ficam só neste aparelho (IndexedDB). Nada é enviado. Exporte um PDF por voo e guarde por no mínimo 42 dias após a chegada aos EUA; entregue ao governo americano se solicitado.',
+      'Sem vínculo ou endosso do CDC ou de qualquer governo. O operador continua responsável pelo cumprimento. Confira na página do CDC o formulário e as instruções em vigor.',
+      'As declarações NÃO devem ser enviadas pelo APIS.'
+    ],
+    cdcLink: 'CDC — ordem de declaração de Ebola'
+  },
+  es: {
+    appName: 'Declaración Ébola EE. UU.',
+    tagline: 'Declaración CDC de pasajeros para vuelos a EE. UU. · sin conexión',
+    flights: 'Vuelos', settings: 'Ajustes', about: 'Acerca de',
+    newFlight: 'Nuevo vuelo', noFlights: 'Sin vuelos. Cree uno por cada tramo con destino a EE. UU.',
+    reg: 'Matrícula', callsign: 'Callsign / Nº de vuelo', operator: 'Operador',
+    dep: 'Origen (último aeropuerto extranjero)', arr: 'Destino (EE. UU.)', etd: 'ETD (UTC)', eta: 'ETA (UTC)',
+    save: 'Guardar', cancel: 'Cancelar', del: 'Eliminar', edit: 'Editar', back: 'Volver', close: 'Cerrar',
+    passengers: 'Pasajeros', addPax: 'Firmar en este dispositivo', scanQR: 'Leer QR', importFile: 'Importar archivo',
+    sendLink: 'Enlace del pasajero', exportPDF: 'Exportar PDF', exportJSON: 'Respaldo (JSON)', restore: 'Restaurar respaldo',
+    keepUntil: 'Guardar hasta', expired: 'Retención finalizada — puede eliminarse',
+    ready: 'Todos los pasajeros declararon — listo para embarque', notReady: 'Nadie embarca (pasajero o tripulante) sin declaración',
+    pending: 'pendiente', signed: 'declarado',
+    paxCount: 'Pasajeros previstos', attested: 'Declarados',
+    name: 'Nombre completo del pasajero', repName: 'Nombre de quien firma (representante)', relation: 'Relación con el pasajero',
+    whoSigns: '¿Quién firma?', self: 'El propio pasajero', rep: 'Representante autorizado (menor / incapaz)',
+    sign: 'Firme abajo con el dedo', clear: 'Borrar', confirm: 'Confirmar declaración',
+    readFirst: 'Lea el aviso y luego declare.', textLang: 'Texto',
+    officialNote: 'Texto oficial en inglés (prevalece).', unofficialNote: 'Traducción no oficial, solo de referencia. Prevalece el texto en inglés.',
+    needName: 'Ingrese el nombre del pasajero.', needSig: 'Firma obligatoria.', needRep: 'Ingrese nombre del representante y relación.',
+    savedOK: 'Declaración registrada.', handBack: 'Devuelva el dispositivo a la tripulación.',
+    paxModeTitle: 'Complete su declaración', paxModeIntro: 'Complete y firme. No se envía nada por internet: la app genera un QR (y un archivo) para mostrar o enviar al operador.',
+    generate: 'Generar QR', showQR: 'Muestre este QR a la tripulación o envíe el archivo.', shareFile: 'Enviar archivo', newOne: 'Siguiente pasajero',
+    linkTitle: 'Enlace de autoservicio', linkIntro: 'El pasajero abre el enlace en su teléfono, completa y firma, y muestra el QR al embarcar o envía el archivo.',
+    copy: 'Copiar enlace', copied: 'Copiado',
+    scanning: 'Apunte la cámara al QR del pasajero', camErr: 'Cámara no disponible. Use "Importar archivo".',
+    imported: 'Importado', dup: 'Ya está en este vuelo', badQR: 'Código de declaración no válido',
+    checklist: 'Antes de la salida', ck1: 'Cada pasajero tiene declaración', ck2: 'PDF exportado y archivado', ck3: 'El manifiesto coincide con las declaraciones',
+    confirmDelFlight: '¿Eliminar este vuelo y todas sus declaraciones de este dispositivo?',
+    confirmDelPax: '¿Eliminar esta declaración?',
+    settingsOperator: 'Operador predeterminado', settingsReg: 'Matrícula predeterminada', language: 'Idioma',
+    storage: 'Almacenamiento', persistOK: 'Almacenamiento persistente concedido.', persistNo: 'El navegador puede borrar los datos. Instale en la pantalla de inicio y exporte PDF/respaldos.',
+    install: 'Instalar: Safari → Compartir → Agregar a inicio.',
+    method: 'Método', mDevice: 'firmado en el dispositivo del operador', mQR: 'QR del dispositivo del pasajero', mFile: 'archivo del dispositivo del pasajero',
+    signedAt: 'Firmado (UTC)', record: 'Registro',
+    aboutText: [
+      'Herramienta gratuita de LR Aviation para que operadores de cualquier tamaño cumplan la orden del CDC sobre la declaración de Ébola en vuelos del extranjero a EE. UU. (aplica a salidas desde el 3 nov 2026 23:59 EST / 4 nov 04:59 UTC).',
+      'Los datos quedan solo en este dispositivo (IndexedDB). No se envía nada. Exporte un PDF por vuelo y guárdelo al menos 42 días después de la llegada a EE. UU.; entréguelo al gobierno de EE. UU. si lo solicita.',
+      'Sin vínculo ni respaldo del CDC ni de ningún gobierno. El operador sigue siendo responsable del cumplimiento. Consulte en la página del CDC el formulario e instrucciones vigentes.',
+      'Las declaraciones NO deben enviarse por APIS.'
+    ],
+    cdcLink: 'CDC — orden de declaración de Ébola'
+  }
+};

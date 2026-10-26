@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>US Ebola Attestation · LR Aviation</title>
+<meta name="description" content="Free offline tool for aircraft operators to collect and archive the CDC Ebola passenger attestation for US-bound flights.">
+<meta name="theme-color" content="#0b2a5b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Ebola Attest">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-180.png">
+<style>
+:root{--bg:#f3f5f8;--card:#fff;--ink:#0f1b2d;--muted:#5d6b7e;--line:#dde3ea;--brand:#0b2a5b;--accent:#1f6feb;--ok:#137a3a;--okbg:#e5f5ea;--stop:#b42318;--stopbg:#fdecea;--warn:#9a6700;--warnbg:#fff6dc;--sig:#0b2a5b;--radius:14px}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0c1220;--card:#151d2e;--ink:#e8edf5;--muted:#9aa7ba;--line:#26314a;--brand:#0b2a5b;--accent:#5b9dff;--ok:#5fd28a;--okbg:#10301e;--stop:#ff8a80;--stopbg:#3a1414;--warn:#f2c14e;--warnbg:#332a10;--sig:#0b2a5b;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0c1220;--card:#151d2e;--ink:#e8edf5;--muted:#9aa7ba;--line:#26314a;--brand:#0b2a5b;--accent:#5b9dff;--ok:#5fd28a;--okbg:#10301e;--stop:#ff8a80;--stopbg:#3a1414;--warn:#f2c14e;--warnbg:#332a10;--sig:#0b2a5b;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-text-size-adjust:100%}
+header{position:sticky;top:0;z-index:5;background:var(--brand);color:#fff;padding:calc(env(safe-area-inset-top) + 10px) 16px 10px;display:flex;align-items:center;gap:12px}
+header .logo{font-weight:800;letter-spacing:.04em;font-size:13px;opacity:.85}
+header #appname{font-weight:700;font-size:17px}
+header #crumb{font-size:13px;opacity:.75;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+header .sp{flex:1;min-width:0;display:flex;flex-direction:column}
+header select{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:8px;padding:6px 8px;font-size:14px}
+nav#tabs{display:flex;gap:4px;padding:8px 12px;background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:calc(env(safe-area-inset-top) + 58px);z-index:4;overflow-x:auto}
+nav#tabs a{padding:8px 12px;border-radius:10px;color:var(--muted);text-decoration:none;font-weight:600;font-size:15px;white-space:nowrap}
+nav#tabs a.on{background:var(--bg);color:var(--ink)}
+main{max-width:860px;margin:0 auto;padding:16px 16px calc(env(safe-area-inset-bottom) + 40px)}
+h1{font-size:24px;margin:0 0 6px}h2{font-size:19px;margin:0 0 10px}h3{font-size:16px;margin:18px 0 8px}
+.hero{padding:6px 2px 14px}.hero p{margin:4px 0;color:var(--muted)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin:12px 0}
+.card.muted,.muted{color:var(--muted)}
+.card.warn{background:var(--warnbg);color:var(--warn);border-color:transparent}
+.small{font-size:13px}.mono{font-family:ui-monospace,Menlo,monospace;font-size:13px;word-break:break-all}
+.row{display:flex;align-items:center}.gap{gap:10px}.wrap{flex-wrap:wrap}.between{justify-content:space-between;gap:10px}.center{justify-content:center;text-align:center}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 16px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:inherit;font-weight:600;text-decoration:none;cursor:pointer;min-height:44px}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.danger{color:var(--stop)}.btn.ghost{background:transparent;border-color:transparent;color:var(--muted)}
+.btn.small{padding:6px 12px;min-height:36px;font-size:14px}.btn.big{min-height:52px;padding:12px 18px}
+.btn.full{width:100%}.btn[disabled]{opacity:.45;pointer-events:none}
+.list{display:flex;flex-direction:column;gap:8px;margin:12px 0}
+.item{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:12px 14px;color:inherit;text-decoration:none}
+.item-main{flex:1;min-width:0}.item-side{display:flex;flex-direction:column;align-items:flex-end;gap:4px;text-align:right}
+.route{font-weight:800;font-size:18px;letter-spacing:.02em}.route.big{font-size:26px}.arrow{color:var(--accent)}
+.sub{color:var(--muted);font-size:14px}.name{font-weight:700}
+.pill{font-size:12px;font-weight:700;padding:3px 9px;border-radius:99px}
+.pill.ok{background:var(--okbg);color:var(--ok)}.pill.pend{background:var(--warnbg);color:var(--warn)}
+.expired{color:var(--stop);font-weight:700}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:12px 0;font-size:15px}.kv span{color:var(--muted)}
+.banner{display:flex;align-items:center;gap:10px;justify-content:space-between;border-radius:var(--radius);padding:14px 16px;font-weight:700;margin:12px 0}
+.banner.neutral{background:var(--warnbg);color:var(--warn);font-weight:600;font-size:15px}.banner.ok{background:var(--okbg);color:var(--ok)}.banner.stop{background:var(--stopbg);color:var(--stop)}
+.banner .count{font-size:22px}.banner .small-count{font-size:14px;text-align:right;white-space:nowrap}
+.seg{display:flex;gap:8px;flex-wrap:wrap}.seg label{flex:1 1 140px;margin:0!important;position:relative}.seg input{position:absolute;opacity:0}.seg span{display:block;text-align:center;padding:12px;border:1px solid var(--line);border-radius:12px;font-weight:700;color:var(--ink);cursor:pointer}.seg input:checked+span{background:var(--brand);border-color:var(--brand);color:#fff}.seg input:focus-visible+span{outline:2px solid var(--accent);outline-offset:2px}
+.actions .btn{flex:1 1 200px}
+.sigthumb{width:84px;height:28px;background:#fff;border-radius:6px;border:1px solid var(--line);flex:none}
+.form label{display:block;font-size:14px;color:var(--muted);margin:10px 0}
+.form input:not([type=radio]):not([type=checkbox]){display:block;width:100%;margin-top:4px;padding:11px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit;font-size:16px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
+@media (max-width:520px){.grid2{grid-template-columns:1fr}}
+.check{display:flex;gap:10px;align-items:center;padding:8px 0;font-size:15px}.check input{width:22px;height:22px}
+.chips{display:inline-flex;gap:6px;margin-top:6px}
+.chip{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:99px;padding:6px 12px;font-weight:700;font-size:13px;cursor:pointer;min-height:34px}
+.chip.on{background:var(--brand);border-color:var(--brand);color:#fff}
+.attest p{margin:8px 0}.doc-title{text-transform:uppercase;letter-spacing:.03em;color:var(--accent);font-size:17px}
+.note{font-size:13px;font-weight:700;padding:6px 10px;border-radius:8px;display:inline-block}
+.note.official{background:var(--okbg);color:var(--ok)}.note.unofficial{background:var(--warnbg);color:var(--warn)}
+details summary{cursor:pointer;color:var(--accent);font-weight:600;font-size:14px;padding:6px 0}
+fieldset.opts{border:0;padding:0;margin:0}fieldset.opts legend{font-weight:700;margin-bottom:8px}
+.opt{display:flex!important;gap:12px;align-items:flex-start;padding:12px;border:1px solid var(--line);border-radius:12px;margin:8px 0!important;color:var(--ink)!important;font-size:14px!important}
+.opt[hidden]{display:none!important}.opt input{width:22px;height:22px;margin-top:2px;flex:none}
+.opt:has(input:checked){border-color:var(--accent);box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 25%,transparent)}
+.sigpad{display:block;width:100%;aspect-ratio:3/1;background:#fff;color:var(--sig);border:2px dashed var(--line);border-radius:12px;touch-action:none;margin:6px 0;cursor:crosshair}
+.qr{background:#fff;padding:12px;border-radius:12px;display:inline-block;width:min(340px,100%)}.qr svg{width:100%;height:auto;display:block}
+.scanbox{position:relative;width:min(420px,100%);margin:10px auto;aspect-ratio:1;border-radius:14px;overflow:hidden;background:#000}
+.scanbox video{width:100%;height:100%;object-fit:cover}
+.reticle{position:absolute;inset:14%;border:3px solid rgba(255,255,255,.85);border-radius:16px}
+.tag{display:inline-block;font-size:11px;font-weight:700;padding:2px 7px;border-radius:6px;background:var(--bg);color:var(--muted);border:1px solid var(--line);vertical-align:middle}.tag.warn{background:var(--warnbg);color:var(--warn);border-color:transparent}
+.sigthumb.empty{display:block;border-style:dashed;background:transparent}
+.item.todo{border-style:dashed}
+.linksel{margin-top:6px;padding:6px 8px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit;font-size:14px;max-width:100%}
+.tablewrap{overflow-x:auto;margin:12px 0}.gdt{width:100%;border-collapse:collapse;font-size:14px}.gdt th{text-align:left;color:var(--muted);font-weight:600;padding:6px;border-bottom:1px solid var(--line)}.gdt td{padding:6px;border-bottom:1px solid var(--line);vertical-align:middle}.gdt td.nm{font-weight:700}.gdt select{padding:5px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit;font-size:13px}.gdt input{width:20px;height:20px}
+.who .name{font-size:18px}
+.okc{color:var(--ok)}.warnc{color:var(--warn)}
+#overlay{position:fixed;inset:0;background:rgba(5,10,20,.6);display:flex;align-items:center;justify-content:center;z-index:20;padding:16px}
+#overlay[hidden]{display:none}
+.ov-card{background:var(--card);border-radius:18px;padding:28px 22px;max-width:420px;width:100%;text-align:center}
+.big-ok{font-size:64px;color:var(--ok);line-height:1}
+#toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 24px);transform:translateX(-50%) translateY(120px);background:#111c2e;color:#fff;padding:12px 18px;border-radius:12px;font-weight:600;transition:transform .25s;z-index:30;max-width:90vw}
+#toast.show{transform:translateX(-50%) translateY(0)}
+body.paxmode nav#tabs{display:none}
+a{color:var(--accent)}
+</style>
+</head>
+<body>
+<header>
+  <div class="sp"><span class="logo">LR AVIATION</span><span id="appname">US Ebola Attestation</span><span id="crumb"></span></div>
+  <select id="hdrlang" aria-label="Language"></select>
+</header>
+<nav id="tabs"></nav>
+<main id="view"></main>
+<div id="overlay" hidden></div>
+<div id="toast" role="status" aria-live="polite"></div>
+<noscript>JavaScript is required.</noscript>
+<script src="vendor/pdf-lib.min.js"></script>
+<script src="vendor/jsQR.js"></script>
+<script src="vendor/qrcode.js"></script>
+<script src="i18n.js"></script>
+<script src="gendec.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
