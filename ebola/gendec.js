@@ -133,21 +133,40 @@ function parseGendecLines(lines) {
     arrDate: parseDay(grab(/ARRIVAL DATE\s*:\s*(\d{1,2}[\s\-\/.]*[A-Za-z]{3,}\.?[\s\-\/.]*\d{4}|\d{4}-\d{2}-\d{2}|\d{1,2}[\/.]\d{1,2}[\/.]\d{4})/i)),
     people: []
   };
+  // header laid out as a table: a row of labels (DATE / FROM / TO / REGISTRATION…) with the values on the next line
+  for (let i = 0; i < Math.min(lines.length - 1, 40); i++) {
+    const labs = lines[i].items.filter(it => /^(DATE|FROM|TO|ORIGIN|DESTINATION|DEP(ARTURE)?|ARR(IVAL)?|REG(ISTRATION)?|AIRCRAFT|TAIL|FLIGHT|CALLSIGN)$/i.test(it.s));
+    if (labs.length < 2) continue;
+    const next = lines[i + 1];
+    for (const lab of labs) {
+      const cx = lab.x + lab.w / 2;
+      const val = next.items.reduce((b, it) => Math.abs(it.x + it.w / 2 - cx) < Math.abs(b.x + b.w / 2 - cx) ? it : b, next.items[0]);
+      if (Math.abs(val.x + val.w / 2 - cx) > 120) continue;
+      const L = lab.s.toUpperCase(), v = val.s.trim();
+      if (/^(FROM|ORIGIN|DEP)/.test(L) && !out.dep && /^[A-Z]{4}\b/i.test(v)) out.dep = v.slice(0, 4).toUpperCase();
+      else if (/^(TO|DESTINATION|ARR)/.test(L) && !out.arr && /^[A-Z]{4}\b/i.test(v)) out.arr = v.slice(0, 4).toUpperCase();
+      else if (L === 'DATE' && !out.depDate) out.depDate = parseDay(v);
+      else if (/^(REG|AIRCRAFT|TAIL)/.test(L) && !out.reg && /^[A-Z0-9\-]{4,8}$/i.test(v)) out.reg = v.toUpperCase();
+      else if (/^(FLIGHT|CALLSIGN)/.test(L) && !out.callsign) out.callsign = v.toUpperCase();
+    }
+    break;
+  }
   if (out.reg && !out.reg.includes('-') && /^[A-Z]{2}[A-Z]{3}$/.test(out.reg) && /^(P[PRSTU])/.test(out.reg)) out.reg = out.reg.slice(0, 2) + '-' + out.reg.slice(2); // Brazilian marks
 
   // table headers: a line holding a NAME column and at least two other column labels
   const headerIdx = [];
   lines.forEach((l, i) => {
     const hasName = l.items.some(it => /^(FULL\s+)?(NAME|NOME|NOMBRE|SURNAME)/i.test(it.s));
-    const others = l.items.filter(it => /RANK|NAT|EXP|PASS|DOB|BIRTH|LICEN|FUN[CÇ]|GENDER|SEX/i.test(it.s)).length;
-    if (hasName && others >= 2) headerIdx.push(i);
+    const others = l.items.filter(it => /RANK|ROLE|NAT|EXP|PASS|DOB|BIRTH|LICEN|FUN[CÇ]|GENDER|SEX|POSITION|DUTY/i.test(it.s)).length;
+    const titled = /\b(CREW|TRIPULA\w*|PASSENGERS?|PASSAGEIROS?|PASAJEROS?)\b/i.test(lines.slice(Math.max(0, i - 2), i).map(x => x.text).join(' '));
+    if (hasName && (others >= 2 || (others >= 1 && titled))) headerIdx.push(i);
   });
   headerIdx.forEach((hi, k) => {
     const H = lines[hi];
     const cols = H.items.map(it => ({ label: it.s.toUpperCase(), cx: it.x + it.w / 2 }));
     const colOf = it => { const cx = it.x + it.w / 2; let best = 0, bd = 1e9; cols.forEach((c, j) => { const d = Math.abs(c.cx - cx); if (d < bd) { bd = d; best = j; } }); return best; };
     const iName = cols.findIndex(c => /NAME|NOME|NOMBRE/.test(c.label));
-    const iRank = cols.findIndex(c => /RANK|FUN[CÇ]|POSITION|DUTY/.test(c.label));
+    const iRank = cols.findIndex(c => /RANK|ROLE|FUN[CÇ]|POSITION|DUTY/.test(c.label));
     const iDob = cols.findIndex(c => /DOB|BIRTH|NASC/.test(c.label));
     // section role: header with a rank/function column = crew; also check title lines just above
     const above = lines.slice(Math.max(0, hi - 3), hi).map(l => l.text.toUpperCase()).join(' ');

@@ -2,7 +2,7 @@
    All data stays on the device (IndexedDB). No network calls except loading the app itself. */
 'use strict';
 
-const APP_VERSION = '1.2.0';
+const APP_VERSION = '1.3.0';
 const RETENTION_DAYS = 42;
 const QR_PREFIX = 'LRAE1.';
 const QR_PREFIX_RAW = 'LRAE0.';
